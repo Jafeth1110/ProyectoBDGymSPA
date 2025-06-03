@@ -1,0 +1,48 @@
+<div class="container mt-4">
+  <h2 class="mb-3">Lista de Usuarios</h2>
+
+  <div class="input-group mb-3">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Buscar por correo electrónico..."
+      [(ngModel)]="searchQuery"
+    />
+    <button class="btn btn-info" (click)="searchAndNavigate()">Buscar</button>
+  </div>
+
+  <button class="btn btn-primary mb-3" (click)="navigateToAddUser()">Agregar Usuario</button>
+
+  <div *ngIf="users.length === 0">
+    <p>No hay usuarios para mostrar.</p>
+  </div>
+
+  <table class="table table-bordered table-striped" *ngIf="users.length > 0">
+    <thead class="table-dark">
+      <tr>
+        <th>Nombre de Usuario</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Cédula</th>
+        <th>Correo</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.idUsuario }}</td>
+        <td>{{ user.nombre }}</td>
+        <td>{{ user.apellido }}</td>
+        <td>{{ user.cedula }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.rol }}</td>
+        <td>
+          <button class="btn btn-info btn-sm me-2" (click)="navigateToShow(user.email)">Ver</button>
+          <button class="btn btn-warning btn-sm me-2" (click)="navigateToUpdate(user.email)">Editar</button>
+          <button class="btn btn-danger btn-sm" (click)="confirmDelete(user.email)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
