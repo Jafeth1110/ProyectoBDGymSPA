@@ -8,10 +8,10 @@ import { Observable } from "rxjs";
   providedIn: 'root'
 })
 export class UserService {
-  private urlAPI: string;
+   private urlAPI: string;
 
   constructor(private _http: HttpClient) {
-    this.urlAPI = server.url;
+    this.urlAPI = server.url + 'user/';
   }
 
   login(user: User): Observable<any> {
@@ -35,89 +35,23 @@ export class UserService {
     let options = { headers };
     return this._http.get(this.urlAPI + 'user/getidentity', options);
   }
-
-  store(user: User): Observable<any> {
-    let userJson = JSON.stringify(user);
-    let params = 'data=' + userJson;
-    let headers;
-    let bearerToken = sessionStorage.getItem('token');
-    if (bearerToken) {
-      headers = new HttpHeaders()
-        .set('Content-Type', 'application/x-www-form-urlencoded')
-        .set('bearertoken', bearerToken);
-    } else {
-      headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    }
-    let options = { headers };
-    return this._http.post(this.urlAPI + 'user/add', params, options);
-  }
-
-  create(user: User): Observable<any> {
-  const userJson = JSON.stringify(user);
-  const body = 'data=' + encodeURIComponent(userJson); // IMPORTANTE codificar
-
-  const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-
-  return this._http.post(this.urlAPI + 'user/signup', body, { headers });
-  }
-
-
-
-  updateUser(email: string, user: User): Observable<any> {
-    let userJson = JSON.stringify(user);
-    let params = 'data=' + userJson;
-    let headers;
-    let bearerToken = sessionStorage.getItem('token');
-    if (bearerToken) {
-      headers = new HttpHeaders()
-        .set('Content-Type', 'application/x-www-form-urlencoded')
-        .set('bearertoken', bearerToken);
-    } else {
-      headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    }
-    let options = { headers };
-    return this._http.put(this.urlAPI + 'user/updateUser/' + email, params, options);
-  }
-
-  show(email: string): Observable<any> {
-    let headers;
-    let bearerToken = sessionStorage.getItem('token');
-    if (bearerToken) {
-      headers = new HttpHeaders()
-        .set('Content-Type', 'application/x-www-form-urlencoded')
-        .set('bearertoken', bearerToken);
-    } else {
-      headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    }
-    let options = { headers };
-    return this._http.get(this.urlAPI + 'user/getUser/' + email, options);
+ store(user: User): Observable<any> {
+    // En lugar de armar 'data=' + JSON.stringify(user), enviamos body JSON.
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    return this._http.post(this.urlAPI + 'add', user, { headers });
   }
 
   getUsers(): Observable<any> {
-    let headers;
-    let bearerToken = sessionStorage.getItem('token');
-    if (bearerToken) {
-      headers = new HttpHeaders()
-        .set('Content-Type', 'application/x-www-form-urlencoded')
-        .set('bearertoken', bearerToken);
-    } else {
-      headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    }
-    let options = { headers };
-    return this._http.get(this.urlAPI + 'user/getUsers', options);
+    return this._http.get(this.urlAPI + 'getUsers');
   }
 
-  destroyUser(email: string): Observable<any> {
-    let headers;
-    let bearerToken = sessionStorage.getItem('token');
-    if (bearerToken) {
-      headers = new HttpHeaders()
-        .set('Content-Type', 'application/x-www-form-urlencoded')
-        .set('bearertoken', bearerToken);
-    } else {
-      headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    }
-    let options = { headers };
-    return this._http.delete(this.urlAPI + 'user/destroyUser/' + email, options);
+  deleteUser(idUsuario: number): Observable<any> {
+    return this._http.delete(this.urlAPI + 'deleteUser/' + idUsuario);
   }
+
+  // Si quieres buscar por ID:
+  showById(idUsuario: number): Observable<any> {
+    return this._http.get(this.urlAPI + 'getUser/' + idUsuario);
+  }
+
 }

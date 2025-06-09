@@ -1,19 +1,16 @@
+// src/app/app.component.ts
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
   title = 'gym-spa';
   public identity: any;
 
-  constructor(private router: Router) {
+  constructor() {
     this.loadIdentity();
   }
 
@@ -33,6 +30,5 @@ export class AppComponent {
     sessionStorage.removeItem('identity');
     sessionStorage.removeItem('token');
     this.identity = null;
-    this.router.navigate(['']);
   }
 }
