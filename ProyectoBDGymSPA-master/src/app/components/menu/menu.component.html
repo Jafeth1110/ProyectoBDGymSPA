@@ -1,0 +1,11 @@
+<header class="navbar">
+  <div class="navbar-brand">
+    <span class="logo">GymSpa</span>
+    <button class="menu-toggle" (click)="toggleMenu()">☰</button>
+  </div>
+  <nav [class.open]="isMenuOpen">
+    <a routerLink="/usuarios" routerLinkActive="active" (click)="closeMenu()">Usuarios</a>
+    <!-- Agrega más enlaces si necesitas -->
+    <button *ngIf="identity" (click)="logout()">Cerrar sesión</button>
+  </nav>
+</header>
