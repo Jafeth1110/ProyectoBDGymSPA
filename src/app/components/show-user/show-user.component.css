@@ -1,0 +1,90 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background: #f6f8fa;
+}
+
+/* Centramos el contenido */
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tarjeta */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Título */
+h2 {
+  font-weight: 700;
+  color: #2d2d2d;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Lista de detalles */
+.user-details-list {
+  list-style: none;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.user-details-list li {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.7rem;
+  font-size: 1rem;
+  color: #444;
+  border: 1px solid #d1d5db;
+}
+
+.user-details-list li strong {
+  color: #6c63ff;
+  margin-right: 6px;
+}
+
+/* Botón volver */
+.btn-secondary {
+  width: 100%;
+  background: #6c757d;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.9rem 0;
+  font-size: 1.1rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.08);
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #495057;
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .card {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,33 @@
+<div class="mantenimientos-container">
+  <h2>Gestión de Mantenimientos</h2>
+
+  <!-- Campo de búsqueda -->
+  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por ID, descripción o costo" />
+
+  <!-- Lista de mantenimientos -->
+  <table class="mantenimientos-table">
+    <thead>
+      <tr>
+        <th>ID Mantenimiento</th>
+        <th>Descripción</th>
+        <th>Costo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of filteredMantenimientos">
+        <td>{{ m.idMantenimiento }}</td>
+        <td>{{ m.descripcion }}</td>
+        <td>{{ m.costo | currency:'CRC':'symbol':'1.2-2' }}</td>
+        <td>
+          <button class="btn-detail" (click)="showMantenimiento(m.idMantenimiento)">Detalle</button>
+          <button class="btn-update" (click)="updateMantenimiento(m.idMantenimiento)">Actualizar</button>
+          <button class="btn-delete" (click)="deleteMantenimiento(m.idMantenimiento)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Botón para ir a agregar mantenimiento -->
+  <button class="add-mantenimiento-btn" (click)="navigateToAddMantenimiento()">Agregar Mantenimiento</button>
+</div>

@@ -1,0 +1,37 @@
+<div class="equipos-container">
+  <h2>Gestión de Equipos</h2>
+
+  <!-- Campo de búsqueda -->
+  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por ID, nombre, tipo, estado o cantidad" />
+
+  <!-- Lista de equipos -->
+  <table class="equipos-table">
+    <thead>
+      <tr>
+        <th>ID Equipo</th>
+        <th>Nombre</th>
+        <th>Tipo</th>
+        <th>Estado</th>
+        <th>Cantidad</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let equipo of filteredEquipos">
+        <td>{{ equipo.idEquipo }}</td>
+        <td>{{ equipo.nombre }}</td>
+        <td>{{ equipo.tipo }}</td>
+        <td>{{ equipo.estado }}</td>
+        <td>{{ equipo.cantidad }}</td>
+        <td>
+          <button class="btn-detail" (click)="showEquipo(equipo.idEquipo)">Detalle</button>
+          <button class="btn-update" (click)="updateEquipo(equipo.idEquipo)">Actualizar</button>
+          <button class="btn-delete" (click)="deleteEquipo(equipo.idEquipo)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Botón para ir a agregar equipo -->
+  <button class="add-equipo-btn" (click)="navigateToAddEquipo()">Agregar Equipo</button>
+</div>

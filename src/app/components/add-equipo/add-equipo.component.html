@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="card shadow p-4">
+    <h2 class="mb-4 text-center">Agregar Equipo</h2>
+    <form #equipoForm="ngForm" (ngSubmit)="onSubmit(equipoForm)">
+      <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input [(ngModel)]="equipo.nombre" name="nombre" id="nombre" type="text" required />
+      </div>
+      <div class="form-group">
+        <label for="tipo">Tipo</label>
+        <input [(ngModel)]="equipo.tipo" name="tipo" id="tipo" type="text" required />
+      </div>
+      <div class="form-group">
+        <label for="estado">Estado</label>
+        <input [(ngModel)]="equipo.estado" name="estado" id="estado" type="number" required min="0" max="2" />
+      </div>
+      <div class="form-group">
+        <label for="cantidad">Cantidad</label>
+        <input [(ngModel)]="equipo.cantidad" name="cantidad" id="cantidad" type="number" required min="1" />
+      </div>
+      <button type="submit" class="btn-primary" [disabled]="!equipoForm.form.valid">Registrar</button>
+    </form>
+    <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+      <ul>
+        <li *ngFor="let err of validationErrors">{{ err }}</li>
+      </ul>
+    </div>
+    <button type="button" class="btn-secondary mt-3" (click)="back()">Volver</button>
+  </div>
+</div>

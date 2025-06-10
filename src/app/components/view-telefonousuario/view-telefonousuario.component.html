@@ -1,0 +1,35 @@
+<div class="telefonos-container">
+  <h2>Gestión de Teléfonos de Usuario</h2>
+
+  <!-- Campo de búsqueda -->
+  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por ID, usuario, tipo o teléfono" />
+
+  <!-- Lista de teléfonos -->
+  <table class="telefonos-table">
+    <thead>
+      <tr>
+        <th>ID Teléfono</th>
+        <th>ID Usuario</th>
+        <th>Tipo</th>
+        <th>Teléfono</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let tel of filteredTelefonos">
+        <td>{{ tel.idTelefonoUsuario }}</td>
+        <td>{{ tel.idUsuario }}</td>
+        <td>{{ tel.tipoTel }}</td>
+        <td>{{ tel.telefono }}</td>
+        <td>
+          <button class="btn-detail" (click)="showTelefono(tel.idTelefonoUsuario)">Detalle</button>
+          <button class="btn-update" (click)="updateTelefono(tel.idTelefonoUsuario)">Actualizar</button>
+          <button class="btn-delete" (click)="deleteTelefono(tel.idTelefonoUsuario)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Botón para ir a agregar teléfono -->
+  <button class="add-telefono-btn" (click)="navigateToAddTelefono()">Agregar Teléfono</button>
+</div>

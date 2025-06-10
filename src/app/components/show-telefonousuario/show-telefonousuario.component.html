@@ -1,0 +1,12 @@
+<div class="container" *ngIf="telefono">
+  <div class="card">
+    <h2>Detalles del Teléfono de Usuario</h2>
+    <ul class="telefono-details-list">
+      <li><strong>ID Teléfono:</strong> {{ telefono.idTelefonoUsuario }}</li>
+      <li><strong>ID Usuario:</strong> {{ telefono.idUsuario }}</li>
+      <li><strong>Tipo:</strong> {{ telefono.tipoTel }}</li>
+      <li><strong>Teléfono:</strong> {{ telefono.telefono }}</li>
+    </ul>
+    <button class="btn-secondary" (click)="back()">Volver</button>
+  </div>
+</div>

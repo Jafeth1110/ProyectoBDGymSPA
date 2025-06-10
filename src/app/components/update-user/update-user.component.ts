@@ -1,110 +1,126 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user';
 import Swal from 'sweetalert2';
-import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-update-user',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './update-user.component.html',
-  styleUrls: ['./update-user.component.css']
+  styleUrls: ['./update-user.component.css'],
+  providers: [UserService]
 })
 export class UpdateUserComponent implements OnInit {
-  public user: User = new User('', '', '', '', '', '', 'cliente');
-  public originalEmail: string = ''; // Almacenaremos el email original aquí
+  public user: User;
+  public validationErrors: string[] = [];
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private userService: UserService
-  ) { }
+    private _userService: UserService,
+    private _route: ActivatedRoute,
+    private _router: Router
+  ) {
+    // Inicializa el usuario vacío
+    this.user = new User(0, '', '', '', '', '', 'cliente');
+  }
 
   ngOnInit(): void {
-    this.route.params.pipe(take(1)).subscribe(params => {
-      const encodedEmail = params['email'];
-
-      if (!encodedEmail) {
-        this.showErrorAndRedirect('Email no proporcionado');
-        return;
-      }
-
-      try {
-        this.originalEmail = decodeURIComponent(encodedEmail);
-        this.loadUser(this.originalEmail);
-      } catch (e) {
-        console.error('Error al decodificar email:', e);
-        this.showErrorAndRedirect('Email no válido');
+    this._route.params.subscribe(params => {
+      const email = params['email'];
+      if (email) {
+        this.loadUser(email);
       }
     });
   }
 
-
   loadUser(email: string): void {
-  console.log('Cargando usuario con email:', email);
-  this.userService.show(email).pipe(take(1)).subscribe({
-    next: response => {
-      console.log('Respuesta:', response); // Asegurate de ver qué viene
-
-      const u = response?.user || response?.Usuario; // Dependiendo de tu API
-
-      if (u) {
-        this.user = new User(
-          u.idUsuario,
-          u.nombre,
-          u.apellido,
-          u.cedula,
-          u.email,
-          u.password,
-          u.rol
-        );
-      } else {
-        this.showErrorAndRedirect('Usuario no encontrado');
-      }
-    },
-    error: error => {
-      console.error('Error al obtener usuario:', error);
-      this.showErrorAndRedirect('Error al cargar usuario');
-    }
-  });
-}
-
-
-  updateUser(): void {
-    // Usamos el email original para la actualización
-    this.userService.updateUser(this.originalEmail, this.user)
-      .pipe(take(1))
-      .subscribe({
-        next: () => {
-          this.showAlert('success', 'Usuario actualizado correctamente');
-          this.router.navigate(['/view-users']);
-        },
-        error: err => {
-          console.error('Error al actualizar usuario:', err);
-          this.showAlert('error', 'Error al actualizar el usuario');
+    this._userService.showUser(email).subscribe(
+      response => {
+        if (response?.user) {
+          const u = response.user;
+          this.user = new User(
+            u.idUsuario,
+            u.nombre,
+            u.apellido,
+            u.cedula,
+            u.email,
+            '', // No traigas la contraseña
+            u.rol
+          );
+        } else {
+          this.showAlert('error', 'Usuario no encontrado');
+          this._router.navigate(['/usuarios']);
         }
-      });
+      },
+      error => {
+        this.showAlert('error', 'Error al obtener los datos del usuario');
+        this._router.navigate(['/usuarios']);
+      }
+    );
   }
 
-  cancel(): void {
-    this.router.navigate(['/view-users']);
+  updateUser(form?: any): void {
+    this.validationErrors = [];
+    if (
+      !this.user.nombre ||
+      !this.user.apellido ||
+      !this.user.cedula ||
+      !this.user.email ||
+      !this.user.rol
+    ) {
+      this.showAlert('error', 'Debes completar todos los campos antes de enviar.');
+      return;
+    }
+
+    // Prepara los datos para enviar (sin la contraseña si está vacía)
+    const dataToSend: any = {
+      idUsuario: this.user.idUsuario,
+      nombre: this.user.nombre,
+      apellido: this.user.apellido,
+      cedula: this.user.cedula,
+      email: this.user.email,
+      rol: this.user.rol
+    };
+    if (this.user.password && this.user.password.trim() !== '') {
+      dataToSend.password = this.user.password;
+    }
+
+    this._userService.updateUser(this.user.email, { data: dataToSend }).subscribe({
+      next: (response: any) => {
+        if (response.status === 200) {
+          this.showAlert('success', 'Usuario actualizado correctamente');
+          this._router.navigate(['/usuarios']);
+        } else {
+          this.showAlert('error', response.message || 'No se pudo actualizar el usuario');
+        }
+      },
+      error: (error: any) => {
+        if (error.status === 400 && error.error && error.error.message) {
+          this.showAlert('error', error.error.message);
+        } else if (error.status === 422 && error.error && error.error.errors) {
+          const errors: string[] = [];
+          Object.keys(error.error.errors).forEach(field => {
+            const fieldErrors: string[] = error.error.errors[field];
+            fieldErrors.forEach(msg => errors.push(msg));
+          });
+          this.validationErrors = errors;
+          this.showAlert('error', errors.join('<br>'));
+        } else {
+          this.showAlert('error', 'Error inesperado del servidor.');
+        }
+      }
+    });
   }
 
-  private showErrorAndRedirect(message: string): void {
-    this.showAlert('error', message);
-    this.router.navigate(['/view-users']);
-  }
-
-  private showAlert(type: 'error' | 'success', message: string): void {
+  showAlert(type: 'success' | 'error', message: string) {
     Swal.fire({
       title: message,
       icon: type,
-      timer: 2000,
-      showConfirmButton: true
+      timer: 4000,
+      showConfirmButton: false
     });
+  }
+
+  cancel(): void {
+    this._router.navigate(['/view-users']);
   }
 }

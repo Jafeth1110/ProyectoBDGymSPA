@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user';
@@ -7,8 +6,6 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-show-user',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './show-user.component.html',
   styleUrls: ['./show-user.component.css'],
   providers: [UserService]
@@ -32,7 +29,7 @@ export class ShowUserComponent implements OnInit {
   }
 
   loadUser(email: string): void {
-  this._userService.show(email).subscribe(
+  this._userService.showUser(email).subscribe(
     response => {
       console.log('Respuesta del servidor:', response); // 👈 Te ayudará a ver el contenido
 

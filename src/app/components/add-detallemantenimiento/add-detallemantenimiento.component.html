@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="card shadow p-4">
+    <h2 class="mb-4 text-center">Agregar Detalle de Mantenimiento</h2>
+    <form #detalleForm="ngForm" (ngSubmit)="onSubmit(detalleForm)">
+      <div class="form-group">
+        <label for="idAdmin">ID Admin</label>
+        <input [(ngModel)]="detalle.idAdmin" name="idAdmin" id="idAdmin" type="number" required min="1" />
+      </div>
+      <div class="form-group">
+        <label for="idEquipo">ID Equipo</label>
+        <input [(ngModel)]="detalle.idEquipo" name="idEquipo" id="idEquipo" type="number" required min="1" />
+      </div>
+      <div class="form-group">
+        <label for="idMantenimiento">ID Mantenimiento</label>
+        <input [(ngModel)]="detalle.idMantenimiento" name="idMantenimiento" id="idMantenimiento" type="number" required min="1" />
+      </div>
+      <div class="form-group">
+        <label for="fechaMantenimiento">Fecha de Mantenimiento</label>
+        <input [(ngModel)]="detalle.fechaMantenimiento" name="fechaMantenimiento" id="fechaMantenimiento" type="date" required />
+      </div>
+      <button type="submit" class="btn-primary" [disabled]="!detalleForm.form.valid">Registrar</button>
+    </form>
+    <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+      <ul>
+        <li *ngFor="let err of validationErrors">{{ err }}</li>
+      </ul>
+    </div>
+    <button type="button" class="btn-secondary mt-3" (click)="back()">Volver</button>
+  </div>
+</div>

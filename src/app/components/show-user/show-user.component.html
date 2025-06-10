@@ -1,14 +1,14 @@
-<div class="container mt-4" *ngIf="user">
-  <h2 class="mb-4">Detalles del Usuario</h2>
-  <ul class="list-group">
-    <li class="list-group-item"><strong>ID:</strong> {{ user.idUsuario }}</li>
-    <li class="list-group-item"><strong>Nombre:</strong> {{ user.nombre }}</li>
-    <li class="list-group-item"><strong>Apellido:</strong> {{ user.apellido }}</li>
-    <li class="list-group-item"><strong>Cédula:</strong> {{ user.cedula }}</li>
-    <li class="list-group-item"><strong>Correo electrónico:</strong> {{ user.email }}</li>
-    <!--<li class="list-group-item"><strong>Contraseña:</strong> {{ user.password }}</li>-->
-    <li class="list-group-item"><strong>Rol:</strong> {{ user.rol }}</li>
-  </ul>
-
-  <button class="btn btn-secondary mt-3" (click)="back()">Volver</button>
+<div class="container" *ngIf="user">
+  <div class="card">
+    <h2>Detalles del Usuario</h2>
+    <ul class="user-details-list">
+      <li><strong>ID:</strong> {{ user.idUsuario }}</li>
+      <li><strong>Nombre:</strong> {{ user.nombre }}</li>
+      <li><strong>Apellido:</strong> {{ user.apellido }}</li>
+      <li><strong>Cédula:</strong> {{ user.cedula }}</li>
+      <li><strong>Correo electrónico:</strong> {{ user.email }}</li>
+      <li><strong>Rol:</strong> {{ user.rol }}</li>
+    </ul>
+    <button class="btn-secondary" (click)="back()">Volver</button>
+  </div>
 </div>

@@ -1,174 +1,90 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-view-users',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
+  selector: 'app-users',
   templateUrl: './view-users.component.html',
-  styleUrls: ['./view-users.component.css'],
-  providers: [UserService]
+  styleUrls: ['./view-users.component.css']
 })
-export class ViewUsersComponent implements OnInit {
-  public status: number = -1;
-  public user: User = new User("", "", "", "", "", "", "");
-  public identity: any = null;
-  public users: User[] = [];
-  public filteredUsers: User[] = [];
-  public searchQuery: string = "";
+export class UsersComponent implements OnInit {
+  users: User[] = [];
+  filter: string = '';
 
   constructor(
-    private _userService: UserService,
-    private _router: Router,
-    private _route: ActivatedRoute
+    private userService: UserService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.getUsers();
-    this.loadIdentity();
+    this.loadUsers();
   }
 
-  loadIdentity(): void {
-    const identity = sessionStorage.getItem('identity');
-    if (identity) {
-      try {
-        this.identity = JSON.parse(identity);
-      } catch (error) {
-        console.error("Error al parsear la identidad desde sessionStorage:", error);
-        this.identity = null;
-      }
-    }
-  }
-
-  getUsers(): void {
-    this._userService.getUsers().subscribe(
-      response => {
-        if (response.status === 200 && Array.isArray(response.data)) {
-          this.users = response.data.map((u: any) =>
-            new User(
-              u.idUsuario,
-              u.nombre,
-              u.apellido,
-              u.cedula,
-              u.email,
-              u.password,
-              u.rol
-            )
-          );
-          this.filteredUsers = [...this.users];
+  loadUsers(): void {
+    this.userService.getUsers().subscribe({
+      next: res => {
+        if (res.status === 200) {
+          this.users = res.data;
         } else {
-          this.status = response.status;
-          this.filteredUsers = [];
+          console.error('Error cargando usuarios', res);
         }
       },
-      error => {
-        console.error("Error al obtener usuarios:", error);
-        this.status = error.status || 500;
-      }
-    );
-  }
-
-  navigateToAddUser(): void {
-    this._router.navigate(['/add-user']);
-  }
-
-  navigateToShow(email: string): void {
-    this._router.navigate(['/show-user', email]);
-  }
-
-  navigateToUpdate(email: string): void {
-  if (!email) {
-    Swal.fire({
-      title: 'Error',
-      text: 'No se proporcionó un correo válido',
-      icon: 'error',
-      timer: 2000
-    });
-    return;
-  }
-  
-  // Asegúrate de codificar el email correctamente
-  const encodedEmail = encodeURIComponent(email);
-  console.log('Navegando a edición con email:', email, 'Codificado:', encodedEmail);
-  
-  this._router.navigate(['/update-user', encodedEmail]);
-}
-
-
-  searchAndNavigate(): void {
-  const query = this.searchQuery.trim();
-  if (query !== '') {
-    this._router.navigate(['/show-user', query]);
-  } else {
-    Swal.fire({
-      title: 'Por favor ingrese un correo válido',
-      icon: 'warning',
-      timer: 2000,
-      showConfirmButton: false
+      error: err => console.error('Error cargando usuarios', err)
     });
   }
-}
 
-
-  confirmDelete(email: string): void {
+  deleteUser(email: string): void {
     Swal.fire({
       title: '¿Estás seguro?',
-      text: '¡No podrás revertir esto!',
+      text: `¿Eliminar usuario con email ${email}?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminarlo!',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.destroy(email);
+        this.userService.deleteUser(email).subscribe({
+          next: res => {
+            if (res.status === 200) {
+              Swal.fire('Eliminado', 'Usuario eliminado correctamente.', 'success');
+              this.loadUsers();
+            } else {
+              Swal.fire('Error', res.message || 'No se pudo eliminar el usuario.', 'error');
+            }
+          },
+          error: err => {
+            Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
+            console.error('Error al eliminar usuario', err);
+          }
+        });
       }
     });
   }
 
-  destroy(email: string): void {
-    this._userService.destroyUser(email).subscribe(
-      response => {
-        if (response.status === 200) {
-          this.users = this.users.filter(user => user.email !== email);
-          this.filteredUsers = this.filteredUsers.filter(user => user.email !== email);
-          this.showAlertSuccess('success', response.message);
-        } else {
-          this.showAlert('error', 'No se pudo eliminar el usuario');
-        }
-      },
-      error => {
-        console.error('Error al eliminar usuario:', error);
-        this.showAlert('error', 'Hubo un error al eliminar el usuario');
-      }
+  navigateToAddUser(): void {
+    this.router.navigate(['/add-user']);
+  }
+
+  showUser(email: string): void {
+    this.router.navigate(['/show-user', email]);
+  }
+
+  updateUser(email: string): void {
+    this.router.navigate(['/update-user', email]);
+  }
+
+  get filteredUsers(): User[] {
+    if (!this.filter) return this.users;
+    const term = this.filter.toLowerCase();
+    return this.users.filter(u =>
+      u.idUsuario.toString().includes(term) ||
+      u.nombre.toLowerCase().includes(term) ||
+      u.apellido.toLowerCase().includes(term) ||
+      u.email.toLowerCase().includes(term)
     );
-  }
-
-  showAlert(type: 'error', message: string): void {
-    Swal.fire({
-      title: message,
-      icon: type,
-      timer: 1500,
-      showConfirmButton: false
-    });
-  }
-
-  showAlertSuccess(type: 'success', message: string): void {
-    Swal.fire({
-      title: message,
-      icon: type,
-      timer: 2000,
-      showConfirmButton: true
-    }).then((result) => {
-      if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
-        location.reload();
-      }
-    });
   }
 }

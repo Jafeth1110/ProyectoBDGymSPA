@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="card">
+    <h2>Editar Equipo</h2>
+
+    <form (ngSubmit)="updateEquipo()" #equipoForm="ngForm">
+      <div class="form-group">
+        <label for="idEquipo">ID Equipo</label>
+        <input type="number" id="idEquipo" [(ngModel)]="equipo.idEquipo" name="idEquipo" disabled>
+      </div>
+
+      <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" [(ngModel)]="equipo.nombre" name="nombre" required>
+      </div>
+
+      <div class="form-group">
+        <label for="tipo">Tipo</label>
+        <input type="text" id="tipo" [(ngModel)]="equipo.tipo" name="tipo" required>
+      </div>
+
+      <div class="form-group">
+        <label for="estado">Estado</label>
+        <input type="number" id="estado" [(ngModel)]="equipo.estado" name="estado" required min="0" max="2">
+      </div>
+
+      <div class="form-group">
+        <label for="cantidad">Cantidad</label>
+        <input type="number" id="cantidad" [(ngModel)]="equipo.cantidad" name="cantidad" required min="1">
+      </div>
+
+      <button type="submit" class="btn-success" [disabled]="!equipoForm.form.valid">Guardar Cambios</button>
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+    </form>
+  </div>
+</div>

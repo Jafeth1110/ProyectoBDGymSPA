@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="card">
+    <h2>Editar Detalle de Mantenimiento</h2>
+
+    <form (ngSubmit)="updateDetalle()" #detalleForm="ngForm">
+      <div class="form-group">
+        <label for="idDetalleMantenimiento">ID Detalle</label>
+        <input type="number" id="idDetalleMantenimiento" [(ngModel)]="detalle.idDetalleMantenimiento" name="idDetalleMantenimiento" disabled>
+      </div>
+
+      <div class="form-group">
+        <label for="idAdmin">ID Admin</label>
+        <input type="number" id="idAdmin" [(ngModel)]="detalle.idAdmin" name="idAdmin" required>
+      </div>
+
+      <div class="form-group">
+        <label for="idEquipo">ID Equipo</label>
+        <input type="number" id="idEquipo" [(ngModel)]="detalle.idEquipo" name="idEquipo" required>
+      </div>
+
+      <div class="form-group">
+        <label for="idMantenimiento">ID Mantenimiento</label>
+        <input type="number" id="idMantenimiento" [(ngModel)]="detalle.idMantenimiento" name="idMantenimiento" required>
+      </div>
+
+      <div class="form-group">
+        <label for="fechaMantenimiento">Fecha de Mantenimiento</label>
+        <input type="date" id="fechaMantenimiento" [(ngModel)]="detalle.fechaMantenimiento" name="fechaMantenimiento" required>
+      </div>
+
+      <button type="submit" class="btn-success" [disabled]="!detalleForm.form.valid">Guardar Cambios</button>
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+    </form>
+  </div>
+</div>

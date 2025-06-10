@@ -1,0 +1,42 @@
+<div class="detallemants-container">
+  <h2>Gestión de Detalles de Mantenimiento</h2>
+
+  <!-- Campo de búsqueda -->
+  <input
+    class="search-input"
+    [(ngModel)]="filter"
+    name="filter"
+    placeholder="Buscar por cualquier campo"
+  />
+
+  <!-- Tabla de detalles -->
+  <table class="detallemants-table">
+    <thead>
+      <tr>
+        <th>ID Detalle</th>
+        <th>ID Admin</th>
+        <th>ID Equipo</th>
+        <th>ID Mantenimiento</th>
+        <th>Fecha de Mantenimiento</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let detalle of filteredDetalles">
+        <td>{{ detalle.idDetalleMantenimiento }}</td>
+        <td>{{ detalle.idAdmin }}</td>
+        <td>{{ detalle.idEquipo }}</td>
+        <td>{{ detalle.idMantenimiento }}</td>
+        <td>{{ detalle.fechaMantenimiento | date:'yyyy-MM-dd' }}</td>
+        <td>
+          <button class="btn-detail" (click)="showDetalle(detalle.idDetalleMantenimiento)">Detalle</button>
+          <button class="btn-update" (click)="updateDetalle(detalle.idDetalleMantenimiento)">Actualizar</button>
+          <button class="btn-delete" (click)="deleteDetalle(detalle.idDetalleMantenimiento)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Botón para agregar nuevo detalle -->
+  <button class="add-detallemant-btn" (click)="navigateToAddDetalle()">Agregar Detalle</button>
+</div>

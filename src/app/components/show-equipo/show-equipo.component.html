@@ -1,0 +1,13 @@
+<div class="container" *ngIf="equipo">
+  <div class="card">
+    <h2>Detalles del Equipo</h2>
+    <ul class="equipo-details-list">
+      <li><strong>ID Equipo:</strong> {{ equipo.idEquipo }}</li>
+      <li><strong>Nombre:</strong> {{ equipo.nombre }}</li>
+      <li><strong>Tipo:</strong> {{ equipo.tipo }}</li>
+      <li><strong>Estado:</strong> {{ equipo.estado }}</li>
+      <li><strong>Cantidad:</strong> {{ equipo.cantidad }}</li>
+    </ul>
+    <button class="btn-secondary" (click)="back()">Volver</button>
+  </div>
+</div>
