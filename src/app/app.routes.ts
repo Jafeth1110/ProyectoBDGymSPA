@@ -31,11 +31,13 @@ import { ViewDetallemantenimientoComponent } from './components/view-detallemant
 import { AddDetallemantenimientoComponent } from './components/add-detallemantenimiento/add-detallemantenimiento.component';
 import { ShowDetallemantenimientoComponent } from './components/show-detallemantenimiento/show-detallemantenimiento.component';
 import { UpdateDetallemantenimientoComponent } from './components/update-detallemantenimiento/update-detallemantenimiento.component';
+import { SignupComponent } from './components/signup/signup.component';
 
 
 export const routes: Routes = [
   // Usuarios
   { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
   { path: 'view-users', component: UsersComponent },
   { path: 'add-user', component: AddUserComponent },
   { path: 'show-user/:email', component: ShowUserComponent },
@@ -66,5 +68,5 @@ export const routes: Routes = [
   { path: 'update-detallemantenimiento/:id', component: UpdateDetallemantenimientoComponent },
 
   // Ruta por defecto
-  { path: '', redirectTo: 'view-users', pathMatch: 'full' }
+  { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

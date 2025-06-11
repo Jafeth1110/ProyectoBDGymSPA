@@ -1,0 +1,124 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background: #f6f8fa;
+}
+
+/* Centramos el formulario */
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tarjeta */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Título */
+h2 {
+  font-weight: 700;
+  color: #2d2d2d;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Grupos de campos */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.2rem;
+}
+
+/* Etiquetas */
+.form-group label {
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 0.5rem;
+}
+
+/* Inputs y selects */
+.form-group input,
+.form-group select {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  background: #f9fafb;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #6c63ff;
+  background: #fff;
+}
+
+/* Botón */
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(90deg, #6c63ff 0%, #48c6ef 100%);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.9rem 0;
+  font-size: 1.1rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(76, 110, 245, 0.08);
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  background: #bdbdbd;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(90deg, #28a745 0%, #88e064 100%);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+/* Botón volver/cancelar */
+.btn-secondary {
+  width: 100%;
+  background: #6c757d;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.9rem 0;
+  font-size: 1.1rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.08);
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.btn-secondary:hover {
+  background: #495057;
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .card {
+    padding: 1.5rem;
+  }
+}

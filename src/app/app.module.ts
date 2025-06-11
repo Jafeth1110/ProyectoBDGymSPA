@@ -2,7 +2,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms'; 
-import { HttpClientModule } from '@angular/common/http'; // <-- necesario para HttpClient
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'; // <-- necesario para HttpClient
 import { RouterModule } from '@angular/router';
 import { MenuComponent } from './components/menu/menu.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -30,6 +30,9 @@ import { ViewDetallemantenimientoComponent } from './components/view-detallemant
 import { UpdateDetallemantenimientoComponent } from './components/update-detallemantenimiento/update-detallemantenimiento.component';
 import { ShowDetallemantenimientoComponent } from './components/show-detallemantenimiento/show-detallemantenimiento.component';
 import { AddDetallemantenimientoComponent } from './components/add-detallemantenimiento/add-detallemantenimiento.component';
+import { TokenInterceptor } from './token.interceptor';
+import { SignupComponent } from './components/signup/signup.component';
+
 
 @NgModule({
   declarations: [
@@ -55,11 +58,10 @@ import { AddDetallemantenimientoComponent } from './components/add-detallemanten
     UpdateDetallemantenimientoComponent,
     ShowDetallemantenimientoComponent,
     AddDetallemantenimientoComponent,
+    LoginComponent,
+    SignupComponent,
     
 
-    
-    
-    
     
     
     
@@ -74,7 +76,11 @@ import { AddDetallemantenimientoComponent } from './components/add-detallemanten
     HttpClientModule,         
     RouterModule.forRoot(routes)
   ],
-  providers: [],
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: TokenInterceptor,
+    multi: true 
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

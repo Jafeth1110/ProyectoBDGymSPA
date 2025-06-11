@@ -1,3 +1,4 @@
+// signup.component.ts
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
@@ -5,12 +6,12 @@ import { User } from '../../models/user';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-add-user',
-  templateUrl: './add-user.component.html',
-  styleUrls: ['./add-user.component.css'],
+  selector: 'app-signup',
+  templateUrl: './signup.component.html',
+  styleUrls: ['./signup.component.css'],
   providers: [UserService]
 })
-export class AddUserComponent {
+export class SignupComponent {
   public user: User;
   public validationErrors: string[] = [];
 
@@ -18,6 +19,7 @@ export class AddUserComponent {
     private _userService: UserService,
     private _router: Router
   ) {
+    // Forzamos rol cliente desde aquí
     this.user = new User(0, '', '', '', '', '', 'cliente');
   }
 
@@ -28,20 +30,22 @@ export class AddUserComponent {
       !this.user.apellido ||
       !this.user.cedula ||
       !this.user.email ||
-      !this.user.password ||
-      !this.user.rol
+      !this.user.password
     ) {
       this.showAlert('error', 'Debes completar todos los campos antes de enviar.');
       return;
     }
 
-    // ENVÍA LOS DATOS DIRECTAMENTE
+    // Siempre enviamos rol 'cliente' aunque no venga del formulario
+    this.user.rol = 'cliente';
+
     this._userService.storeUser(this.user).subscribe({
       next: (response: any) => {
         if (response.status === 201 || response.status === 200) {
           if (form) form.reset();
           this.showAlert('success', 'Usuario registrado correctamente');
-          this._router.navigate(['/view-users']);
+          // Redirigir a login después de registro
+          this._router.navigate(['/login']);
         } else {
           this.showAlert('error', response.message || 'No se pudo registrar el usuario');
         }
@@ -71,9 +75,5 @@ export class AddUserComponent {
       timer: 4000,
       showConfirmButton: false
     });
-  }
-
-  back(): void {
-    this._router.navigate(['/view-users']);
   }
 }

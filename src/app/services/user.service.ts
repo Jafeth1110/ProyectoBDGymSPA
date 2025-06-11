@@ -14,12 +14,14 @@ export class UserService {
     this.urlAPI = server.url + 'user/';
   }
 
-  login(user: User): Observable<any> {
-    let userJson = JSON.stringify(user);
-    let params = 'data=' + userJson;
-    let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    let options = { headers };
-    return this._http.post(this.urlAPI + 'user/login', params, options);
+ login(email: string, password: string): Observable<any> {
+    const data = { email, password };
+    const params = new URLSearchParams();
+    params.set('data', JSON.stringify(data));
+    
+    const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    return this._http.post(`${this.urlAPI}user/login`, params.toString(), { headers });
   }
 
   getIdentityFromAPI(): Observable<any> {
