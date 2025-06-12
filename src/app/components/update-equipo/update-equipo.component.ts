@@ -72,7 +72,7 @@ export class UpdateEquipoComponent implements OnInit {
       cantidad: this.equipo.cantidad
     };
 
-    this._equipoService.updateEquipo(this.equipo.idEquipo, { data: dataToSend }).subscribe({
+    this._equipoService.updateEquipo(this.equipo.idEquipo,  dataToSend ).subscribe({
       next: (response: any) => {
         if (response.status === 200) {
           this.showAlert('success', 'Equipo actualizado correctamente');

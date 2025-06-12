@@ -69,7 +69,7 @@ export class UpdateTelefonousuarioComponent implements OnInit {
       telefono: this.telefono.telefono
     };
 
-    this._telefonoUsuarioService.updateTelefono(this.telefono.idTelefonoUsuario, { data: dataToSend }).subscribe({
+    this._telefonoUsuarioService.updateTelefono(this.telefono.idTelefonoUsuario, dataToSend).subscribe({
       next: (response: any) => {
         if (response.status === 200) {
           this.showAlert('success', 'Teléfono actualizado correctamente');

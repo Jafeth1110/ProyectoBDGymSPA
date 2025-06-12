@@ -21,7 +21,7 @@
         <td>{{ equipo.idEquipo }}</td>
         <td>{{ equipo.nombre }}</td>
         <td>{{ equipo.tipo }}</td>
-        <td>{{ equipo.estado }}</td>
+        <td>{{ equipo.estado === 1 ? 'Bueno' : (equipo.estado === 0 ? 'Malo' : 'Desconocido') }}</td>
         <td>{{ equipo.cantidad }}</td>
         <td>
           <button class="btn-detail" (click)="showEquipo(equipo.idEquipo)">Detalle</button>

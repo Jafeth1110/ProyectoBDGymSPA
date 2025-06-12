@@ -10,7 +10,7 @@ import { TelefonoUsuario } from '../models/telefonoUsuario';
 export class TelefonoUsuarioService {
   private urlAPI = server.url + 'telefonousuario/';
 
-  constructor(private _http: HttpClient) {}
+  constructor(private _http: HttpClient) { }
 
   getTelefonos(): Observable<any> {
     return this._http.get(this.urlAPI);
@@ -29,6 +29,7 @@ export class TelefonoUsuarioService {
     const headers = new HttpHeaders().set('Content-Type', 'application/json');
     return this._http.put(this.urlAPI + id, { data: body }, { headers });
   }
+
 
   deleteTelefono(id: number): Observable<any> {
     return this._http.delete(this.urlAPI + id);

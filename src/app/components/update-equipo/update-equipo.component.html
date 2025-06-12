@@ -20,7 +20,10 @@
 
       <div class="form-group">
         <label for="estado">Estado</label>
-        <input type="number" id="estado" [(ngModel)]="equipo.estado" name="estado" required min="0" max="2">
+        <select id="estado" [(ngModel)]="equipo.estado" name="estado" required>
+          <option [value]="1">Bueno</option>
+          <option [value]="0">Malo</option>
+        </select>
       </div>
 
       <div class="form-group">
