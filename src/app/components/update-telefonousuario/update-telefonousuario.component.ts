@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TelefonoUsuarioService } from '../../services/telefonoUsuario.service';
 import { TelefonoUsuario } from '../../models/telefonoUsuario';
+import { UserService } from '../../services/user.service';
+import { User } from '../../models/user';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -13,9 +15,11 @@ import Swal from 'sweetalert2';
 export class UpdateTelefonousuarioComponent implements OnInit {
   public telefono: TelefonoUsuario = new TelefonoUsuario();
   public validationErrors: string[] = [];
+  public users: User[] = [];
 
   constructor(
     private _telefonoUsuarioService: TelefonoUsuarioService,
+    private _userService: UserService,
     private _route: ActivatedRoute,
     private _router: Router
   ) {}
@@ -27,6 +31,8 @@ export class UpdateTelefonousuarioComponent implements OnInit {
         this.loadTelefono(id);
       }
     });
+
+    this.loadUsuarios(); // ← Cargar todos los usuarios
   }
 
   loadTelefono(id: number): void {
@@ -50,6 +56,19 @@ export class UpdateTelefonousuarioComponent implements OnInit {
         this._router.navigate(['/view-telefonousuario']);
       }
     );
+  }
+
+  loadUsuarios(): void {
+    this._userService.getUsers().subscribe({
+      next: (res: any) => {
+        if (res.status === 200) {
+          this.users = res.data;
+        } else {
+          console.error('Error al cargar usuarios');
+        }
+      },
+      error: err => console.error('Error al cargar usuarios', err)
+    });
   }
 
   updateTelefono(form?: any): void {

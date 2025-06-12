@@ -88,7 +88,7 @@ export class UpdateUserComponent implements OnInit {
       next: (response: any) => {
         if (response.status === 200) {
           this.showAlert('success', 'Usuario actualizado correctamente');
-          this._router.navigate(['/usuarios']);
+          this._router.navigate(['/view-users']);
         } else {
           this.showAlert('error', response.message || 'No se pudo actualizar el usuario');
         }
