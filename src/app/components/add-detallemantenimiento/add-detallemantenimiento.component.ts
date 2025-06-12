@@ -1,27 +1,70 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DetalleMantenimientoService } from '../../services/detalleMantenimiento.service';
 import { DetalleMantenimiento } from '../../models/detalleMantenimiento';
+import { AdminService } from '../../services/admin.service';
+import { Admin } from '../../models/admin';
+import { EquipoService } from '../../services/equipo.service';
+import { Equipo } from '../../models/equipo';
+import { MantenimientoService } from '../../services/mantenimiento.service';
+import { Mantenimiento } from '../../models/mantenimiento';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-add-detallemantenimiento',
   templateUrl: './add-detallemantenimiento.component.html',
-  styleUrls: ['./add-detallemantenimiento.component.css'],
-  providers: [DetalleMantenimientoService]
+  styleUrls: ['./add-detallemantenimiento.component.css']
 })
-export class AddDetallemantenimientoComponent {
+export class AddDetallemantenimientoComponent implements OnInit {
   public detalle: DetalleMantenimiento = new DetalleMantenimiento();
   public validationErrors: string[] = [];
+  public admins: Admin[] = [];
+  public equipos: Equipo[] = [];
+  public mantenimientos: Mantenimiento[] = [];
 
   constructor(
-    private _detalleService: DetalleMantenimientoService,
-    private _router: Router
-  ) {}
+    private detalleService: DetalleMantenimientoService,
+    private adminService: AdminService,
+    private equipoService: EquipoService,
+    private mantenimientoService: MantenimientoService,
+    private router: Router
+  ) { }
+
+  ngOnInit(): void {
+    this.loadAllData();
+  }
+
+  loadAllData(): void {
+    this.adminService.getAdmins().subscribe({
+      next: (resAdmins) => {
+        // resAdmins es un array directamente
+        this.admins = Array.isArray(resAdmins) ? resAdmins : [];
+
+        this.equipoService.getEquipos().subscribe({
+          next: (resEquipos) => {
+            // resEquipos es un objeto, los datos están en resEquipos.data
+            this.equipos = Array.isArray(resEquipos.data) ? resEquipos.data : [];
+
+            this.mantenimientoService.getMantenimientos().subscribe({
+              next: (resMantenimientos) => {
+                // Igual que equipos
+                this.mantenimientos = Array.isArray(resMantenimientos.data) ? resMantenimientos.data : [];
+              },
+              error: (err) => console.error('Error cargando mantenimientos', err)
+            });
+          },
+          error: (err) => console.error('Error cargando equipos', err)
+        });
+      },
+      error: (err) => console.error('Error cargando admins', err)
+    });
+  }
+
+
 
   onSubmit(form?: any): void {
     this.validationErrors = [];
-    
+
     if (
       !this.detalle.idAdmin ||
       !this.detalle.idEquipo ||
@@ -32,20 +75,20 @@ export class AddDetallemantenimientoComponent {
       return;
     }
 
-    this._detalleService.storeDetalle(this.detalle).subscribe({
+    this.detalleService.storeDetalle(this.detalle).subscribe({
       next: (response: any) => {
         if (response.status === 201 || response.status === 200) {
           if (form) form.reset();
           this.showAlert('success', 'Detalle de mantenimiento registrado correctamente');
-          this._router.navigate(['/view-detallemantenimiento']);
+          this.router.navigate(['/view-detallemantenimiento']);
         } else {
           this.showAlert('error', response.message || 'No se pudo registrar el detalle');
         }
       },
       error: (error: any) => {
-        if (error.status === 400 && error.error && error.error.message) {
+        if (error.status === 400 && error.error?.message) {
           this.showAlert('error', error.error.message);
-        } else if (error.status === 422 && error.error && error.error.errors) {
+        } else if (error.status === 422 && error.error?.errors) {
           const errors: string[] = [];
           Object.keys(error.error.errors).forEach(field => {
             const fieldErrors: string[] = error.error.errors[field];
@@ -70,6 +113,6 @@ export class AddDetallemantenimientoComponent {
   }
 
   back(): void {
-    this._router.navigate(['/view-detallemantenimiento']);
+    this.router.navigate(['/view-detallemantenimiento']);
   }
 }

@@ -3,6 +3,7 @@
     <h2>Detalles del Mantenimiento</h2>
     <ul class="mantenimiento-details-list">
       <li><strong>ID Mantenimiento:</strong> {{ mantenimiento.idMantenimiento }}</li>
+      <li><strong>ID Admin:</strong> {{ getUserName(mantenimiento.idAdmin) }}</li>
       <li><strong>Descripción:</strong> {{ mantenimiento.descripcion }}</li>
       <li><strong>Costo:</strong> {{ mantenimiento.costo | currency:'CRC':'symbol':'1.2-2' }}</li>
     </ul>

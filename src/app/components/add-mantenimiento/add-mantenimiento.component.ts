@@ -1,48 +1,62 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MantenimientoService } from '../../services/mantenimiento.service';
 import { Mantenimiento } from '../../models/mantenimiento';
+import { AdminService } from '../../services/admin.service';
+import { Admin } from '../../models/admin';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-add-mantenimiento',
   templateUrl: './add-mantenimiento.component.html',
-  styleUrls: ['./add-mantenimiento.component.css'],
-  providers: [MantenimientoService]
+  styleUrls: ['./add-mantenimiento.component.css']
 })
-export class AddMantenimientoComponent {
+export class AddMantenimientoComponent implements OnInit {
   public mantenimiento: Mantenimiento = new Mantenimiento();
   public validationErrors: string[] = [];
+  public admins: Admin[] = [];
 
   constructor(
-    private _mantenimientoService: MantenimientoService,
-    private _router: Router
+    private mantenimientoService: MantenimientoService,
+    private adminService: AdminService,
+    private router: Router
   ) {}
+
+  ngOnInit(): void {
+    this.loadAdmins();
+  }
+
+  loadAdmins(): void {
+    this.adminService.getAdmins().subscribe({
+      next: resAdmins => {
+        this.admins = resAdmins;
+      },
+      error: err => console.error('Error cargando admins', err)
+    });
+  }
 
   onSubmit(form?: any): void {
     this.validationErrors = [];
-    if (
-      !this.mantenimiento.descripcion ||
-      this.mantenimiento.costo == null
-    ) {
+    
+    if (!this.mantenimiento.descripcion || this.mantenimiento.costo == null || !this.mantenimiento.idAdmin) {
       this.showAlert('error', 'Debes completar todos los campos antes de enviar.');
       return;
     }
 
-    this._mantenimientoService.storeMantenimiento(this.mantenimiento).subscribe({
+    this.mantenimientoService.storeMantenimiento(this.mantenimiento).subscribe({
       next: (response: any) => {
         if (response.status === 201 || response.status === 200) {
           if (form) form.reset();
           this.showAlert('success', 'Mantenimiento registrado correctamente');
-          this._router.navigate(['/view-mantenimiento']);
+          this.router.navigate(['/view-mantenimiento']);
         } else {
           this.showAlert('error', response.message || 'No se pudo registrar el mantenimiento');
         }
       },
       error: (error: any) => {
-        if (error.status === 400 && error.error && error.error.message) {
+        if (error.status === 400 && error.error?.message) {
           this.showAlert('error', error.error.message);
-        } else if (error.status === 422 && error.error && error.error.errors) {
+        } else if (error.status === 422 && error.error?.errors) {
           const errors: string[] = [];
           Object.keys(error.error.errors).forEach(field => {
             const fieldErrors: string[] = error.error.errors[field];
@@ -67,6 +81,6 @@ export class AddMantenimientoComponent {
   }
 
   back(): void {
-    this._router.navigate(['/view-mantenimiento']);
+    this.router.navigate(['/view-mantenimiento']);
   }
 }

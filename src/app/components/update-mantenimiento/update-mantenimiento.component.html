@@ -1,25 +1,36 @@
 <div class="container">
-  <div class="card">
-    <h2>Editar Mantenimiento</h2>
-
+  <div class="card shadow p-4">
+    <h2 class="mb-4 text-center">Editar Mantenimiento</h2>
     <form (ngSubmit)="updateMantenimiento()" #mantenimientoForm="ngForm">
       <div class="form-group">
-        <label for="idMantenimiento">ID Mantenimiento</label>
-        <input type="number" id="idMantenimiento" [(ngModel)]="mantenimiento.idMantenimiento" name="idMantenimiento" disabled>
+        <label for="idAdmin">Administrador</label>
+        <select class="form-control" [(ngModel)]="mantenimiento.idAdmin" name="idAdmin" id="idAdmin" required>
+          <option *ngFor="let admin of admins" [value]="admin.idAdmin">
+            {{ admin.nombre }} {{ admin.apellido }}
+          </option>
+        </select>
       </div>
-
+      
       <div class="form-group">
         <label for="descripcion">Descripción</label>
-        <input type="text" id="descripcion" [(ngModel)]="mantenimiento.descripcion" name="descripcion" required>
+        <input class="form-control" [(ngModel)]="mantenimiento.descripcion" name="descripcion" id="descripcion" required/>
       </div>
-
+      
       <div class="form-group">
-        <label for="costo">Costo</label>
-        <input type="number" id="costo" [(ngModel)]="mantenimiento.costo" name="costo" required min="0" step="0.01">
+        <label for="costo">Costo (CRC)</label>
+        <input class="form-control" [(ngModel)]="mantenimiento.costo" name="costo" id="costo" type="number" required min="0" step="0.01" />
       </div>
-
-      <button type="submit" class="btn-success" [disabled]="!mantenimientoForm.form.valid">Guardar Cambios</button>
-      <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+      
+      <div class="button-group">
+        <button type="submit" class="btn-success" [disabled]="!mantenimientoForm.form.valid">Guardar Cambios</button>
+        <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+      </div>
+      
+      <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+        <ul>
+          <li *ngFor="let err of validationErrors">{{ err }}</li>
+        </ul>
+      </div>
     </form>
   </div>
 </div>

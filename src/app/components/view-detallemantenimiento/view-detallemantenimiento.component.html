@@ -14,19 +14,19 @@
     <thead>
       <tr>
         <th>ID Detalle</th>
-        <th>ID Admin</th>
-        <th>ID Equipo</th>
-        <th>ID Mantenimiento</th>
-        <th>Fecha de Mantenimiento</th>
+        <th>Admin</th>
+        <th>Equipo</th>
+        <th>Mantenimiento</th>
+        <th>Fecha</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let detalle of filteredDetalles">
         <td>{{ detalle.idDetalleMantenimiento }}</td>
-        <td>{{ detalle.idAdmin }}</td>
-        <td>{{ detalle.idEquipo }}</td>
-        <td>{{ detalle.idMantenimiento }}</td>
+        <td>{{ getAdminName(detalle.idAdmin) }}</td>
+        <td>{{ getEquipoNombre(detalle.idEquipo) }}</td>
+        <td>{{ getMantenimientoDescripcion(detalle.idMantenimiento) }}</td>
         <td>{{ detalle.fechaMantenimiento | date:'yyyy-MM-dd' }}</td>
         <td>
           <button class="btn-detail" (click)="showDetalle(detalle.idDetalleMantenimiento)">Detalle</button>

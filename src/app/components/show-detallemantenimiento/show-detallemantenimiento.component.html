@@ -1,13 +1,15 @@
-<div class="container" *ngIf="detalle">
-  <div class="card">
-    <h2>Detalles del Mantenimiento</h2>
+<div class="container">
+  <div class="card shadow" *ngIf="detalle">
+    <h2>Detalle de Mantenimiento</h2>
+
     <ul class="detallemant-details-list">
       <li><strong>ID Detalle:</strong> {{ detalle.idDetalleMantenimiento }}</li>
-      <li><strong>ID Admin:</strong> {{ detalle.idAdmin }}</li>
-      <li><strong>ID Equipo:</strong> {{ detalle.idEquipo }}</li>
-      <li><strong>ID Mantenimiento:</strong> {{ detalle.idMantenimiento }}</li>
-      <li><strong>Fecha de Mantenimiento:</strong> {{ detalle.fechaMantenimiento | date:'dd/MM/yyyy' }}</li>
+      <li><strong>Administrador:</strong> {{ getAdminName(detalle.idAdmin) }}</li>
+      <li><strong>Equipo:</strong> {{ getEquipoNombre(detalle.idEquipo) }}</li>
+      <li><strong>Mantenimiento:</strong> {{ getMantenimientoDescripcion(detalle.idMantenimiento) }}</li>
+      <li><strong>Fecha:</strong> {{ detalle.fechaMantenimiento | date: 'yyyy-MM-dd' }}</li>
     </ul>
+
     <button class="btn-secondary" (click)="back()">Volver</button>
   </div>
 </div>

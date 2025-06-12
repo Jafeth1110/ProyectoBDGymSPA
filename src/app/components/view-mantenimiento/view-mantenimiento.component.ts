@@ -4,6 +4,8 @@ import Swal from 'sweetalert2';
 
 import { MantenimientoService } from '../../services/mantenimiento.service';
 import { Mantenimiento } from '../../models/mantenimiento';
+import { AdminService } from '../../services/admin.service';
+import { Admin } from '../../models/admin';
 
 @Component({
   selector: 'app-view-mantenimiento',
@@ -12,29 +14,44 @@ import { Mantenimiento } from '../../models/mantenimiento';
 })
 export class ViewMantenimientoComponent implements OnInit {
   mantenimientos: Mantenimiento[] = [];
+  admins: Admin[] = [];
   filter: string = '';
 
   constructor(
     private mantenimientoService: MantenimientoService,
+    private adminService: AdminService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.loadMantenimientos();
+    this.loadAdminsAndMantenimientos();
   }
 
-  loadMantenimientos(): void {
-    this.mantenimientoService.getMantenimientos().subscribe({
-      next: res => {
-        if (res.status === 200) {
-          this.mantenimientos = res.data;
-        } else {
-          console.error('Error cargando mantenimientos', res);
-        }
+  loadAdminsAndMantenimientos(): void {
+    this.adminService.getAdmins().subscribe({
+      next: resAdmins => {
+        this.admins = resAdmins;
+
+        this.mantenimientoService.getMantenimientos().subscribe({
+          next: resMantenimiento => {
+            if (resMantenimiento.status === 200) {
+              this.mantenimientos = resMantenimiento.data;
+            } else {
+              console.error('Error cargando mantenimientos', resMantenimiento);
+            }
+          },
+          error: err => console.error('Error cargando mantenimientos', err)
+        });
       },
-      error: err => console.error('Error cargando mantenimientos', err)
+      error: err => console.error('Error cargando admins', err)
     });
   }
+
+  getUserName(idAdmin: number): string {
+    const admin = this.admins.find(a => a.idAdmin === idAdmin);
+    return admin ? `${admin.nombre} ${admin.apellido}` : 'Desconocido';
+  }
+
 
   deleteMantenimiento(id: number): void {
     Swal.fire({
@@ -52,7 +69,7 @@ export class ViewMantenimientoComponent implements OnInit {
           next: res => {
             if (res.status === 200) {
               Swal.fire('Eliminado', 'Mantenimiento eliminado correctamente.', 'success');
-              this.loadMantenimientos();
+              this.loadAdminsAndMantenimientos();
             } else {
               Swal.fire('Error', res.message || 'No se pudo eliminar el mantenimiento.', 'error');
             }
