@@ -30,7 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.cleanUpSession();
   }
 
-  @HostListener('window:mousemove') 
+  @HostListener('window:mousemove')
   @HostListener('window:keypress')
   resetInactivityTimer(): void {
     this.setupInactivityTimer();
@@ -44,7 +44,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private checkNewSession(): void {
     const sessionWasActive = localStorage.getItem('session_active') === 'true';
     const hasToken = !!this.authService.getToken();
-    
+
     // Si no hay token pero la sesión estaba marcada como activa
     if (!hasToken && sessionWasActive) {
       this.authService.clearSession();
@@ -60,11 +60,16 @@ export class AppComponent implements OnInit, OnDestroy {
       identity => {
         this.identity = identity;
         console.log('Identity updated:', identity);
-        if (!identity) {
+        const publicRoutes = ['/login', '/signup'];
+        const currentRoute = this.router.url.split('?')[0].split('#')[0];
+
+        if (!identity && !publicRoutes.includes(currentRoute)) {
           this.router.navigate(['/login']);
         }
+
       }
     );
+
 
     // Verificar identidad al cambiar de ruta
     this.routerSubscription = this.router.events.subscribe(event => {
@@ -91,20 +96,35 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private checkSessionValidity(): void {
-    if (this.router.url !== '/login' && !this.authService.isAuthenticated()) {
+    const isAuth = this.authService.isAuthenticated();
+    const allowedRoutes = ['/login', '/signup'];
+    const currentRoute = this.router.url.toLowerCase().split('?')[0].split('#')[0];
+
+    const isAllowed = allowedRoutes.some(route => currentRoute.startsWith(route));
+    console.log('checkSessionValidity', { isAuth, currentRoute });
+
+    if (!isAuth && !isAllowed) {
       this.router.navigate(['/login'], { queryParams: { sessionExpired: true } });
     }
+
+    if (isAuth && isAllowed) {
+      this.router.navigate(['/inicio']);
+    }
+
   }
+
+
+
 
   private cleanUpSession(): void {
     // Eliminar marca de sesión activa
     localStorage.removeItem('session_active');
-    
+
     // Limpiar datos de autenticación del localStorage
     if (this.authService.isAuthenticated()) {
       // Opción 1: Limpieza local inmediata
       this.authService.clearSession();
-      
+
       // Opción 2: Notificar al backend (asíncrono)
       // this.authService.logout().pipe(take(1)).subscribe();
     }

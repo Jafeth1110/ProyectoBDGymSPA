@@ -33,42 +33,45 @@ import { AddDetallemantenimientoComponent } from './components/add-detallemanten
 import { ShowDetallemantenimientoComponent } from './components/show-detallemantenimiento/show-detallemantenimiento.component';
 import { UpdateDetallemantenimientoComponent } from './components/update-detallemantenimiento/update-detallemantenimiento.component';
 import { SignupComponent } from './components/signup/signup.component';
+import { AuthGuard } from './services/authguard.service';
 
 
 export const routes: Routes = [
-  // Home
-  { path : 'home', component: HomeComponent },
+  
   // Usuarios
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
-  { path: 'view-users', component: UsersComponent },
-  { path: 'add-user', component: AddUserComponent },
-  { path: 'show-user/:email', component: ShowUserComponent },
-  { path: 'update-user/:email', component: UpdateUserComponent },
+  // Home
+  { path : 'home', component: HomeComponent },
+  // Usuarios
+  { path: 'view-users', component: UsersComponent, canActivate: [AuthGuard] },
+  { path: 'add-user', component: AddUserComponent, canActivate: [AuthGuard]  },
+  { path: 'show-user/:email', component: ShowUserComponent, canActivate: [AuthGuard]  },
+  { path: 'update-user/:email', component: UpdateUserComponent, canActivate: [AuthGuard]  },
 
   // Teléfonos Usuario
-  { path: 'view-telefonousuario', component: ViewTelefonousuarioComponent },
-  { path: 'add-telefonousuario', component: AddTelefonousuarioComponent },
-  { path: 'show-telefonousuario/:id', component: ShowTelefonousuarioComponent },
-  { path: 'update-telefonousuario/:id', component: UpdateTelefonousuarioComponent },
+  { path: 'view-telefonousuario', component: ViewTelefonousuarioComponent, canActivate: [AuthGuard]  },
+  { path: 'add-telefonousuario', component: AddTelefonousuarioComponent, canActivate: [AuthGuard]  },
+  { path: 'show-telefonousuario/:id', component: ShowTelefonousuarioComponent, canActivate: [AuthGuard]  },
+  { path: 'update-telefonousuario/:id', component: UpdateTelefonousuarioComponent, canActivate: [AuthGuard]  },
 
   // Equipos
-  { path: 'view-equipo', component: ViewEquipoComponent },
-  { path: 'add-equipo', component: AddEquipoComponent },
-  { path: 'show-equipo/:id', component: ShowEquipoComponent },
-  { path: 'update-equipo/:id', component: UpdateEquipoComponent },
+  { path: 'view-equipo', component: ViewEquipoComponent, canActivate: [AuthGuard]  },
+  { path: 'add-equipo', component: AddEquipoComponent, canActivate: [AuthGuard]  },
+  { path: 'show-equipo/:id', component: ShowEquipoComponent, canActivate: [AuthGuard]  },
+  { path: 'update-equipo/:id', component: UpdateEquipoComponent, canActivate: [AuthGuard]  },
 
   // Mantenimiento
-  { path: 'view-mantenimiento', component: ViewMantenimientoComponent },
-  { path: 'add-mantenimiento', component: AddMantenimientoComponent },
-  { path: 'show-mantenimiento/:id', component: ShowMantenimientoComponent },
-  { path: 'update-mantenimiento/:id', component: UpdateMantenimientoComponent },
+  { path: 'view-mantenimiento', component: ViewMantenimientoComponent, canActivate: [AuthGuard]  },
+  { path: 'add-mantenimiento', component: AddMantenimientoComponent, canActivate: [AuthGuard]  },
+  { path: 'show-mantenimiento/:id', component: ShowMantenimientoComponent, canActivate: [AuthGuard]  },
+  { path: 'update-mantenimiento/:id', component: UpdateMantenimientoComponent, canActivate: [AuthGuard]  },
 
   // Detalle Mantenimiento
-  { path: 'view-detallemantenimiento', component: ViewDetallemantenimientoComponent },
-  { path: 'add-detallemantenimiento', component: AddDetallemantenimientoComponent },
-  { path: 'show-detallemantenimiento/:id', component: ShowDetallemantenimientoComponent },
-  { path: 'update-detallemantenimiento/:id', component: UpdateDetallemantenimientoComponent },
+  { path: 'view-detallemantenimiento', component: ViewDetallemantenimientoComponent, canActivate: [AuthGuard]  },
+  { path: 'add-detallemantenimiento', component: AddDetallemantenimientoComponent, canActivate: [AuthGuard]  },
+  { path: 'show-detallemantenimiento/:id', component: ShowDetallemantenimientoComponent, canActivate: [AuthGuard]  },
+  { path: 'update-detallemantenimiento/:id', component: UpdateDetallemantenimientoComponent, canActivate: [AuthGuard]  },
 
   // Ruta por defecto
   { path: '', redirectTo: 'login', pathMatch: 'full' }
