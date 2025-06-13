@@ -8,40 +8,37 @@ import { Observable } from "rxjs";
   providedIn: 'root'
 })
 export class UserService {
-   private urlAPI: string;
+  private urlAPI: string;
 
   constructor(private _http: HttpClient) {
     this.urlAPI = server.url + 'user/';
   }
 
- login(email: string, password: string): Observable<any> {
+  login(email: string, password: string): Observable<any> {
     const data = { email, password };
     const params = new URLSearchParams();
     params.set('data', JSON.stringify(data));
-    
+
     const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
     
+
     return this._http.post(`${this.urlAPI}user/login`, params.toString(), { headers });
   }
 
   getIdentityFromAPI(): Observable<any> {
-    let headers;
-    let bearerToken = sessionStorage.getItem('token');
-    if (bearerToken) {
-      headers = new HttpHeaders()
-        .set('Content-Type', 'application/x-www-form-urlencoded')
-        .set('bearertoken', bearerToken);
-    } else {
-      headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-    }
-    let options = { headers };
-    return this._http.get(this.urlAPI + 'user/getidentity', options);
+    const bearerToken = sessionStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${bearerToken}`
+    });
+
+    return this._http.get(this.urlAPI + 'getidentity', { headers });
   }
- storeUser(user: User): Observable<any> {
-  const headers = new HttpHeaders().set('Content-Type', 'application/json');
-  // Enviamos el usuario dentro de un objeto "data"
-  return this._http.post(this.urlAPI + 'add', { data: user }, { headers });
-}
+
+  storeUser(user: User): Observable<any> {
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    // Enviamos el usuario dentro de un objeto "data"
+    return this._http.post(this.urlAPI + 'add', { data: user }, { headers });
+  }
 
   getUsers(): Observable<any> {
     return this._http.get(this.urlAPI + 'getUsers');

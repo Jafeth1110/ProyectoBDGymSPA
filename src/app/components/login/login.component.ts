@@ -33,17 +33,22 @@ export class LoginComponent {
     this.authService.login(email, password).subscribe({
       next: (res) => {
         this.loading = false;
-        
-        // Manejo según la estructura de respuesta de tu backend
-        if (res.token) {
-          localStorage.setItem('token', res.token);
-          this.showAlert('success', '¡Bienvenido!');
-          this.router.navigate(['/view-users']);
-        } else if (res.status === 200 && res.data?.token) {
-          // Si la respuesta viene dentro de data
-          localStorage.setItem('token', res.data.token);
-          this.showAlert('success', '¡Bienvenido!');
-          this.router.navigate(['/view-users']);
+
+        const token = res.token || res.data?.token;
+
+        if (token) {
+          // Obtener identidad con el token
+          this.authService.getIdentityFromApi(token).subscribe({
+            next: (identityRes) => {
+              const identity = identityRes.user || {};
+              this.authService.saveSession(token, identity);
+              this.showAlert('success', '¡Bienvenido!');
+              this.router.navigate(['/home']);
+            },
+            error: () => {
+              this.showAlert('error', 'Error al obtener identidad');
+            }
+          });
         } else {
           this.showAlert('error', res.message || 'Credenciales incorrectas');
         }
@@ -53,13 +58,15 @@ export class LoginComponent {
         this.handleError(err);
       }
     });
+
   }
+
 
   private handleError(err: any) {
     console.error('Error completo:', err);
-    
+
     let errorMsg = 'Error en el servidor';
-    
+
     if (err.error) {
       // Si el error viene como texto plano (string)
       if (typeof err.error === 'string') {
@@ -69,7 +76,7 @@ export class LoginComponent {
         } catch {
           errorMsg = err.error;
         }
-      } 
+      }
       // Si el error es un objeto JSON
       else if (err.error.message) {
         errorMsg = err.error.message;

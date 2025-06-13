@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms'; 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'; // <-- necesario para HttpClient
 import { RouterModule } from '@angular/router';
-import { MenuComponent } from './components/menu/menu.component';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
@@ -32,6 +31,7 @@ import { ShowDetallemantenimientoComponent } from './components/show-detallemant
 import { AddDetallemantenimientoComponent } from './components/add-detallemantenimiento/add-detallemantenimiento.component';
 import { TokenInterceptor } from './token.interceptor';
 import { SignupComponent } from './components/signup/signup.component';
+import { HomeComponent } from './components/home/home.component';
 
 
 @NgModule({
@@ -41,7 +41,6 @@ import { SignupComponent } from './components/signup/signup.component';
     AddUserComponent,
     UpdateUserComponent,
     ShowUserComponent,
-    MenuComponent,
     ViewTelefonousuarioComponent,
     AddTelefonousuarioComponent,
     ShowTelefonousuarioComponent,
@@ -60,7 +59,7 @@ import { SignupComponent } from './components/signup/signup.component';
     AddDetallemantenimientoComponent,
     LoginComponent,
     SignupComponent,
-    
+    HomeComponent,
 
     
     

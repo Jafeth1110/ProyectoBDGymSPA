@@ -1,4 +1,50 @@
-<app-menu></app-menu>
-<main style="padding: rem;">
+<header class="navbar">
+  <div class="navbar-brand">
+    <span class="logo">GymSpa</span>
+    <button class="menu-toggle" (click)="toggleMenu()">☰</button>
+  </div>
+
+  <nav [class.open]="isMenuOpen">
+    <!-- Siempre visible -->
+    <a *ngIf="!identity" routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Iniciar Sesión</a>
+
+    <!-- Visible solo si hay sesión iniciada -->
+    <ng-container *ngIf="identity">
+      <a routerLink="/home" routerLinkActive="active" (click)="closeMenu()">Inicio</a>
+      <a routerLink="/view-users" routerLinkActive="active" (click)="closeMenu()">Usuarios</a>
+      <a routerLink="/view-telefonousuario" routerLinkActive="active" (click)="closeMenu()">Teléfonos</a>
+      <a routerLink="/view-equipo" routerLinkActive="active" (click)="closeMenu()">Equipos</a>
+      <a routerLink="/view-mantenimiento" routerLinkActive="active" (click)="closeMenu()">Mantenimiento</a>
+      <a routerLink="/view-detallemantenimiento" routerLinkActive="active" (click)="closeMenu()">Detalle Mantenimiento</a>
+    </ng-container>
+  </nav>
+
+  <!-- Solo visible si hay sesión -->
+  <div class="user-info" *ngIf="identity">
+    <span class="user-email">{{ identity?.email || identity?.data?.email }}</span>
+    <button (click)="logout()">Cerrar sesión</button>
+  </div>
+</header>
+
+<main>
   <router-outlet></router-outlet>
 </main>
+
+<footer class="footer">
+  <div class="footer-container">
+    <div class="contact-info">
+      <h4>Contacto</h4>
+      <p>Email: soporte&#64;gymspa.com</p>
+      <p>Teléfono: +506 1234 5678</p>
+      <p>Dirección: Calle Falsa 123, San José, Costa Rica</p>
+    </div>
+    <div class="developers">
+      <h4>Desarrolladores</h4>
+      <p>Jafeth Espinoza</p>
+      <p>Luciana Chacon</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <small>© 2025 GymSpa. Todos los derechos reservados.</small>
+  </div>
+</footer>

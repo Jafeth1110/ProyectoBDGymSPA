@@ -25,6 +25,11 @@
       </div>
       <button type="submit" class="btn-primary" [disabled]="!signupForm.form.valid">Registrarse</button>
     </form>
+
+    <!-- Botón volver -->
+    <button class="btn-secondary" routerLink="/login">Volver</button>
+
+    <!-- Validaciones -->
     <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
       <ul>
         <li *ngFor="let err of validationErrors">{{ err }}</li>

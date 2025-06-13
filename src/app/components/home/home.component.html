@@ -1,0 +1,31 @@
+<!-- home.component.html -->
+<div class="home-container">
+    <section class="hero">
+        <h1>Bienvenido al Sistema de Gestión del Gimnasio</h1>
+        <p>Administra tus usuarios, equipos, telefonos, mantenimientos y detalles de los mantenimientos de manera eficiente.</p>
+    </section>
+
+    <section class="cards">
+        <div class="card bg-users" routerLink="/view-users">
+            <h3>Usuarios</h3>
+            <p>Gestiona los usuarios registrados en el sistema.</p>
+        </div>
+        <div class="card bg-telefonos" routerLink="/view-telefonousuario">
+            <h3>Teléfonos de usuarios</h3>
+            <p>Agrega, edita o visualiza a los teléfonos de los usuarios disponibles.</p>
+        </div>
+        <div class="card bg-equipos" routerLink="/view-equipo">
+            <h3>Equipos</h3>
+            <p>Controla el inventario y estado del equipo de entrenamiento.</p>
+        </div>
+        <div class="card bg-mantenimiento" routerLink="/view-mantenimiento">
+            <h3>Mantenimientos</h3>
+            <p>Registra y monitorea los mantenimientos de máquinas.</p>
+        </div>
+        <div class="card bg-detalle" routerLink="/view-detallemantenimiento">
+            <h3>Detalles Mantenimiento</h3>
+            <p>Gestiona los mantenimientos que se le realizan a los equipos del gimnasio, así como quién lo asignó.</p>
+        </div>
+    </section>
+
+</div>

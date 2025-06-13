@@ -1,6 +1,7 @@
 // src/app/app.routes.ts
 import { Routes } from '@angular/router';
-
+//Home
+import { HomeComponent } from './components/home/home.component';
 // Usuarios
 import { UsersComponent } from './components/view-users/view-users.component';
 import { LoginComponent } from './components/login/login.component';
@@ -35,6 +36,8 @@ import { SignupComponent } from './components/signup/signup.component';
 
 
 export const routes: Routes = [
+  // Home
+  { path : 'home', component: HomeComponent },
   // Usuarios
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
