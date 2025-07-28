@@ -1,5 +1,17 @@
-<div class="container" *ngIf="user">
-  <div class="card">
+<div class="container">
+  <!-- Mensaje de carga -->
+  <div *ngIf="!user && !error" class="loading-message">
+    <p>Cargando datos del usuario...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button class="btn-secondary" (click)="back()">Volver</button>
+  </div>
+
+  <!-- Datos del usuario -->
+  <div class="card" *ngIf="user">
     <h2>Detalles del Usuario</h2>
     <ul class="user-details-list">
       <li><strong>ID:</strong> {{ user.idUsuario }}</li>
@@ -9,6 +21,27 @@
       <li><strong>Correo electrónico:</strong> {{ user.email }}</li>
       <li><strong>Rol:</strong> {{ user.rol }}</li>
     </ul>
-    <button class="btn-secondary" (click)="back()">Volver</button>
+    
+    <!-- Sección de teléfonos -->
+    <div class="telefono-section" *ngIf="user.telefonos && user.telefonos.length > 0">
+      <h3>Teléfonos</h3>
+      <div class="telefono-list">
+        <div *ngFor="let telefono of user.telefonos" class="telefono-item">
+          <span class="telefono-tipo">{{ formatTipoTelefono(telefono.tipoTel) }}:</span>
+          <span class="telefono-numero">{{ telefono.telefono }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="telefono-section" *ngIf="!user.telefonos || user.telefonos.length === 0">
+      <h3>Teléfonos</h3>
+      <p class="no-telefonos">No hay teléfonos registrados para este usuario.</p>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn-primary" (click)="editUser()">Editar Usuario</button>
+      <button class="btn-danger" (click)="deleteUser()">Eliminar Usuario</button>
+      <button class="btn-secondary" (click)="back()">Volver</button>
+    </div>
   </div>
 </div>

@@ -1,0 +1,39 @@
+<div class="entrenador-container">
+  <h2>Gestión de Entrenadores</h2>
+
+  <!-- Campo de búsqueda -->
+  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por nombre, apellido, email o especialidad" />
+
+  <!-- Lista de entrenadores -->
+  <table class="entrenador-table">
+    <thead>
+      <tr>
+        <th>ID Entrenador</th>
+        <th>ID Usuario</th>
+        <th>Email</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Cédula</th>
+        <th>Rol</th>
+        <th>Especialidad</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let entrenador of filteredEntrenadores">
+        <td>{{ entrenador.idEntrenador }}</td>
+        <td>{{ entrenador.idUsuario }}</td>
+        <td>{{ entrenador.email }}</td>
+        <td>{{ entrenador.nombre }}</td>
+        <td>{{ entrenador.apellido }}</td>
+        <td>{{ entrenador.cedula }}</td>
+        <td>{{ entrenador.rol }}</td>
+        <td>{{ entrenador.especialidad }}</td>
+        <td>
+          <button class="btn-detail" (click)="showEntrenador(entrenador.idEntrenador)">Detalle</button>
+          <button class="btn-delete" (click)="deleteEntrenador(entrenador.idEntrenador)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

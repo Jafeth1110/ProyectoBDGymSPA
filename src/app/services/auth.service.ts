@@ -1,20 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, of } from 'rxjs';
+import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { server } from './global';
+import { ErrorHandlerService } from './error-handler.service';
+import { ValidationService } from './validation.service';
+import { 
+  LoginResponse, 
+  UserRegistrationData, 
+  ApiResponse, 
+  UserResponse 
+} from '../models/api-interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:8000/api/v1';
+  private baseUrl = server.url.slice(0, -1); // Remover la barra final
   private identitySubject = new BehaviorSubject<any>(null);
   private jwtHelper = new JwtHelperService();
   
   public currentIdentity = this.identitySubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private errorHandler: ErrorHandlerService,
+    private validationService: ValidationService
+  ) {
     this.initializeIdentity();
   }
 
@@ -29,25 +42,66 @@ export class AuthService {
     }
   }
 
+  // Método de login que usa el formato correcto del backend
   login(email: string, password: string): Observable<any> {
-    const payload = {
-      data: {
-        email,
-        password
-      }
-    };
-
-    const headers = new HttpHeaders()
-      .set('Content-Type', 'application/json');
-
-    return this.http.post(`${this.baseUrl}/user/login`, payload, { headers }).pipe(
+    // Validar email y password antes de enviar
+    const emailValidation = this.validationService.validateEmail(email);
+    const passwordValidation = this.validationService.validatePassword(password);
+    
+    if (!emailValidation.valid || !passwordValidation.valid) {
+      const errors: string[] = [];
+      if (!emailValidation.valid && emailValidation.message) errors.push(emailValidation.message);
+      if (!passwordValidation.valid && passwordValidation.message) errors.push(passwordValidation.message);
+      
+      return throwError(() => ({
+        status: 422,
+        message: 'Errores de validación',
+        errors: errors
+      }));
+    }
+    
+    const normalizedEmail = email.toLowerCase().trim();
+    const data = { email: normalizedEmail, password };
+    
+    console.log('Enviando datos de login:', data);
+    
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    const payload = { data: data };
+    
+    console.log('URL completa:', `${this.baseUrl}/user/login`);
+    console.log('Payload enviado:', payload);
+    
+    return this.http.post<LoginResponse>(`${this.baseUrl}/user/login`, payload, { headers }).pipe(
       tap((response: any) => {
-        if (response?.data?.token) {
-          this.getIdentityFromApi(response.data.token).subscribe(identity => {
-            this.saveSession(response.data.token, identity.data);
-          });
-        }
-      })
+        console.log('Respuesta completa del login:', response);
+        // Solo loggeamos, el componente se encarga del resto
+      }),
+      catchError(this.errorHandler.handleError.bind(this.errorHandler))
+    );
+  }
+
+  // Registro de usuario
+  register(userData: UserRegistrationData): Observable<any> {
+    // Validar los datos antes de enviar
+    const validation = this.validationService.validateUser(userData);
+    if (!validation.valid) {
+      return throwError(() => ({
+        status: 422,
+        message: 'Errores de validación',
+        errors: validation.errors
+      }));
+    }
+    
+    // Limpiar los datos
+    const cleanedData = this.validationService.cleanUserData(userData);
+    
+    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    const payload = { data: cleanedData };
+    
+    console.log('Registrando usuario:', payload);
+    
+    return this.http.post<ApiResponse<UserResponse>>(`${this.baseUrl}/user/add`, payload, { headers }).pipe(
+      catchError(this.errorHandler.handleError.bind(this.errorHandler))
     );
   }
 
@@ -55,38 +109,31 @@ export class AuthService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-
-    return this.http.get(`${this.baseUrl}/user/getidentity`, { headers }).pipe(
+    
+    console.log('getIdentityFromApi - Enviando request con token:', token.substring(0, 20) + '...');
+    
+    return this.http.get<ApiResponse<UserResponse>>(`${this.baseUrl}/user/getidentity`, { headers }).pipe(
+      tap(response => {
+        console.log('getIdentityFromApi - Respuesta completa:', response);
+      }),
       catchError(error => {
+        console.error('Error obteniendo identidad:', error);
         this.clearSession();
-        return of(null);
+        return this.errorHandler.handleError(error);
       })
     );
   }
 
   saveSession(token: string, identity: any): void {
+    console.log('saveSession llamado con:', { token: token.substring(0, 20) + '...', identity });
     localStorage.setItem('session_active', 'true');
     localStorage.setItem('token', token);
     localStorage.setItem('identity', JSON.stringify(identity));
     localStorage.setItem('token_expiration', (Date.now() + 3600000).toString());
+    
+    // Actualizar el observable de identidad
     this.identitySubject.next(identity);
-  }
-
-  checkStaleSession(): void {
-    const wasActive = localStorage.getItem('session_active') === 'true';
-    const nowActive = this.isAuthenticated();
-    
-    // Si había una sesión activa pero ahora no está autenticado
-    if (wasActive && !nowActive) {
-      this.clearSession();
-    }
-    
-    // Actualizamos el estado de la sesión
-    if (nowActive) {
-      localStorage.setItem('session_active', 'true');
-    } else {
-      localStorage.removeItem('session_active');
-    }
+    console.log('identitySubject actualizado con:', identity);
   }
 
   logout(): Observable<any> {
@@ -96,7 +143,7 @@ export class AuthService {
         'Authorization': `Bearer ${token}`
       });
 
-      return this.http.post(`${this.baseUrl}/user/logout`, {}, { headers }).pipe(
+      return this.http.post(`${this.baseUrl}/logout`, {}, { headers }).pipe(
         tap(() => {
           this.clearSession();
         }),
@@ -114,6 +161,7 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('identity');
     localStorage.removeItem('token_expiration');
+    localStorage.removeItem('session_active'); // También limpiar la marca de sesión
     this.identitySubject.next(null);
   }
 

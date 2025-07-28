@@ -13,24 +13,44 @@ export class DetalleMantenimientoService {
   constructor(private _http: HttpClient) {}
 
   getDetalles(): Observable<any> {
-    return this._http.get(this.urlAPI);
+    const bearerToken = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${bearerToken}`
+    });
+    return this._http.get(this.urlAPI, { headers });
   }
 
   storeDetalle(detalle: DetalleMantenimiento): Observable<any> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    const bearerToken = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${bearerToken}`
+    });
     return this._http.post(this.urlAPI, { data: detalle }, { headers });
   }
 
   showDetalle(id: number): Observable<any> {
-    return this._http.get(this.urlAPI + id);
+    const bearerToken = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${bearerToken}`
+    });
+    return this._http.get(this.urlAPI + id, { headers });
   }
 
   updateDetalle(id: number, body: any): Observable<any> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    const bearerToken = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${bearerToken}`
+    });
     return this._http.put(this.urlAPI + id, { data: body }, { headers });
   }
 
   deleteDetalle(id: number): Observable<any> {
-    return this._http.delete(this.urlAPI + id);
+    const bearerToken = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${bearerToken}`
+    });
+    return this._http.delete(this.urlAPI + id, { headers });
   }
 }

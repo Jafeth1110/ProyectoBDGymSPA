@@ -62,10 +62,66 @@ h2 {
   margin-right: 6px;
 }
 
-/* Botón volver */
-.btn-secondary {
+/* Sección de teléfonos */
+.telefono-section {
   width: 100%;
-  background: #6c757d;
+  margin-bottom: 2rem;
+}
+
+.telefono-section h3 {
+  font-weight: 600;
+  color: #2d2d2d;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.telefono-list {
+  width: 100%;
+}
+
+.telefono-item {
+  background: #f0f9ff;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #444;
+  border: 1px solid #bfdbfe;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.telefono-tipo {
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.telefono-numero {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.no-telefonos {
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+/* Botones de acción */
+.action-buttons {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-primary, .btn-danger, .btn-secondary {
+  width: 100%;
   border: none;
   color: #fff;
   font-weight: 600;
@@ -73,8 +129,33 @@ h2 {
   padding: 0.9rem 0;
   font-size: 1.1rem;
   transition: background 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.08);
   cursor: pointer;
+}
+
+.btn-primary {
+  background: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.08);
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.btn-danger {
+  background: #dc3545;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.08);
+}
+
+.btn-danger:hover {
+  background: #c82333;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+}
+
+/* Botón volver */
+.btn-secondary {
+  background: #6c757d;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.08);
 }
 
 .btn-secondary:hover {

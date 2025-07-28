@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { TelefonoUsuarioService } from '../../services/telefonoUsuario.service';
-import { TelefonoUsuario } from '../../models/telefonoUsuario';
 import { Router } from '@angular/router';
+import { TelefonoService } from '../../services/telefono.service';
+import { Telefono } from '../../models/telefono';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -10,81 +10,198 @@ import Swal from 'sweetalert2';
   styleUrls: ['./view-telefonousuario.component.css']
 })
 export class ViewTelefonousuarioComponent implements OnInit {
-  telefonos: TelefonoUsuario[] = [];
-  filter: string = '';
+  telefonos: Telefono[] = [];
+  filteredTelefonos: Telefono[] = [];
+  filter = '';
+  loading = false;
+  error = '';
 
   constructor(
-    private telefonoUsuarioService: TelefonoUsuarioService,
+    private telefonoService: TelefonoService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadTelefonos();
   }
 
   loadTelefonos(): void {
-    this.telefonoUsuarioService.getTelefonos().subscribe({
-      next: res => {
-        if (res.status === 200) {
-          this.telefonos = res.data;
-        } else {
-          console.error('Error cargando teléfonos', res);
-        }
+    this.loading = true;
+    this.error = '';
+    
+    this.telefonoService.getAllTelefonos().subscribe({
+      next: (response) => {
+        console.log('Respuesta completa de teléfonos:', response);
+        
+        // El backend ya devuelve la información completa
+        const telefonosData = Array.isArray(response.data) ? response.data : [];
+        console.log('Teléfonos recibidos:', telefonosData);
+        
+        // Mapear la respuesta del backend al formato que espera el frontend
+        this.telefonos = telefonosData.map((telefono: any) => ({
+          idTelefono: telefono.idTelefono,
+          idUsuario: telefono.usuario.idUsuario,
+          telefono: telefono.telefono,
+          tipoTel: telefono.tipoTel,
+          idRol: telefono.rol.idRol,
+          user: {
+            idUsuario: telefono.usuario.idUsuario,
+            nombre: telefono.usuario.nombre,
+            apellido: telefono.usuario.apellido,
+            email: telefono.usuario.email,
+            cedula: telefono.usuario.cedula,
+            rol: telefono.rol.nombreRol
+          },
+          rol: {
+            idRol: telefono.rol.idRol,
+            nombreRol: telefono.rol.nombreRol,
+            descripcion: ''
+          }
+        }));
+        
+        console.log('Teléfonos procesados:', this.telefonos);
+        this.filteredTelefonos = [...this.telefonos];
+        this.loading = false;
       },
-      error: err => console.error('Error cargando teléfonos', err)
+      error: (error) => {
+        console.error('Error loading phones:', error);
+        this.error = 'Error al cargar los teléfonos';
+        this.loading = false;
+        Swal.fire('Error', 'No se pudieron cargar los teléfonos', 'error');
+      }
     });
   }
 
+  applyFilter(): void {
+    if (!this.filter.trim()) {
+      this.filteredTelefonos = [...this.telefonos];
+      return;
+    }
+
+    const filterLower = this.filter.toLowerCase();
+    this.filteredTelefonos = this.telefonos.filter(telefono => 
+      telefono.telefono.toLowerCase().includes(filterLower) ||
+      telefono.tipoTel.toLowerCase().includes(filterLower) ||
+      telefono.idTelefono.toString().includes(filterLower) ||
+      telefono.idUsuario.toString().includes(filterLower) ||
+      (telefono.user?.nombre?.toLowerCase().includes(filterLower)) ||
+      (telefono.user?.apellido?.toLowerCase().includes(filterLower)) ||
+      (telefono.user?.email?.toLowerCase().includes(filterLower)) ||
+      (telefono.rol?.nombreRol?.toLowerCase().includes(filterLower))
+    );
+  }
+
+  showTelefono(id: number): void {
+    // Necesitamos obtener el teléfono para pasar el tipo
+    const telefono = this.telefonos.find(t => t.idTelefono === id);
+    console.log('Mostrando teléfono:', id, telefono);
+    if (telefono) {
+      this.router.navigate(['/show-telefonousuario', id, telefono.tipoTel]);
+    }
+  }
+
+  editTelefono(id: number): void {
+    // Necesitamos obtener el teléfono para pasar el tipo
+    const telefono = this.telefonos.find(t => t.idTelefono === id);
+    console.log('Editando teléfono:', id, telefono);
+    if (telefono) {
+      this.router.navigate(['/update-telefonousuario', id, telefono.tipoTel]);
+    }
+  }
+
   deleteTelefono(id: number): void {
+    console.log('Eliminando teléfono:', id);
+    
     Swal.fire({
       title: '¿Estás seguro?',
-      text: `¿Eliminar teléfono con ID ${id}?`,
+      text: 'Esta acción no se puede deshacer',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#e74c3c',
+      cancelButtonColor: '#6c757d',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.telefonoUsuarioService.deleteTelefono(id).subscribe({
-          next: res => {
-            if (res.status === 200) {
-              Swal.fire('Eliminado', 'Teléfono eliminado correctamente.', 'success');
-              this.loadTelefonos();
-            } else {
-              Swal.fire('Error', res.message || 'No se pudo eliminar el teléfono.', 'error');
-            }
+        this.telefonoService.deleteTelefono(id).subscribe({
+          next: () => {
+            console.log('Teléfono eliminado exitosamente');
+            Swal.fire('Eliminado', 'Teléfono eliminado correctamente.', 'success');
+            this.loadTelefonos(); // Reload the list
           },
-          error: err => {
+          error: (error) => {
+            console.error('Error deleting phone:', error);
             Swal.fire('Error', 'No se pudo eliminar el teléfono.', 'error');
-            console.error('Error al eliminar teléfono', err);
           }
         });
       }
     });
   }
 
-  navigateToAddTelefono(): void {
+  addTelefono(): void {
     this.router.navigate(['/add-telefonousuario']);
   }
 
-  showTelefono(id: number): void {
-    this.router.navigate(['/show-telefonousuario', id]);
+  getUserName(telefono: any): string {
+    if (telefono.user?.nombre && telefono.user?.apellido) {
+      return `${telefono.user.nombre} ${telefono.user.apellido}`;
+    }
+    return 'Usuario no disponible';
   }
 
-  updateTelefono(id: number): void {
-    this.router.navigate(['/update-telefonousuario', id]);
+  getUserEmail(telefono: any): string {
+    return telefono.user?.email || 'Email no disponible';
   }
 
-  get filteredTelefonos(): TelefonoUsuario[] {
-    if (!this.filter) return this.telefonos;
-    const term = this.filter.toLowerCase();
-    return this.telefonos.filter(t =>
-      t.idTelefonoUsuario.toString().includes(term) ||
-      t.idUsuario.toString().includes(term) ||
-      t.tipoTel.toLowerCase().includes(term) ||
-      t.telefono.toLowerCase().includes(term)
-    );
+  /**
+   * Obtiene el nombre del rol del teléfono
+   */
+  getRolName(telefono: any): string {
+    // Prioridad 1: rol desde la respuesta anidada
+    if (telefono.rol?.nombreRol) {
+      return telefono.rol.nombreRol;
+    }
+    
+    // Prioridad 2: rol desde el usuario anidado
+    if (telefono.user?.rol) {
+      return telefono.user.rol;
+    }
+    
+    // Prioridad 3: calcular rol usando idRol del teléfono
+    if (telefono.idRol) {
+      switch (telefono.idRol) {
+        case 1: return 'admin';
+        case 2: return 'cliente';
+        case 3: return 'entrenador';
+        default: return 'N/A';
+      }
+    }
+    
+    // Prioridad 4: calcular rol usando idRol del usuario anidado
+    if (telefono.user?.idRol) {
+      switch (telefono.user.idRol) {
+        case 1: return 'admin';
+        case 2: return 'cliente';
+        case 3: return 'entrenador';
+        default: return 'N/A';
+      }
+    }
+    
+    return 'N/A';
+  }
+
+  /**
+   * Obtiene la clase CSS para el badge del rol
+   */
+  getRolBadgeClass(telefono: any): string {
+    const rolName = this.getRolName(telefono).toLowerCase();
+    return rolName !== 'n/a' ? rolName : '';
+  }
+
+  /**
+   * Obtiene el ID de usuario o N/A si no está disponible
+   */
+  getUserId(telefono: any): string {
+    return telefono.idUsuario ? telefono.idUsuario.toString() : 'N/A';
   }
 }

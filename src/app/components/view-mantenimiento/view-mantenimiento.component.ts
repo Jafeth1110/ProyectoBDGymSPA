@@ -30,24 +30,42 @@ export class ViewMantenimientoComponent implements OnInit {
   loadAdminsAndMantenimientos(): void {
     this.adminService.getAdmins().subscribe({
       next: resAdmins => {
-        this.admins = resAdmins;
+        console.log('Respuesta de admins en view-mantenimiento:', resAdmins); // Para debugging
+        if (resAdmins.status === 200) {
+          this.admins = resAdmins.data || [];
+        } else {
+          // Si la respuesta es directamente un array
+          this.admins = Array.isArray(resAdmins) ? resAdmins : [];
+        }
+        console.log('Admins procesados:', this.admins); // Para verificar que sea un array
 
         this.mantenimientoService.getMantenimientos().subscribe({
           next: resMantenimiento => {
+            console.log('Respuesta de mantenimientos:', resMantenimiento); // Para debugging
             if (resMantenimiento.status === 200) {
-              this.mantenimientos = resMantenimiento.data;
+              this.mantenimientos = resMantenimiento.data || [];
             } else {
-              console.error('Error cargando mantenimientos', resMantenimiento);
+              this.mantenimientos = Array.isArray(resMantenimiento) ? resMantenimiento : [];
             }
           },
-          error: err => console.error('Error cargando mantenimientos', err)
+          error: err => {
+            console.error('Error cargando mantenimientos', err);
+            Swal.fire('Error', 'No se pudieron cargar los mantenimientos', 'error');
+          }
         });
       },
-      error: err => console.error('Error cargando admins', err)
+      error: err => {
+        console.error('Error cargando admins', err);
+        this.admins = []; // Asegurar que sea un array vacío
+        Swal.fire('Error', 'No se pudieron cargar los administradores', 'error');
+      }
     });
   }
 
   getUserName(idAdmin: number): string {
+    if (!Array.isArray(this.admins) || this.admins.length === 0) {
+      return 'Cargando...';
+    }
     const admin = this.admins.find(a => a.idAdmin === idAdmin);
     return admin ? `${admin.nombre} ${admin.apellido}` : 'Desconocido';
   }

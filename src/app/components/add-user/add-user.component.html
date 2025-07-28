@@ -40,6 +40,39 @@
             <option value="entrenador">Entrenador</option>
           </select>
         </div>
+
+        <!-- Sección de teléfonos -->
+        <div class="telefono-section">
+          <div class="telefono-header">
+            <h3>Teléfonos (Opcional)</h3>
+            <button type="button" class="btn-add-telefono" (click)="addTelefono()">+ Agregar Teléfono</button>
+          </div>
+          
+          <div *ngIf="user.telefonos.length === 0" class="no-telefonos">
+            <p>No hay teléfonos agregados. Es opcional, pero puedes agregar uno o más teléfonos.</p>
+          </div>
+
+          <div *ngFor="let telefono of user.telefonos; let i = index; trackBy: trackByIndex" class="telefono-item">
+            <div class="telefono-row">
+              <div class="form-group small">
+                <label [for]="'tipoTel' + i">Tipo</label>
+                <select [(ngModel)]="telefono.tipoTel" [name]="'tipoTel' + i" [id]="'tipoTel' + i" required>
+                  <option value="">Seleccionar</option>
+                  <option value="celular">Celular</option>
+                  <option value="casa">Casa</option>
+                  <option value="trabajo">Trabajo</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <div class="form-group small">
+                <label [for]="'telefono' + i">Número</label>
+                <input [(ngModel)]="telefono.telefono" [name]="'telefono' + i" [id]="'telefono' + i" type="text" placeholder="Ej: 8888-8888" required />
+              </div>
+              <button type="button" class="btn-remove" (click)="removeTelefono(i)" title="Eliminar teléfono">×</button>
+            </div>
+          </div>
+        </div>
+
         <button type="submit" class="btn-primary" [disabled]="!userForm.form.valid">Registrar</button>
       </form>
       <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">

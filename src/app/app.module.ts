@@ -32,6 +32,9 @@ import { AddDetallemantenimientoComponent } from './components/add-detallemanten
 import { TokenInterceptor } from './token.interceptor';
 import { SignupComponent } from './components/signup/signup.component';
 import { HomeComponent } from './components/home/home.component';
+import { ViewAdminComponent } from './components/view-admin/view-admin.component';
+import { ViewClienteComponent } from './components/view-cliente/view-cliente.component';
+import { ViewEntrenadorComponent } from './components/view-entrenador/view-entrenador.component';
 
 
 @NgModule({
@@ -60,12 +63,9 @@ import { HomeComponent } from './components/home/home.component';
     LoginComponent,
     SignupComponent,
     HomeComponent,
-
-    
-    
-    
-
-    
+    ViewAdminComponent,
+    ViewClienteComponent,
+    ViewEntrenadorComponent
 
   ],
   imports: [

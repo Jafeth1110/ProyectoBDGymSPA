@@ -21,8 +21,23 @@ export class AddUserComponent {
     this.user = new User(0, '', '', '', '', '', 'cliente');
   }
 
+  // Métodos para manejar teléfonos
+  addTelefono(): void {
+    this.user.addTelefono('celular', ''); // Establecer celular como tipo por defecto
+  }
+
+  removeTelefono(index: number): void {
+    this.user.removeTelefono(index);
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+
   onSubmit(form?: any): void {
     this.validationErrors = [];
+    
+    // Validar campos requeridos
     if (
       !this.user.nombre ||
       !this.user.apellido ||
@@ -35,11 +50,30 @@ export class AddUserComponent {
       return;
     }
 
-    // ENVÍA LOS DATOS DIRECTAMENTE
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.user.email)) {
+      this.showAlert('error', 'El formato del correo electrónico no es válido.');
+      return;
+    }
+
+    // Validar teléfonos (si existen)
+    const telefonosValidos = this.user.getValidTelefonos();
+    for (let telefono of telefonosValidos) {
+      if (!telefono.tipoTel) {
+        this.showAlert('error', 'Todos los teléfonos deben tener un tipo seleccionado.');
+        return;
+      }
+    }
+
+    console.log('Usuario antes de enviar:', this.user);
+    console.log('Teléfonos válidos:', telefonosValidos);
+
     this._userService.storeUser(this.user).subscribe({
       next: (response: any) => {
         if (response.status === 201 || response.status === 200) {
           if (form) form.reset();
+          this.user = new User(0, '', '', '', '', '', 'cliente');
           this.showAlert('success', 'Usuario registrado correctamente');
           this._router.navigate(['/view-users']);
         } else {
@@ -47,7 +81,11 @@ export class AddUserComponent {
         }
       },
       error: (error: any) => {
-        if (error.status === 400 && error.error && error.error.message) {
+        console.error('Error completo:', error);
+        
+        if (error.status === 406 && error.error) {
+          this.showAlert('error', `Error: ${error.error.message || 'Datos no aceptables'}`);
+        } else if (error.status === 400 && error.error && error.error.message) {
           this.showAlert('error', error.error.message);
         } else if (error.status === 422 && error.error && error.error.errors) {
           const errors: string[] = [];
@@ -58,7 +96,7 @@ export class AddUserComponent {
           this.validationErrors = errors;
           this.showAlert('error', errors.join('<br>'));
         } else {
-          this.showAlert('error', 'Error inesperado del servidor.');
+          this.showAlert('error', error.error?.message || 'Error inesperado del servidor.');
         }
       }
     });

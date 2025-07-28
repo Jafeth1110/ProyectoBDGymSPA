@@ -2,36 +2,68 @@
   <h2>Gestión de Teléfonos de Usuario</h2>
 
   <!-- Campo de búsqueda -->
-  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por ID, usuario, tipo o teléfono" />
+  <input class="search-input" 
+         [(ngModel)]="filter" 
+         name="filter" 
+         placeholder="Buscar por ID, usuario, tipo, rol o teléfono"
+         (input)="applyFilter()"
+         [disabled]="loading" />
+
+  <!-- Mensaje de carga -->
+  <div *ngIf="loading" class="loading-message">
+    <p>Cargando teléfonos...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
 
   <!-- Lista de teléfonos -->
-  <table class="telefonos-table">
+  <table class="telefonos-table" *ngIf="!loading && !error">
     <thead>
       <tr>
         <th>ID Teléfono</th>
         <th>ID Usuario</th>
-        <th>Nombre</th>
-        <th>Tipo</th>
+        <th>Nombre Completo</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Tipo Tel</th>
         <th>Teléfono</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let tel of filteredTelefonos">
-        <td>{{ tel.idTelefonoUsuario }}</td>
-        <td>{{ tel.idUsuario }}</td>
-        <td>{{ tel.usuario?.nombre }} {{ tel.usuario?.apellido }}</td>
+        <td>{{ tel.idTelefono }}</td>
+        <td>{{ getUserId(tel) }}</td>
+        <td>{{ getUserName(tel) }}</td>
+        <td>{{ getUserEmail(tel) }}</td>
+        <td>
+          <span class="rol-badge" [ngClass]="getRolBadgeClass(tel)">
+            {{ getRolName(tel) }}
+          </span>
+        </td>
         <td>{{ tel.tipoTel }}</td>
         <td>{{ tel.telefono }}</td>
-        <td>
-          <button class="btn-detail" (click)="showTelefono(tel.idTelefonoUsuario)">Detalle</button>
-          <button class="btn-update" (click)="updateTelefono(tel.idTelefonoUsuario)">Actualizar</button>
-          <button class="btn-delete" (click)="deleteTelefono(tel.idTelefonoUsuario)">Eliminar</button>
+        <td class="actions-cell">
+          <button class="btn-detail" (click)="showTelefono(tel.idTelefono)">Detalle</button>
+          <button class="btn-update" (click)="editTelefono(tel.idTelefono)">Actualizar</button>
+          <button class="btn-delete" (click)="deleteTelefono(tel.idTelefono)">Eliminar</button>
         </td>
       </tr>
     </tbody>
   </table>
 
+  <!-- Mensaje si no hay teléfonos -->
+  <div *ngIf="!loading && !error && telefonos.length === 0" class="no-data">
+    <p>No hay teléfonos registrados</p>
+  </div>
+
   <!-- Botón para ir a agregar teléfono -->
-  <button class="add-telefono-btn" (click)="navigateToAddTelefono()">Agregar Teléfono</button>
+  <button class="add-telefono-btn" 
+          (click)="addTelefono()"
+          [disabled]="loading">
+    Agregar Teléfono
+  </button>
 </div>

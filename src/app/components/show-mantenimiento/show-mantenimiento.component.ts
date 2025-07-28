@@ -35,9 +35,18 @@ export class ShowMantenimientoComponent implements OnInit {
   loadAdmins(): void {
     this.adminService.getAdmins().subscribe({
       next: resAdmins => {
-        this.admins = resAdmins;
+        console.log('Respuesta de admins:', resAdmins); // Para debugging
+        if (resAdmins.status === 200) {
+          this.admins = resAdmins.data;
+        } else {
+          // Si la respuesta es directamente un array
+          this.admins = Array.isArray(resAdmins) ? resAdmins : [];
+        }
       },
-      error: err => console.error('Error cargando admins', err)
+      error: err => {
+        console.error('Error cargando admins', err);
+        Swal.fire('Error', 'No se pudieron cargar los administradores', 'error');
+      }
     });
   }
 

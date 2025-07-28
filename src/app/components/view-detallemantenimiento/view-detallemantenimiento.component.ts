@@ -40,34 +40,52 @@ export class ViewDetallemantenimientoComponent implements OnInit {
     // Cargamos todos los datos necesarios
     this.adminService.getAdmins().subscribe({
       next: (resAdmins: any) => {
-        this.admins = Array.isArray(resAdmins) ? resAdmins : []; // Aseguramos que sea array
+        console.log('Respuesta de admins en view-detallemantenimiento:', resAdmins); // Para debugging
+        if (resAdmins.status === 200) {
+          this.admins = resAdmins.data || [];
+        } else {
+          this.admins = Array.isArray(resAdmins) ? resAdmins : [];
+        }
+        console.log('Admins procesados:', this.admins); // Para verificar que sea un array
         
         this.equipoService.getEquipos().subscribe({
           next: (resEquipos: any) => {
-            this.equipos = Array.isArray(resEquipos) ? resEquipos : resEquipos.data || []; // Manejo seguro
+            console.log('Respuesta de equipos:', resEquipos); // Para debugging
+            if (resEquipos.status === 200) {
+              this.equipos = resEquipos.data || [];
+            } else {
+              this.equipos = Array.isArray(resEquipos) ? resEquipos : [];
+            }
             
             this.mantenimientoService.getMantenimientos().subscribe({
               next: (resMantenimientos: any) => {
-                this.mantenimientos = Array.isArray(resMantenimientos) ? resMantenimientos : 
-                                     resMantenimientos.data || [];
+                console.log('Respuesta de mantenimientos:', resMantenimientos); // Para debugging
+                if (resMantenimientos.status === 200) {
+                  this.mantenimientos = resMantenimientos.data || [];
+                } else {
+                  this.mantenimientos = Array.isArray(resMantenimientos) ? resMantenimientos : [];
+                }
                 // Finalmente cargamos los detalles
                 this.loadDetalles();
               },
               error: err => {
                 console.error('Error cargando mantenimientos', err);
                 this.mantenimientos = [];
+                Swal.fire('Error', 'No se pudieron cargar los mantenimientos', 'error');
               }
             });
           },
           error: err => {
             console.error('Error cargando equipos', err);
             this.equipos = [];
+            Swal.fire('Error', 'No se pudieron cargar los equipos', 'error');
           }
         });
       },
       error: err => {
         console.error('Error cargando admins', err);
         this.admins = [];
+        Swal.fire('Error', 'No se pudieron cargar los administradores', 'error');
       }
     });
   }

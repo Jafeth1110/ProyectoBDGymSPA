@@ -1,11 +1,29 @@
 <div class="container" *ngIf="telefono">
   <div class="card">
-    <h2>Detalles del Teléfono de Usuario</h2>
+    <h2>Detalles del Teléfono</h2>
     <ul class="telefono-details-list">
-      <li><strong>ID Teléfono:</strong> {{ telefono.idTelefonoUsuario }}</li>
-      <li><strong>ID Usuario:</strong> {{ telefono.idUsuario }}</li>
-      <li><strong>Tipo:</strong> {{ telefono.tipoTel }}</li>
+      <li><strong>ID Teléfono:</strong> {{ telefono.idTelefono }}</li>
       <li><strong>Teléfono:</strong> {{ telefono.telefono }}</li>
+      <li><strong>Tipo:</strong> {{ telefono.tipoTel }}</li>
+      
+      <!-- El backend envía 'usuario', no 'user' -->
+      <li *ngIf="telefono.usuario">
+        <strong>Usuario:</strong> {{ telefono.usuario.nombre }} {{ telefono.usuario.apellido }} ({{ telefono.usuario.email }})
+      </li>
+      <li *ngIf="telefono.user">
+        <strong>Usuario:</strong> {{ telefono.user.nombre }} {{ telefono.user.apellido }} ({{ telefono.user.email }})
+      </li>
+      
+      <!-- Mostrar rol -->
+      <li *ngIf="telefono.rol">
+        <strong>Rol:</strong> {{ telefono.rol.nombreRol }}
+      </li>
+      <li *ngIf="telefono.usuario && telefono.usuario.rol">
+        <strong>Rol:</strong> {{ telefono.usuario.rol }}
+      </li>
+      <li *ngIf="telefono.user && telefono.user.rol">
+        <strong>Rol:</strong> {{ telefono.user.rol }}
+      </li>
     </ul>
     <button class="btn-secondary" (click)="back()">Volver</button>
   </div>

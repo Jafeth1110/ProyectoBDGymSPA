@@ -1,0 +1,39 @@
+<div class="cliente-container">
+  <h2>Gestión de Clientes</h2>
+
+  <!-- Campo de búsqueda -->
+  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por nombre, apellido o email" />
+
+  <!-- Lista de clientes -->
+  <table class="cliente-table">
+    <thead>
+      <tr>
+        <th>ID Cliente</th>
+        <th>ID Usuario</th>
+        <th>Email</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Cédula</th>
+        <th>Rol</th>
+        <th>Fecha Registro</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cliente of filteredClientes">
+        <td>{{ cliente.idCliente }}</td>
+        <td>{{ cliente.idUsuario }}</td>
+        <td>{{ cliente.email }}</td>
+        <td>{{ cliente.nombre }}</td>
+        <td>{{ cliente.apellido }}</td>
+        <td>{{ cliente.cedula }}</td>
+        <td>{{ cliente.rol }}</td>
+        <td>{{ cliente.fechaRegistro | date:'short' }}</td>
+        <td>
+          <button class="btn-detail" (click)="showCliente(cliente.idCliente)">Detalle</button>
+          <button class="btn-delete" (click)="deleteCliente(cliente.idCliente)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

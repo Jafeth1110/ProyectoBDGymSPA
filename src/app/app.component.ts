@@ -21,13 +21,13 @@ export class AppComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router
   ) {
-    // Verificar si es una nueva sesión (sin marca de sesión activa)
-    this.checkNewSession();
+    // No verificar nueva sesión aquí, dejamos que persista
   }
 
   @HostListener('window:beforeunload', ['$event'])
   beforeUnloadHandler(event: Event): void {
-    this.cleanUpSession();
+    // No limpiar la sesión al refrescar la página
+    // Solo marcar que la ventana se está cerrando
   }
 
   @HostListener('window:mousemove')
@@ -41,19 +41,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.setupInactivityTimer();
   }
 
-  private checkNewSession(): void {
-    const sessionWasActive = localStorage.getItem('session_active') === 'true';
-    const hasToken = !!this.authService.getToken();
-
-    // Si no hay token pero la sesión estaba marcada como activa
-    if (!hasToken && sessionWasActive) {
-      this.authService.clearSession();
-    }
-  }
-
   private setupSessionManagement(): void {
-    // Marcar sesión como activa al iniciar
-    localStorage.setItem('session_active', 'true');
+    // No forzar que la sesión sea activa aquí
+    // Dejar que persista si existe una válida
 
     // Suscripción a cambios en la identidad
     this.identitySubscription = this.authService.currentIdentity.subscribe(
@@ -66,10 +56,8 @@ export class AppComponent implements OnInit, OnDestroy {
         if (!identity && !publicRoutes.includes(currentRoute)) {
           this.router.navigate(['/login']);
         }
-
       }
     );
-
 
     // Verificar identidad al cambiar de ruta
     this.routerSubscription = this.router.events.subscribe(event => {
@@ -108,25 +96,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     if (isAuth && isAllowed) {
-      this.router.navigate(['/inicio']);
-    }
-
-  }
-
-
-
-
-  private cleanUpSession(): void {
-    // Eliminar marca de sesión activa
-    localStorage.removeItem('session_active');
-
-    // Limpiar datos de autenticación del localStorage
-    if (this.authService.isAuthenticated()) {
-      // Opción 1: Limpieza local inmediata
-      this.authService.clearSession();
-
-      // Opción 2: Notificar al backend (asíncrono)
-      // this.authService.logout().pipe(take(1)).subscribe();
+      this.router.navigate(['/home']); // Cambiar a home en lugar de inicio
     }
   }
 

@@ -2,38 +2,167 @@
 <div class="container">
   <div class="card shadow p-4">
     <h2 class="mb-4 text-center">Registro de Usuario</h2>
-    <form #signupForm="ngForm" (ngSubmit)="onSubmit(signupForm)">
+    
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Nombre -->
       <div class="form-group">
-        <label for="nombre">Nombre</label>
-        <input [(ngModel)]="user.nombre" name="nombre" id="nombre" type="text" required />
+        <label for="nombre">Nombre *</label>
+        <input 
+          formControlName="nombre" 
+          id="nombre" 
+          type="text" 
+          class="form-control"
+          [class.is-invalid]="nombre?.invalid && nombre?.touched"
+          placeholder="Ingrese su nombre"
+        />
+        <div *ngIf="nombre?.invalid && nombre?.touched" class="invalid-feedback">
+          <small *ngIf="nombre?.errors?.['required']">El nombre es requerido</small>
+          <small *ngIf="nombre?.errors?.['pattern']">Solo se permiten letras y espacios</small>
+        </div>
       </div>
+
+      <!-- Apellido -->
       <div class="form-group">
-        <label for="apellido">Apellido</label>
-        <input [(ngModel)]="user.apellido" name="apellido" id="apellido" type="text" required />
+        <label for="apellido">Apellido *</label>
+        <input 
+          formControlName="apellido" 
+          id="apellido" 
+          type="text" 
+          class="form-control"
+          [class.is-invalid]="apellido?.invalid && apellido?.touched"
+          placeholder="Ingrese su apellido"
+        />
+        <div *ngIf="apellido?.invalid && apellido?.touched" class="invalid-feedback">
+          <small *ngIf="apellido?.errors?.['required']">El apellido es requerido</small>
+          <small *ngIf="apellido?.errors?.['pattern']">Solo se permiten letras y espacios</small>
+        </div>
       </div>
+
+      <!-- Cédula -->
       <div class="form-group">
-        <label for="cedula">Cédula</label>
-        <input [(ngModel)]="user.cedula" name="cedula" id="cedula" type="text" required />
+        <label for="cedula">Cédula *</label>
+        <input 
+          formControlName="cedula" 
+          id="cedula" 
+          type="text" 
+          class="form-control"
+          [class.is-invalid]="cedula?.invalid && cedula?.touched"
+          placeholder="Ingrese su cédula (8-12 dígitos)"
+        />
+        <div *ngIf="cedula?.invalid && cedula?.touched" class="invalid-feedback">
+          <small *ngIf="cedula?.errors?.['required']">La cédula es requerida</small>
+          <small *ngIf="cedula?.errors?.['pattern']">Debe contener entre 8 y 12 dígitos</small>
+        </div>
       </div>
+
+      <!-- Email -->
       <div class="form-group">
-        <label for="email">Correo electrónico</label>
-        <input [(ngModel)]="user.email" name="email" id="email" type="email" required />
+        <label for="email">Correo electrónico *</label>
+        <input 
+          formControlName="email" 
+          id="email" 
+          type="email" 
+          class="form-control"
+          [class.is-invalid]="email?.invalid && email?.touched"
+          placeholder="ejemplo@correo.com"
+        />
+        <div *ngIf="email?.invalid && email?.touched" class="invalid-feedback">
+          <small *ngIf="email?.errors?.['required']">El email es requerido</small>
+          <small *ngIf="email?.errors?.['email']">Formato de email inválido</small>
+        </div>
       </div>
+
+      <!-- Contraseña -->
       <div class="form-group">
-        <label for="password">Contraseña</label>
-        <input [(ngModel)]="user.password" name="password" id="password" type="password" required />
+        <label for="password">Contraseña *</label>
+        <input 
+          formControlName="password" 
+          id="password" 
+          type="password" 
+          class="form-control"
+          [class.is-invalid]="password?.invalid && password?.touched"
+          placeholder="Mínimo 6 caracteres alfanuméricos"
+        />
+        <div *ngIf="password?.invalid && password?.touched" class="invalid-feedback">
+          <small *ngIf="password?.errors?.['required']">La contraseña es requerida</small>
+          <small *ngIf="password?.errors?.['pattern']">Debe ser alfanumérica con mínimo 6 caracteres</small>
+        </div>
       </div>
-      <button type="submit" class="btn-primary" [disabled]="!signupForm.form.valid">Registrarse</button>
+
+      <!-- Confirmar Contraseña -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar Contraseña *</label>
+        <input 
+          formControlName="confirmPassword" 
+          id="confirmPassword" 
+          type="password" 
+          class="form-control"
+          [class.is-invalid]="confirmPassword?.invalid && confirmPassword?.touched"
+          placeholder="Repita su contraseña"
+        />
+        <div *ngIf="confirmPassword?.invalid && confirmPassword?.touched" class="invalid-feedback">
+          <small *ngIf="confirmPassword?.errors?.['required']">Debe confirmar la contraseña</small>
+          <small *ngIf="confirmPassword?.errors?.['passwordMismatch']">Las contraseñas no coinciden</small>
+        </div>
+      </div>
+
+      <!-- Teléfonos -->
+      <div class="form-group">
+        <label>Teléfonos (Opcional)</label>
+        <div formArrayName="telefonos">
+          <div *ngFor="let telefono of telefonos.controls; let i = index" [formGroupName]="i" class="row mb-2">
+            <div class="col-md-6">
+              <input 
+                formControlName="telefono" 
+                type="text" 
+                class="form-control"
+                placeholder="Número de teléfono (8-12 dígitos)"
+              />
+            </div>
+            <div class="col-md-4">
+              <select formControlName="tipoTel" class="form-control">
+                <option *ngFor="let tipo of tiposTelefono" [value]="tipo">
+                  {{ tipo | titlecase }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="button" class="btn btn-danger btn-sm" (click)="removeTelefono(i)">
+                Quitar
+              </button>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm mt-2" (click)="addTelefono()">
+          Agregar Teléfono
+        </button>
+      </div>
+
+      <!-- Botones -->
+      <div class="form-group mt-4">
+        <button 
+          type="submit" 
+          class="btn btn-primary me-2" 
+          [disabled]="signupForm.invalid || loading"
+        >
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Registrando...' : 'Registrarse' }}
+        </button>
+        
+        <button type="button" class="btn btn-secondary" (click)="goToLogin()">
+          Volver al Login
+        </button>
+      </div>
     </form>
 
-    <!-- Botón volver -->
-    <button class="btn-secondary" routerLink="/login">Volver</button>
-
-    <!-- Validaciones -->
+    <!-- Validaciones Generales -->
     <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
-      <ul>
+      <h6>Errores de validación:</h6>
+      <ul class="mb-0">
         <li *ngFor="let err of validationErrors">{{ err }}</li>
       </ul>
     </div>
+    
   </div>
 </div>

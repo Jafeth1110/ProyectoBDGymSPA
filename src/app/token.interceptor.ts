@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Obtén el token almacenado en localStorage (puedes cambiar a sessionStorage si prefieres)
+    // Obtén el token de localStorage (donde se guarda en el AuthService)
     const token = localStorage.getItem('token');
 
     if (token) {

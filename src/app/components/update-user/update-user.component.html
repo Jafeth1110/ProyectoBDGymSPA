@@ -29,12 +29,90 @@
       </div>
 
       <div class="form-group">
+        <label for="password">Nueva Contraseña (opcional)</label>
+        <input type="password" id="password" [(ngModel)]="user.password" name="password" placeholder="Dejar vacío para mantener la actual">
+      </div>
+
+      <div class="form-group">
         <label for="rol">Rol</label>
         <select id="rol" [(ngModel)]="user.rol" name="rol" required>
           <option value="cliente">Cliente</option>
           <option value="admin">Administrador</option>
           <option value="entrenador">Entrenador</option>
         </select>
+      </div>
+
+      <!-- Sección de teléfonos -->
+      <div class="telefono-section">
+        <div class="telefono-header">
+          <h3>Teléfonos (Opcional)</h3>
+          <button type="button" class="btn-add-telefono" (click)="addTelefono()">+ Agregar Teléfono</button>
+        </div>
+        
+        <div *ngIf="user.telefonos.length === 0" class="no-telefonos">
+          <p>No hay teléfonos agregados. Es opcional, pero puedes agregar uno o más teléfonos.</p>
+        </div>
+
+        <div *ngFor="let telefono of user.telefonos; let i = index; trackBy: trackByIndex" 
+             class="telefono-item" 
+             [class.marcado-para-eliminacion]="isTelefonoMarcadoParaEliminacion(telefono)">
+          
+          <!-- Indicador de eliminación -->
+          <div *ngIf="isTelefonoMarcadoParaEliminacion(telefono)" class="eliminacion-indicator">
+            <span class="eliminacion-text">⚠️ Este teléfono será eliminado al guardar los cambios</span>
+          </div>
+          
+          <div class="telefono-row">
+            <div class="form-group small">
+              <label [for]="'tipoTel' + i">Tipo</label>
+              <select [(ngModel)]="telefono.tipoTel" 
+                      [name]="'tipoTel' + i" 
+                      [id]="'tipoTel' + i"
+                      [disabled]="isTelefonoMarcadoParaEliminacion(telefono)">
+                <option value="">Seleccionar tipo</option>
+                <option value="celular">Celular</option>
+                <option value="casa">Casa</option>
+                <option value="trabajo">Trabajo</option>
+              </select>
+            </div>
+            <div class="form-group small">
+              <label [for]="'telefono' + i">Número (8-12 dígitos)</label>
+              <input 
+                [(ngModel)]="telefono.telefono" 
+                [name]="'telefono' + i" 
+                [id]="'telefono' + i" 
+                type="text" 
+                placeholder="Ej: 12345678" 
+                maxlength="12"
+                pattern="[0-9]{8,12}"
+                title="Solo números, entre 8 y 12 dígitos"
+                [disabled]="isTelefonoMarcadoParaEliminacion(telefono)" />
+            </div>
+            <button type="button" 
+                    class="btn-remove" 
+                    (click)="removeTelefono(i)" 
+                    [title]="isTelefonoMarcadoParaEliminacion(telefono) ? 'Desmarcar para eliminación' : 'Eliminar teléfono'">
+              {{ isTelefonoMarcadoParaEliminacion(telefono) ? '↺' : '×' }}
+            </button>
+          </div>
+        </div>
+        
+        <!-- Mostrar información sobre el formato esperado -->
+        <div class="telefono-info" *ngIf="user.telefonos.length > 0">
+          <small>
+            <strong>Importante:</strong> 
+            Los teléfonos deben tener entre 8 y 12 dígitos numéricos. 
+            El tipo es obligatorio si agregas un número.
+          </small>
+        </div>
+      </div>
+
+      <!-- Mostrar errores de validación si existen -->
+      <div *ngIf="validationErrors.length > 0" class="validation-errors">
+        <h4>Errores de validación:</h4>
+        <ul>
+          <li *ngFor="let error of validationErrors">{{ error }}</li>
+        </ul>
       </div>
 
       <button type="submit" class="btn-success" [disabled]="!userForm.form.valid">Guardar Cambios</button>

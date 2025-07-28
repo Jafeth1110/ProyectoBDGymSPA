@@ -19,19 +19,57 @@ export class UsersComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Siempre recargar los datos cuando se inicializa el componente
+    this.users = []; // Limpiar la lista primero
     this.loadUsers();
   }
 
   loadUsers(): void {
     this.userService.getUsers().subscribe({
       next: res => {
+        console.log('Respuesta completa:', res); // Para debugging
         if (res.status === 200) {
-          this.users = res.data;
+          // Usar 'users' en lugar de 'data' según la respuesta del servidor
+          const usersData = res.users || res.data || [];
+          // Procesar los usuarios para corregir el rol
+          this.users = usersData.map((u: any) => {
+            // Manejar el rol correctamente
+            let rolString = '';
+            if (typeof u.rol === 'string') {
+              rolString = u.rol;
+            } else if (u.rol && u.rol.nombreRol) {
+              rolString = u.rol.nombreRol;
+            } else if (u.idRol) {
+              // Fallback basado en idRol
+              switch (u.idRol) {
+                case 1: rolString = 'admin'; break;
+                case 2: rolString = 'cliente'; break;
+                case 3: rolString = 'entrenador'; break;
+                default: rolString = 'cliente';
+              }
+            }
+            
+            return new User(
+              u.idUsuario,
+              u.nombre,
+              u.apellido,
+              u.cedula,
+              u.email,
+              u.password,
+              rolString, // Usar el rol procesado
+              u.idRol,
+              u.telefonos || []
+            );
+          });
         } else {
           console.error('Error cargando usuarios', res);
+          Swal.fire('Error', 'No se pudieron cargar los usuarios', 'error');
         }
       },
-      error: err => console.error('Error cargando usuarios', err)
+      error: err => {
+        console.error('Error cargando usuarios', err);
+        Swal.fire('Error', 'Error al conectar con el servidor', 'error');
+      }
     });
   }
 

@@ -13,29 +13,52 @@ export class EquipoService {
   constructor(private _http: HttpClient) {}
 
   getEquipos(): Observable<any> {
-    return this._http.get(this.urlAPI);
+    const bearerToken = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${bearerToken}`
+    });
+    return this._http.get(this.urlAPI, { headers });
   }
 
   storeEquipo(equipo: Equipo): Observable<any> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    const bearerToken = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${bearerToken}`
+    });
     return this._http.post(this.urlAPI, { data: equipo }, { headers });
   }
 
   showEquipo(id: number): Observable<any> {
-    return this._http.get(this.urlAPI + id);
+    const bearerToken = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${bearerToken}`
+    });
+    return this._http.get(this.urlAPI + id, { headers });
   }
 
   updateEquipo(id: number, body: any): Observable<any> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json');
+    const bearerToken = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${bearerToken}`
+    });
     return this._http.put(this.urlAPI + id, { data: body }, { headers });
   }
 
   // Si tu backend acepta cantidad como parámetro en el body para eliminar parcial:
   deleteEquipo(id: number, cantidad?: number): Observable<any> {
+    const bearerToken = localStorage.getItem('token') || '';
     if (cantidad !== undefined) {
-      const headers = new HttpHeaders().set('Content-Type', 'application/json');
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${bearerToken}`
+      });
       return this._http.request('delete', this.urlAPI + id, { body: { cantidad }, headers });
     }
-    return this._http.delete(this.urlAPI + id);
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${bearerToken}`
+    });
+    return this._http.delete(this.urlAPI + id, { headers });
   }
 }

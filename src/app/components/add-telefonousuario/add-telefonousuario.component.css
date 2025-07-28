@@ -69,6 +69,34 @@ h2 {
   background: #fff;
 }
 
+/* Alertas */
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.alert-info {
+  background-color: #e7f3ff;
+  border: 1px solid #b3d9ff;
+  color: #0056b3;
+}
+
+.alert-danger {
+  background-color: #ffecec;
+  border: 1px solid #f5aca6;
+  color: #d8000c;
+}
+
+.alert ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.alert li {
+  margin-bottom: 5px;
+}
+
 /* Botón */
 .btn-primary {
   width: 100%;

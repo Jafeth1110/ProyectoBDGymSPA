@@ -122,3 +122,246 @@ h2 {
     padding: 1.5rem;
   }
 }
+
+/* Estilos para la sección de teléfonos */
+.telefono-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.telefono-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.telefono-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d2d2d;
+  margin: 0;
+}
+
+.btn-add-telefono {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-add-telefono:hover {
+  background: #218838;
+}
+
+.no-telefonos {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px dashed #dee2e6;
+}
+
+.telefono-item {
+  margin-bottom: 0.8rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.telefono-item:last-child {
+  margin-bottom: 0;
+}
+
+.telefono-row {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-end;
+}
+
+.form-group.small {
+  margin-bottom: 0;
+}
+
+.form-group.small:first-child {
+  flex: 0 0 120px; /* Ancho más compacto para el tipo */
+}
+
+.form-group.small:nth-child(2) {
+  flex: 1; /* El número ocupa el resto del espacio */
+}
+
+.form-group.small label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  color: #495057;
+}
+
+.form-group.small input,
+.form-group.small select {
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+
+.form-group.small input:focus,
+.form-group.small select:focus {
+  border-color: #6c63ff;
+  outline: none;
+}
+
+.btn-remove {
+  background: #dc3545;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-remove:hover {
+  background: #c82333;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 600px) {
+  .telefono-row {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  
+  .form-group.small:first-child {
+    flex: 1;
+  }
+  
+  .btn-remove {
+    align-self: center;
+  }
+}
+
+/* Estilos para errores de validación */
+.validation-errors {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.validation-errors h4 {
+  color: #c33;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.validation-errors ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.validation-errors li {
+  color: #c33;
+  margin-bottom: 0.25rem;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.validation-errors li:before {
+  content: "⚠";
+  position: absolute;
+  left: 0;
+  color: #c33;
+}
+
+/* Información de teléfonos */
+.telefono-info {
+  background-color: #f0f8ff;
+  border: 1px solid #cce7ff;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.telefono-info small {
+  color: #0066cc;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Mejorar validación visual en inputs */
+input:invalid:not(:focus):not(:placeholder-shown) {
+  border-color: #ff6b6b;
+  background-color: #fff5f5;
+}
+
+input:valid:not(:focus):not(:placeholder-shown) {
+  border-color: #51cf66;
+  background-color: #f8fffe;
+}
+
+select:invalid:not(:focus) {
+  border-color: #ff6b6b;
+  background-color: #fff5f5;
+}
+
+/* Estilos para teléfonos marcados para eliminación */
+.marcado-para-eliminacion {
+  background-color: #ffe6e6;
+  border: 2px dashed #ff4444;
+  border-radius: 8px;
+  opacity: 0.7;
+  position: relative;
+}
+
+.eliminacion-indicator {
+  background-color: #ff4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.eliminacion-text {
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.marcado-para-eliminacion input,
+.marcado-para-eliminacion select {
+  background-color: #f5f5f5;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.marcado-para-eliminacion .btn-remove {
+  background-color: #4CAF50;
+  color: white;
+  border: 2px solid #4CAF50;
+}
+
+.marcado-para-eliminacion .btn-remove:hover {
+  background-color: #45a049;
+  border-color: #45a049;
+}

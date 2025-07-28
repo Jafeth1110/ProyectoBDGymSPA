@@ -1,0 +1,39 @@
+<div class="admin-container">
+  <h2>Gestión de Administradores</h2>
+
+  <!-- Campo de búsqueda -->
+  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por nombre, apellido o email" />
+
+  <!-- Lista de administradores -->
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>ID Admin</th>
+        <th>ID Usuario</th>
+        <th>Email</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Cédula</th>
+        <th>Rol</th>
+        <th>Fecha Asignación</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let admin of filteredAdmins">
+        <td>{{ admin.idAdmin }}</td>
+        <td>{{ admin.idUsuario }}</td>
+        <td>{{ admin.email }}</td>
+        <td>{{ admin.nombre }}</td>
+        <td>{{ admin.apellido }}</td>
+        <td>{{ admin.cedula }}</td>
+        <td>{{ admin.rol }}</td>
+        <td>{{ admin.fechaAsignacion | date:'short' }}</td>
+        <td>
+          <button class="btn-detail" (click)="showAdmin(admin.idAdmin)">Detalle</button>
+          <button class="btn-delete" (click)="deleteAdmin(admin.idAdmin)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

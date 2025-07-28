@@ -1,130 +1,127 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TelefonoUsuarioService } from '../../services/telefonoUsuario.service';
-import { TelefonoUsuario } from '../../models/telefonoUsuario';
-import { UserService } from '../../services/user.service';
-import { User } from '../../models/user';
+import { Location } from '@angular/common';
+import { TelefonoService } from '../../services/telefono.service';
+import { Telefono, TelefonoRequest } from '../../models/telefono';
+import { ValidationService } from '../../services/validation.service';
+import { NgForm } from '@angular/forms';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-update-telefonousuario',
   templateUrl: './update-telefonousuario.component.html',
-  styleUrls: ['./update-telefonousuario.component.css'],
-  providers: [TelefonoUsuarioService]
+  styleUrls: ['./update-telefonousuario.component.css']
 })
 export class UpdateTelefonousuarioComponent implements OnInit {
-  public telefono: TelefonoUsuario = new TelefonoUsuario();
-  public validationErrors: string[] = [];
-  public users: User[] = [];
+  telefono: Telefono | null = null;
+  telefonoUpdate: TelefonoRequest = {
+    idUsuario: 0,
+    telefono: '',
+    tipoTel: 'celular'
+  };
+  validationErrors: string[] = [];
+  loading = false;
 
   constructor(
-    private _telefonoUsuarioService: TelefonoUsuarioService,
-    private _userService: UserService,
-    private _route: ActivatedRoute,
-    private _router: Router
-  ) {}
+    private route: ActivatedRoute,
+    private router: Router,
+    private location: Location,
+    private telefonoService: TelefonoService,
+    private validationService: ValidationService
+  ) { }
 
   ngOnInit(): void {
-    this._route.params.subscribe(params => {
-      const id = params['id'];
-      if (id) {
-        this.loadTelefono(id);
-      }
-    });
-
-    this.loadUsuarios(); // ← Cargar todos los usuarios
+    this.loadTelefono();
   }
 
-  loadTelefono(id: number): void {
-    this._telefonoUsuarioService.showTelefono(id).subscribe(
-      response => {
-        if (response?.telefono) {
-          const t = response.telefono;
-          this.telefono = new TelefonoUsuario(
-            t.idTelefonoUsuario,
-            t.idUsuario,
-            t.tipoTel,
-            t.telefono
-          );
-        } else {
-          this.showAlert('error', 'Teléfono no encontrado');
-          this._router.navigate(['/view-telefonousuario']);
+  loadTelefono(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (id) {
+      this.loading = true;
+      this.telefonoService.getTelefono(id).subscribe({
+        next: (response) => {
+          console.log('📞 Respuesta completa update:', response);
+          this.telefono = response.data as Telefono;
+          console.log('✅ Teléfono cargado para update:', this.telefono);
+          console.log('👤 Usuario (user) en update:', this.telefono.user);
+          console.log('👤 Usuario (usuario) en update:', this.telefono.usuario);
+          // Initialize the update form with current values
+          this.telefonoUpdate = {
+            idUsuario: this.telefono.idUsuario,
+            telefono: this.telefono.telefono,
+            tipoTel: this.telefono.tipoTel as 'celular' | 'casa' | 'trabajo'
+          };
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading phone:', error);
+          this.validationErrors = ['Error al cargar los datos del teléfono'];
+          this.loading = false;
         }
-      },
-      error => {
-        this.showAlert('error', 'Error al obtener los datos del teléfono');
-        this._router.navigate(['/view-telefonousuario']);
-      }
-    );
-  }
-
-  loadUsuarios(): void {
-    this._userService.getUsers().subscribe({
-      next: (res: any) => {
-        if (res.status === 200) {
-          this.users = res.data;
-        } else {
-          console.error('Error al cargar usuarios');
-        }
-      },
-      error: err => console.error('Error al cargar usuarios', err)
-    });
-  }
-
-  updateTelefono(form?: any): void {
-    this.validationErrors = [];
-    if (
-      !this.telefono.idUsuario ||
-      !this.telefono.tipoTel ||
-      !this.telefono.telefono
-    ) {
-      this.showAlert('error', 'Debes completar todos los campos antes de enviar.');
-      return;
+      });
     }
+  }
 
-    const dataToSend = {
-      idUsuario: this.telefono.idUsuario,
-      tipoTel: this.telefono.tipoTel,
-      telefono: this.telefono.telefono
-    };
-
-    this._telefonoUsuarioService.updateTelefono(this.telefono.idTelefonoUsuario, dataToSend).subscribe({
-      next: (response: any) => {
-        if (response.status === 200) {
-          this.showAlert('success', 'Teléfono actualizado correctamente');
-          this._router.navigate(['/view-telefonousuario']);
-        } else {
-          this.showAlert('error', response.message || 'No se pudo actualizar el teléfono');
-        }
-      },
-      error: (error: any) => {
-        if (error.status === 400 && error.error && error.error.message) {
-          this.showAlert('error', error.error.message);
-        } else if (error.status === 422 && error.error && error.error.errors) {
-          const errors: string[] = [];
-          Object.keys(error.error.errors).forEach(field => {
-            const fieldErrors: string[] = error.error.errors[field];
-            fieldErrors.forEach(msg => errors.push(msg));
-          });
-          this.validationErrors = errors;
-          this.showAlert('error', errors.join('<br>'));
-        } else {
-          this.showAlert('error', 'Error inesperado del servidor.');
-        }
+  onSubmit(form: NgForm): void {
+    if (form.valid && this.telefono) {
+      this.validationErrors = [];
+      
+      // Validate phone number
+      const phoneValidation = this.validationService.validateTelefono(this.telefonoUpdate.telefono);
+      if (!phoneValidation.valid) {
+        this.validationErrors = [phoneValidation.message || 'Número de teléfono inválido'];
+        return;
       }
-    });
+
+      this.loading = true;
+      
+      // Create update payload without idUsuario since it's read-only
+      const updateData = {
+        telefono: this.telefonoUpdate.telefono,
+        tipoTel: this.telefonoUpdate.tipoTel
+      };
+
+      this.telefonoService.updateTelefono(this.telefono.idTelefono, updateData).subscribe({
+        next: (response) => {
+          console.log('Phone updated successfully:', response);
+          Swal.fire({
+            title: '¡Éxito!',
+            text: 'Teléfono actualizado exitosamente',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+          }).then(() => {
+            this.router.navigate(['/view-telefonousuario']);
+          });
+        },
+        error: (error) => {
+          console.error('Error updating phone:', error);
+          this.loading = false;
+          
+          let errorMessage = 'Error al actualizar el teléfono. Por favor, intente nuevamente.';
+          
+          if (error.error?.errors) {
+            this.validationErrors = Object.values(error.error.errors).flat() as string[];
+            errorMessage = this.validationErrors[0];
+          } else if (error.error?.message) {
+            this.validationErrors = [error.error.message];
+            errorMessage = error.error.message;
+          } else {
+            this.validationErrors = [errorMessage];
+          }
+
+          Swal.fire({
+            title: 'Error',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+          });
+        }
+      });
+    }
   }
 
-  showAlert(type: 'success' | 'error', message: string) {
-    Swal.fire({
-      title: message,
-      icon: type,
-      timer: 4000,
-      showConfirmButton: false
-    });
-  }
-
-  cancel(): void {
-    this._router.navigate(['/view-telefonousuario']);
+  back(): void {
+    this.location.back();
   }
 }

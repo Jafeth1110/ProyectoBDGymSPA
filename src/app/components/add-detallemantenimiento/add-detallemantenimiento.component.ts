@@ -37,26 +37,48 @@ export class AddDetallemantenimientoComponent implements OnInit {
   loadAllData(): void {
     this.adminService.getAdmins().subscribe({
       next: (resAdmins) => {
-        // resAdmins es un array directamente
-        this.admins = Array.isArray(resAdmins) ? resAdmins : [];
+        console.log('Respuesta de admins:', resAdmins); // Para debugging
+        if (resAdmins.status === 200) {
+          this.admins = resAdmins.data;
+        } else {
+          // Si la respuesta es directamente un array
+          this.admins = Array.isArray(resAdmins) ? resAdmins : [];
+        }
 
         this.equipoService.getEquipos().subscribe({
           next: (resEquipos) => {
-            // resEquipos es un objeto, los datos están en resEquipos.data
-            this.equipos = Array.isArray(resEquipos.data) ? resEquipos.data : [];
+            console.log('Respuesta de equipos:', resEquipos); // Para debugging
+            if (resEquipos.status === 200) {
+              this.equipos = resEquipos.data;
+            } else {
+              this.equipos = Array.isArray(resEquipos) ? resEquipos : [];
+            }
 
             this.mantenimientoService.getMantenimientos().subscribe({
               next: (resMantenimientos) => {
-                // Igual que equipos
-                this.mantenimientos = Array.isArray(resMantenimientos.data) ? resMantenimientos.data : [];
+                console.log('Respuesta de mantenimientos:', resMantenimientos); // Para debugging
+                if (resMantenimientos.status === 200) {
+                  this.mantenimientos = resMantenimientos.data;
+                } else {
+                  this.mantenimientos = Array.isArray(resMantenimientos) ? resMantenimientos : [];
+                }
               },
-              error: (err) => console.error('Error cargando mantenimientos', err)
+              error: (err) => {
+                console.error('Error cargando mantenimientos', err);
+                Swal.fire('Error', 'No se pudieron cargar los mantenimientos', 'error');
+              }
             });
           },
-          error: (err) => console.error('Error cargando equipos', err)
+          error: (err) => {
+            console.error('Error cargando equipos', err);
+            Swal.fire('Error', 'No se pudieron cargar los equipos', 'error');
+          }
         });
       },
-      error: (err) => console.error('Error cargando admins', err)
+      error: (err) => {
+        console.error('Error cargando admins', err);
+        Swal.fire('Error', 'No se pudieron cargar los administradores', 'error');
+      }
     });
   }
 

@@ -1,29 +1,74 @@
-<div class="container">
-  <div class="card">
-    <h2>Editar Teléfono de Usuario</h2>
+<div class="container" *ngIf="telefono">
+  <div class="card shadow p-4">
+    <h2 class="mb-4 text-center">Editar Teléfono</h2>
+    
+    <!-- Información del teléfono actual -->
+    <div class="alert alert-info mb-4">
+      <strong>Teléfono actual:</strong> {{ telefono.telefono }} ({{ telefono.tipoTel }})
+      <br>
+      <strong>Usuario:</strong> 
+      <!-- El backend envía 'usuario', no 'user' -->
+      <ng-container *ngIf="telefono.usuario">
+        {{ telefono.usuario.nombre }} {{ telefono.usuario.apellido }} ({{ telefono.usuario.email }})
+      </ng-container>
+      <ng-container *ngIf="telefono.user && !telefono.usuario">
+        {{ telefono.user.nombre }} {{ telefono.user.apellido }} ({{ telefono.user.email }})
+      </ng-container>
+      <ng-container *ngIf="!telefono.usuario && !telefono.user">
+        ID Usuario: {{ telefono.idUsuario }}
+      </ng-container>
+      <br>
+      <strong>Rol:</strong> 
+      <ng-container *ngIf="telefono.rol">
+        {{ telefono.rol.nombreRol }}
+      </ng-container>
+      <ng-container *ngIf="telefono.usuario && telefono.usuario.rol && !telefono.rol">
+        {{ telefono.usuario.rol }}
+      </ng-container>
+      <ng-container *ngIf="telefono.user && telefono.user.rol && !telefono.rol && !telefono.usuario?.rol">
+        {{ telefono.user.rol }}
+      </ng-container>
+      <ng-container *ngIf="!telefono.rol && !telefono.usuario?.rol && !telefono.user?.rol">
+        No especificado
+      </ng-container>
+    </div>
 
-    <form (ngSubmit)="updateTelefono()" #telefonoForm="ngForm">
+    <form #telefonoForm="ngForm" (ngSubmit)="onSubmit(telefonoForm)">
+      <!-- Tipo de teléfono -->
       <div class="form-group">
-        <label for="idUsuario">Usuario</label>
-        <select id="idUsuario" [(ngModel)]="telefono.idUsuario" name="idUsuario" required>
-          <option *ngFor="let u of users" [value]="u.idUsuario">
-            {{ u.nombre }} {{ u.apellido }}
-          </option>
+        <label for="tipoTel">Tipo de Teléfono</label>
+        <select [(ngModel)]="telefonoUpdate.tipoTel" name="tipoTel" id="tipoTel" required>
+          <option value="celular">Celular</option>
+          <option value="casa">Casa</option>
+          <option value="trabajo">Trabajo</option>
         </select>
       </div>
 
+      <!-- Número de teléfono -->
       <div class="form-group">
-        <label for="tipoTel">Tipo de Teléfono</label>
-        <input type="text" id="tipoTel" [(ngModel)]="telefono.tipoTel" name="tipoTel" required>
+        <label for="telefono">Número de Teléfono</label>
+        <input [(ngModel)]="telefonoUpdate.telefono" name="telefono" id="telefono" 
+               type="text" placeholder="Ej: 88888888" required />
       </div>
 
-      <div class="form-group">
-        <label for="telefono">Teléfono</label>
-        <input type="text" id="telefono" [(ngModel)]="telefono.telefono" name="telefono" required>
-      </div>
-
-      <button type="submit" class="btn-success" [disabled]="!telefonoForm.form.valid">Guardar Cambios</button>
-      <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="btn-primary" [disabled]="!telefonoForm.form.valid">
+        Actualizar Teléfono
+      </button>
     </form>
+    
+    <!-- Errores de validación -->
+    <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+      <ul>
+        <li *ngFor="let err of validationErrors">{{ err }}</li>
+      </ul>
+    </div>
+    
+    <button type="button" class="btn-secondary mt-3" (click)="back()">Volver</button>
+  </div>
+</div>
+
+<div *ngIf="!telefono" class="container">
+  <div class="card shadow p-4">
+    <p>Cargando datos del teléfono...</p>
   </div>
 </div>

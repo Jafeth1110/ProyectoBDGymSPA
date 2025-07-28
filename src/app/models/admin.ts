@@ -4,5 +4,8 @@ export interface Admin {
   nombre: string;
   apellido: string;
   email: string;
+  cedula: string;
   rol: string;
+  fechaAsignacion?: string;
+  permisos?: any[];
 }

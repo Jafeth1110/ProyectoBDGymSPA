@@ -122,3 +122,139 @@ h2 {
     padding: 1.5rem;
   }
 }
+
+/* Estilos para la sección de teléfonos */
+.telefono-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.telefono-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.telefono-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d2d2d;
+  margin: 0;
+}
+
+.btn-add-telefono {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-add-telefono:hover {
+  background: #218838;
+}
+
+.no-telefonos {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px dashed #dee2e6;
+}
+
+.telefono-item {
+  margin-bottom: 0.8rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.telefono-item:last-child {
+  margin-bottom: 0;
+}
+
+.telefono-row {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-end;
+}
+
+.form-group.small {
+  margin-bottom: 0;
+}
+
+.form-group.small:first-child {
+  flex: 0 0 120px; /* Ancho más compacto para el tipo */
+}
+
+.form-group.small:nth-child(2) {
+  flex: 1; /* El número ocupa el resto del espacio */
+}
+
+.form-group.small label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  color: #495057;
+}
+
+.form-group.small input,
+.form-group.small select {
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+
+.form-group.small input:focus,
+.form-group.small select:focus {
+  border-color: #6c63ff;
+  outline: none;
+}
+
+.btn-remove {
+  background: #dc3545;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-remove:hover {
+  background: #c82333;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 600px) {
+  .telefono-row {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  
+  .form-group.small:first-child {
+    flex: 1;
+  }
+  
+  .btn-remove {
+    align-self: center;
+  }
+}

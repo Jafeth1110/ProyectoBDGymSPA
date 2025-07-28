@@ -1,31 +1,63 @@
 <div class="container">
   <div class="card shadow p-4">
-    <h2 class="mb-4 text-center">Agregar Teléfono de Usuario</h2>
+    <h2 class="mb-4 text-center">Agregar Teléfono</h2>
+    
     <form #telefonoForm="ngForm" (ngSubmit)="onSubmit(telefonoForm)">
+      <!-- Selección de usuario -->
       <div class="form-group">
         <label for="idUsuario">Usuario</label>
-        <select [(ngModel)]="telefono.idUsuario" name="idUsuario" id="idUsuario" required>
-          <option value="" disabled selected>Seleccione un usuario</option>
-          <option *ngFor="let usuario of usuarios" [value]="usuario.idUsuario">
-            {{ usuario.nombre }} {{ usuario.apellido }} (ID: {{ usuario.idUsuario }})
+        <select [(ngModel)]="telefono.idUsuario" name="idUsuario" id="idUsuario" required
+                [disabled]="loadingUsers">
+          <option value="0">{{ loadingUsers ? 'Cargando usuarios...' : 'Seleccione un usuario' }}</option>
+          <option *ngFor="let user of users" [value]="user.idUsuario">
+            {{ getUserDisplayName(user) }}
           </option>
         </select>
       </div>
+
+      <!-- Información del usuario seleccionado -->
+      <div *ngIf="telefono.idUsuario > 0" class="alert alert-info mb-4">
+        <ng-container *ngFor="let user of users">
+          <div *ngIf="user.idUsuario == telefono.idUsuario">
+            <strong>Usuario seleccionado:</strong> {{ user.nombre }} {{ user.apellido }}
+            <br>
+            <strong>Email:</strong> {{ user.email }}
+            <br>
+            <strong>Rol:</strong> {{ user.rol || 'Sin rol asignado' }}
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Tipo de teléfono -->
       <div class="form-group">
         <label for="tipoTel">Tipo de Teléfono</label>
-        <input [(ngModel)]="telefono.tipoTel" name="tipoTel" id="tipoTel" type="text" required />
+        <select [(ngModel)]="telefono.tipoTel" name="tipoTel" id="tipoTel" required>
+          <option value="celular">Celular</option>
+          <option value="casa">Casa</option>
+          <option value="trabajo">Trabajo</option>
+        </select>
       </div>
+
+      <!-- Número de teléfono -->
       <div class="form-group">
-        <label for="telefono">Teléfono</label>
-        <input [(ngModel)]="telefono.telefono" name="telefono" id="telefono" type="text" required />
+        <label for="telefono">Número de Teléfono</label>
+        <input [(ngModel)]="telefono.telefono" name="telefono" id="telefono" 
+               type="text" placeholder="Ej: 88888888" required />
       </div>
-      <button type="submit" class="btn-primary" [disabled]="!telefonoForm.form.valid">Registrar</button>
+
+      <button type="submit" class="btn-primary" 
+              [disabled]="!telefonoForm.form.valid || telefono.idUsuario === 0 || loading">
+        {{ loading ? 'Guardando...' : 'Guardar Teléfono' }}
+      </button>
     </form>
+    
+    <!-- Errores de validación -->
     <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
       <ul>
         <li *ngFor="let err of validationErrors">{{ err }}</li>
       </ul>
     </div>
-    <button type="button" class="btn-secondary mt-3" (click)="back()">Volver</button>
+    
+    <button type="button" class="btn-secondary" (click)="back()">Volver</button>
   </div>
 </div>
