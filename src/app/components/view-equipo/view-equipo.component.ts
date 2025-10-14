@@ -27,7 +27,10 @@ export class ViewEquipoComponent implements OnInit {
     this.equipoService.getEquipos().subscribe({
       next: res => {
         if (res.status === 200) {
-          this.equipos = res.data;
+          this.equipos = res.data.map((e: any) => ({
+            ...e,
+            estado: Number(e.estado) // 👈 asegura que sea number
+          }));
         } else {
           console.error('Error cargando equipos', res);
         }
@@ -35,6 +38,7 @@ export class ViewEquipoComponent implements OnInit {
       error: err => console.error('Error cargando equipos', err)
     });
   }
+
 
   deleteEquipo(id: number): void {
     Swal.fire({

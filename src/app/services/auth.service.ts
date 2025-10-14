@@ -197,4 +197,45 @@ export class AuthService {
       this.clearSession();
     }
   }
+
+  // Nuevos métodos para obtener información del usuario actual
+  getCurrentUser(): any | null {
+    return this.getIdentity();
+  }
+
+  getCurrentUserRole(): string | null {
+    const identity = this.getCurrentUser();
+    return identity?.rol || identity?.role || null;
+  }
+
+  isCurrentUserAdmin(): boolean {
+    const role = this.getCurrentUserRole();
+    console.log('🔍 Verificando rol del usuario:', role);
+    
+    // Verificar múltiples variaciones posibles del rol admin
+    const adminRoles = ['admin', 'administrator', 'administrador'];
+    const isAdmin = adminRoles.includes(role?.toLowerCase() || '');
+    
+    console.log('🔍 ¿Es admin?', isAdmin);
+    
+    return isAdmin;
+  }
+
+  getCurrentUserId(): number | null {
+    const identity = this.getCurrentUser();
+    return identity?.idUsuario || identity?.id || null;
+  }
+
+  getCurrentUserEmail(): string | null {
+    const identity = this.getCurrentUser();
+    return identity?.email || null;
+  }
+
+  getCurrentUserFullName(): string | null {
+    const identity = this.getCurrentUser();
+    if (identity?.nombre && identity?.apellido) {
+      return `${identity.nombre} ${identity.apellido}`;
+    }
+    return identity?.name || null;
+  }
 }

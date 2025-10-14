@@ -18,8 +18,8 @@ export interface Telefono {
     idUsuario: number;
     nombre: string;
     apellido: string;
-    email: string;
-    cedula: string;
+    email?: string;
+    cedula?: string;
     rol: string;
   };
   rol?: {

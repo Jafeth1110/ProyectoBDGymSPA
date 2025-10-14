@@ -45,6 +45,16 @@ export class UpdateTelefonousuarioComponent implements OnInit {
           console.log('✅ Teléfono cargado para update:', this.telefono);
           console.log('👤 Usuario (user) en update:', this.telefono.user);
           console.log('👤 Usuario (usuario) en update:', this.telefono.usuario);
+          console.log('🏷️ Rol en update:', this.telefono.rol);
+          
+          // Debugging adicional para el problema de "telefonos()"
+          if (this.telefono.usuario) {
+            console.log('🔍 Propiedades del usuario:', Object.keys(this.telefono.usuario));
+            console.log('🔍 Nombre usuario:', this.telefono.usuario.nombre);
+            console.log('🔍 Apellido usuario:', this.telefono.usuario.apellido);
+            console.log('🔍 Email usuario:', this.telefono.usuario.email);
+          }
+          
           // Initialize the update form with current values
           this.telefonoUpdate = {
             idUsuario: this.telefono.idUsuario,

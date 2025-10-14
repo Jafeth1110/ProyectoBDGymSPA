@@ -31,23 +31,9 @@ export class UsersComponent implements OnInit {
         if (res.status === 200) {
           // Usar 'users' en lugar de 'data' según la respuesta del servidor
           const usersData = res.users || res.data || [];
-          // Procesar los usuarios para corregir el rol
+          // Procesar los usuarios - usar el rol que envía el backend
           this.users = usersData.map((u: any) => {
-            // Manejar el rol correctamente
-            let rolString = '';
-            if (typeof u.rol === 'string') {
-              rolString = u.rol;
-            } else if (u.rol && u.rol.nombreRol) {
-              rolString = u.rol.nombreRol;
-            } else if (u.idRol) {
-              // Fallback basado en idRol
-              switch (u.idRol) {
-                case 1: rolString = 'admin'; break;
-                case 2: rolString = 'cliente'; break;
-                case 3: rolString = 'entrenador'; break;
-                default: rolString = 'cliente';
-              }
-            }
+            console.log('Usuario desde backend:', u); // Para debugging
             
             return new User(
               u.idUsuario,
@@ -56,7 +42,7 @@ export class UsersComponent implements OnInit {
               u.cedula,
               u.email,
               u.password,
-              rolString, // Usar el rol procesado
+              u.rol || 'sin_rol', // Usar directamente el rol que envía el backend
               u.idRol,
               u.telefonos || []
             );

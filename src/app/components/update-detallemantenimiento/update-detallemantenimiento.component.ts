@@ -21,6 +21,8 @@ export class UpdateDetallemantenimientoComponent implements OnInit {
   public admins: Admin[] = [];
   public equipos: Equipo[] = [];
   public mantenimientos: Mantenimiento[] = [];
+  public selectedMantenimiento: Mantenimiento | null = null;
+  public adminFromMantenimiento: Admin | null = null;
 
   constructor(
     private detalleService: DetalleMantenimientoService,
@@ -64,6 +66,11 @@ export class UpdateDetallemantenimientoComponent implements OnInit {
                   this.mantenimientos = resMantenimientos.data;
                 } else {
                   this.mantenimientos = Array.isArray(resMantenimientos) ? resMantenimientos : [];
+                }
+                
+                // Después de cargar todo, verificar el mantenimiento inicial si existe
+                if (this.detalle.idMantenimiento) {
+                  this.onMantenimientoChange();
                 }
               },
               error: (err) => {
@@ -143,6 +150,44 @@ export class UpdateDetallemantenimientoComponent implements OnInit {
       timer: 4000,
       showConfirmButton: false
     });
+  }
+
+  onMantenimientoChange(): void {
+    if (this.detalle.idMantenimiento) {
+      // Buscar el mantenimiento seleccionado
+      this.selectedMantenimiento = this.mantenimientos.find(
+        m => m.idMantenimiento === this.detalle.idMantenimiento
+      ) || null;
+      
+      if (this.selectedMantenimiento) {
+        console.log('Mantenimiento seleccionado:', this.selectedMantenimiento);
+        
+        // Buscar el admin que registró este mantenimiento
+        this.adminFromMantenimiento = this.admins.find(
+          admin => admin.idAdmin === this.selectedMantenimiento!.idAdmin
+        ) || null;
+        
+        if (this.adminFromMantenimiento) {
+          // Establecer el admin automáticamente
+          this.detalle.idAdmin = this.adminFromMantenimiento.idAdmin;
+          console.log('Admin del mantenimiento:', this.adminFromMantenimiento);
+          
+          // Mostrar notificación
+          Swal.fire({
+            title: 'Administrador Detectado',
+            text: `Este mantenimiento fue registrado por: ${this.adminFromMantenimiento.nombre} ${this.adminFromMantenimiento.apellido}`,
+            icon: 'info',
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
+        }
+      }
+    } else {
+      this.selectedMantenimiento = null;
+      this.adminFromMantenimiento = null;
+    }
   }
 
   cancel(): void {

@@ -110,6 +110,6 @@ export class TelefonoService {
    * Validar tipo de teléfono
    */
   validateTipoTelefono(tipoTel: string): boolean {
-    return ['celular', 'casa', 'trabajo'].includes(tipoTel);
+    return ['celular', 'casa', 'trabajo', 'otro'].includes(tipoTel);
   }
 }

@@ -7,27 +7,30 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-add-user',
   templateUrl: './add-user.component.html',
-  styleUrls: ['./add-user.component.css'],
-  providers: [UserService]
+  styleUrls: ['./add-user.component.css']
 })
 export class AddUserComponent {
-  public user: User;
+  public user: User = new User(0, '', '', '', '', '', 'cliente');
   public validationErrors: string[] = [];
 
   constructor(
     private _userService: UserService,
     private _router: Router
   ) {
-    this.user = new User(0, '', '', '', '', '', 'cliente');
+    this.resetUser();
   }
 
-  // Métodos para manejar teléfonos
+  resetUser() {
+    this.user = new User(0, '', '', '', '', '', 'cliente');
+    this.user.telefonos = []; // Inicializar array de teléfonos
+  }
+
   addTelefono(): void {
-    this.user.addTelefono('celular', ''); // Establecer celular como tipo por defecto
+    this.user.telefonos.push({ tipoTel: 'celular', telefono: '' });
   }
 
   removeTelefono(index: number): void {
-    this.user.removeTelefono(index);
+    this.user.telefonos.splice(index, 1);
   }
 
   trackByIndex(index: number): number {
@@ -36,68 +39,52 @@ export class AddUserComponent {
 
   onSubmit(form?: any): void {
     this.validationErrors = [];
-    
-    // Validar campos requeridos
-    if (
-      !this.user.nombre ||
-      !this.user.apellido ||
-      !this.user.cedula ||
-      !this.user.email ||
-      !this.user.password ||
-      !this.user.rol
-    ) {
+
+    // Validaciones básicas
+    if (!this.user.nombre || !this.user.apellido || !this.user.cedula ||
+        !this.user.email || !this.user.password || !this.user.rol) {
       this.showAlert('error', 'Debes completar todos los campos antes de enviar.');
       return;
     }
 
-    // Validar formato de email
+    // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.user.email)) {
       this.showAlert('error', 'El formato del correo electrónico no es válido.');
       return;
     }
 
-    // Validar teléfonos (si existen)
-    const telefonosValidos = this.user.getValidTelefonos();
-    for (let telefono of telefonosValidos) {
-      if (!telefono.tipoTel) {
-        this.showAlert('error', 'Todos los teléfonos deben tener un tipo seleccionado.');
+    // Validar teléfonos si existen
+    for (let tel of this.user.telefonos) {
+      if (!tel.tipoTel || !tel.telefono) {
+        this.showAlert('error', 'Todos los teléfonos deben tener tipo y número.');
+        return;
+      }
+      const telRegex = /^\d{8,12}$/;
+      if (!telRegex.test(tel.telefono)) {
+        this.showAlert('error', 'Cada teléfono debe tener entre 8 y 12 dígitos.');
         return;
       }
     }
 
-    console.log('Usuario antes de enviar:', this.user);
-    console.log('Teléfonos válidos:', telefonosValidos);
-
+    // Enviar usuario
     this._userService.storeUser(this.user).subscribe({
-      next: (response: any) => {
-        if (response.status === 201 || response.status === 200) {
+      next: (res: any) => {
+        if (res.status === 200 || res.status === 201) {
           if (form) form.reset();
-          this.user = new User(0, '', '', '', '', '', 'cliente');
-          this.showAlert('success', 'Usuario registrado correctamente');
+          this.resetUser();
+          this.showAlert('success', 'Usuario registrado correctamente.');
           this._router.navigate(['/view-users']);
         } else {
-          this.showAlert('error', response.message || 'No se pudo registrar el usuario');
+          this.showAlert('error', res.message || 'No se pudo registrar el usuario.');
         }
       },
-      error: (error: any) => {
-        console.error('Error completo:', error);
-        
-        if (error.status === 406 && error.error) {
-          this.showAlert('error', `Error: ${error.error.message || 'Datos no aceptables'}`);
-        } else if (error.status === 400 && error.error && error.error.message) {
-          this.showAlert('error', error.error.message);
-        } else if (error.status === 422 && error.error && error.error.errors) {
-          const errors: string[] = [];
-          Object.keys(error.error.errors).forEach(field => {
-            const fieldErrors: string[] = error.error.errors[field];
-            fieldErrors.forEach(msg => errors.push(msg));
-          });
-          this.validationErrors = errors;
-          this.showAlert('error', errors.join('<br>'));
-        } else {
-          this.showAlert('error', error.error?.message || 'Error inesperado del servidor.');
+      error: (err: any) => {
+        console.error('Error completo:', err);
+        if (err.status === 422 && err.error?.errors) {
+          this.validationErrors = Object.values(err.error.errors).flat() as string[];
         }
+        this.showAlert('error', err.error?.message || 'Error inesperado del servidor.');
       }
     });
   }

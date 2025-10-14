@@ -1,7 +1,6 @@
 <div class="telefonos-container">
   <h2>Gestión de Teléfonos de Usuario</h2>
 
-  <!-- Campo de búsqueda -->
   <input class="search-input" 
          [(ngModel)]="filter" 
          name="filter" 
@@ -9,24 +8,20 @@
          (input)="applyFilter()"
          [disabled]="loading" />
 
-  <!-- Mensaje de carga -->
   <div *ngIf="loading" class="loading-message">
     <p>Cargando teléfonos...</p>
   </div>
 
-  <!-- Mensaje de error -->
   <div *ngIf="error" class="error-message">
     <p>{{ error }}</p>
   </div>
 
-  <!-- Lista de teléfonos -->
   <table class="telefonos-table" *ngIf="!loading && !error">
     <thead>
       <tr>
         <th>ID Teléfono</th>
         <th>ID Usuario</th>
         <th>Nombre Completo</th>
-        <th>Email</th>
         <th>Rol</th>
         <th>Tipo Tel</th>
         <th>Teléfono</th>
@@ -38,7 +33,6 @@
         <td>{{ tel.idTelefono }}</td>
         <td>{{ getUserId(tel) }}</td>
         <td>{{ getUserName(tel) }}</td>
-        <td>{{ getUserEmail(tel) }}</td>
         <td>
           <span class="rol-badge" [ngClass]="getRolBadgeClass(tel)">
             {{ getRolName(tel) }}
@@ -55,12 +49,10 @@
     </tbody>
   </table>
 
-  <!-- Mensaje si no hay teléfonos -->
   <div *ngIf="!loading && !error && telefonos.length === 0" class="no-data">
     <p>No hay teléfonos registrados</p>
   </div>
 
-  <!-- Botón para ir a agregar teléfono -->
   <button class="add-telefono-btn" 
           (click)="addTelefono()"
           [disabled]="loading">

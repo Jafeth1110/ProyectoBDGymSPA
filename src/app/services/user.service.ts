@@ -66,62 +66,44 @@ export class UserService {
   }
 
   storeUser(user: User): Observable<any> {
-    console.log('Usuario recibido en storeUser:', user);
-    
-    // Preparar los datos según el formato esperado por la API
-    const userData: UserRegistrationData = {
-      nombre: user.nombre,
-      apellido: user.apellido,
-      cedula: user.cedula,
-      email: user.email.toLowerCase().trim(),
-      password: user.password,
-      idRol: user.getIdRol()
-    };
-    
-    // Validar los datos antes de enviar
-    const validation = this.validationService.validateUser(userData);
-    if (!validation.valid) {
-      console.error('Errores de validación:', validation.errors);
-      // Retornar observable con error
-      return new Observable(observer => {
-        observer.error({
-          status: 422,
-          message: 'Errores de validación',
-          errors: validation.errors
-        });
-      });
-    }
-    
-    // Manejar teléfonos según los casos del backend
-    const telefonosValidos = user.getValidTelefonos();
-    
-    if (telefonosValidos.length === 1) {
-      // Caso: Un solo teléfono - enviar como campos individuales
-      (userData as any).telefono = telefonosValidos[0].telefono;
-      (userData as any).tipoTel = telefonosValidos[0].tipoTel;
-    } else if (telefonosValidos.length > 1) {
-      // Caso: Múltiples teléfonos - enviar como array
-      userData.telefonos = telefonosValidos.map(tel => ({
-        telefono: tel.telefono,
-        tipoTel: tel.tipoTel as 'celular' | 'casa' | 'trabajo'
-      }));
-    }
-    // Caso: Sin teléfonos - no agregar nada
-    
-    console.log('Datos preparados para enviar:', userData);
-    
-    const payload = { data: userData };
-    console.log('Payload final a enviar:', payload);
-    
-    return this._http.post(this.urlAPI + 'add', payload);
+  const userData: any = {
+    nombre: user.nombre,
+    apellido: user.apellido,
+    cedula: user.cedula,
+    email: user.email.toLowerCase().trim(),
+    password: user.password,
+    idRol: user.getIdRol()
+  };
+
+  // Agregar teléfonos si existen
+  if (user.telefonos.length > 0) {
+    userData.telefonos = user.telefonos.map(t => ({
+      telefono: t.telefono,
+      tipoTel: t.tipoTel
+    }));
   }
+
+
+  const payload = { data: userData };
+  console.log('Payload final a enviar:', payload);
+
+  return this._http.post(this.urlAPI + 'add', payload);
+}
+
 
   getUsers(): Observable<any> {
     console.log('Llamando getUsers - El interceptor agregará el token automáticamente');
     console.log('URL completa getUsers:', this.urlAPI + 'getUsers');
 
+    // Agregar headers para evitar cache
+    const headers = new HttpHeaders({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+
     // El TokenInterceptor agregará automáticamente el header Authorization
-    return this._http.get(this.urlAPI + 'getUsers');
+    return this._http.get(this.urlAPI + 'getUsers', { headers });
   }
 
   deleteUser(email: string): Observable<any> {
@@ -136,114 +118,23 @@ export class UserService {
     // Normalizar el email a minúsculas
     const normalizedEmail = email.toLowerCase().trim();
     
-    return this._http.get(this.urlAPI + 'getUser/' + normalizedEmail);
+    // Agregar headers para evitar cache
+    const headers = new HttpHeaders({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
+    return this._http.get(this.urlAPI + 'getUser/' + normalizedEmail, { headers });
   }
 
   updateUser(email: string, body: any): Observable<any> {
     console.log('Datos recibidos para actualizar:', body);
-    
-    // Validar que no se envíen ambos formatos de teléfono
-    if (body.data.telefono && body.data.telefonos) {
-      return new Observable(observer => {
-        observer.error({
-          status: 422,
-          message: 'Error: No puedes enviar teléfono individual y múltiples teléfonos al mismo tiempo',
-          errors: ['Error: No puedes enviar teléfono individual y múltiples teléfonos al mismo tiempo']
-        });
-      });
-    }
 
-    // Preparar los datos básicos del usuario
-    const userData: any = {
-      nombre: body.data.nombre,
-      apellido: body.data.apellido,
-      cedula: body.data.cedula,
-      email: body.data.email.toLowerCase().trim(),
-      idRol: body.data.idRol
-    };
-
-    // Validar formato de teléfono individual si existe
-    if (body.data.telefono) {
-      const telefonoRegex = /^\d{8,12}$/;
-      if (!telefonoRegex.test(body.data.telefono)) {
-        return new Observable(observer => {
-          observer.error({
-            status: 422,
-            message: 'El teléfono debe tener entre 8 y 12 dígitos',
-            errors: ['El teléfono debe tener entre 8 y 12 dígitos']
-          });
-        });
-      }
-    }
-
-    // Manejar teléfonos según el formato esperado por el backend
-    if (body.data.telefonos && Array.isArray(body.data.telefonos)) {
-      const telefonosValidos = body.data.telefonos.filter((tel: any) => 
-        tel.telefono && tel.telefono.trim() !== ''
-      ).map((tel: any) => ({
-        telefono: tel.telefono.trim(),
-        tipoTel: tel.tipoTel || 'celular'
-      }));
-      
-      // Validar cada teléfono
-      const telefonoRegex = /^\d{8,12}$/;
-      for (const tel of telefonosValidos) {
-        if (!telefonoRegex.test(tel.telefono)) {
-          return new Observable(observer => {
-            observer.error({
-              status: 422,
-              message: 'Cada teléfono debe tener entre 8 y 12 dígitos',
-              errors: [`El teléfono ${tel.telefono} no tiene el formato correcto`]
-            });
-          });
-        }
-      }
-      
-      console.log('Teléfonos válidos a enviar:', telefonosValidos);
-      
-      if (telefonosValidos.length === 1) {
-        // ✅ CORRECTO - Un solo teléfono como campos individuales
-        userData.telefono = telefonosValidos[0].telefono;
-        userData.tipoTel = telefonosValidos[0].tipoTel;
-        console.log('Enviando un teléfono como campos individuales:', {
-          telefono: userData.telefono,
-          tipoTel: userData.tipoTel
-        });
-      } else if (telefonosValidos.length > 1) {
-        // ✅ CORRECTO - Múltiples teléfonos como array
-        userData.telefonos = telefonosValidos;
-        console.log('Enviando múltiples teléfonos como array:', userData.telefonos);
-      }
-      // Si no hay teléfonos válidos, no agregamos nada (el backend mantendrá los existentes)
-    }
-    
-    // Agregar password solo si se proporciona
-    if (body.data.password && body.data.password.trim() !== '') {
-      // Validar contraseña (mínimo 6 caracteres alfanuméricos)
-      const passwordRegex = /^[a-zA-Z0-9]{6,}$/;
-      if (!passwordRegex.test(body.data.password)) {
-        return new Observable(observer => {
-          observer.error({
-            status: 422,
-            message: 'La contraseña debe tener mínimo 6 caracteres alfanuméricos',
-            errors: ['La contraseña debe tener mínimo 6 caracteres alfanuméricos']
-          });
-        });
-      }
-      userData.password = body.data.password;
-    }
-    
-    console.log('Datos finales a enviar al backend:', userData);
-    
-    const normalizedEmailForUrl = email.toLowerCase().trim();
-    // ✅ CORRECTO - El backend espera los datos en un objeto 'data'
-    const payload = { data: userData };
-    
-    console.log('Payload completo enviado:', payload);
-    console.log('URL de actualización:', this.urlAPI + 'updateUser/' + normalizedEmailForUrl);
-    
-    return this._http.put(this.urlAPI + 'updateUser/' + normalizedEmailForUrl, payload);
+    return this._http.put(this.urlAPI + 'updateUser/' + email.toLowerCase().trim(), body);
   }
+
+
 
   // Métodos para manejar teléfonos usando las rutas específicas del backend
   addTelefonoToUser(email: string, telefono: { tipoTel: string, telefono: string }): Observable<any> {

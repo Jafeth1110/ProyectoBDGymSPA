@@ -39,22 +39,15 @@ export class ShowUserComponent implements OnInit {
         if (response?.user) {
           const u = response.user;
           console.log('Datos del usuario desde response.user:', u);
-          console.log('Teléfonos del backend:', u.telefonos);
-          console.log('Rol del backend:', u.rol);
           
-          // Manejar el rol correctamente
-          let rolString = '';
-          if (typeof u.rol === 'string') {
-            rolString = u.rol;
-          } else if (u.rol && u.rol.nombreRol) {
-            rolString = u.rol.nombreRol;
-          } else if (u.idRol) {
-            // Fallback basado en idRol
+          // Mapear rol basado en idRol si el rol no viene mapeado
+          let rolFinal = u.rol;
+          if (!rolFinal && u.idRol) {
             switch (u.idRol) {
-              case 1: rolString = 'admin'; break;
-              case 2: rolString = 'cliente'; break;
-              case 3: rolString = 'entrenador'; break;
-              default: rolString = 'cliente';
+              case 1: rolFinal = 'admin'; break;
+              case 2: rolFinal = 'cliente'; break;
+              case 3: rolFinal = 'entrenador'; break;
+              default: rolFinal = 'sin_rol';
             }
           }
           
@@ -69,7 +62,7 @@ export class ShowUserComponent implements OnInit {
             u.cedula,
             u.email,
             '', // password no se envía desde el backend por seguridad
-            rolString,
+            u.rol || rolFinal || 'sin_rol', // Usar rol final calculado
             u.idRol,
             telefonos // Usar telefonos del backend
           );

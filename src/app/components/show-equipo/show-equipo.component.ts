@@ -53,6 +53,15 @@ export class ShowEquipoComponent implements OnInit {
     );
   }
 
+  getEstadoTexto(estado: number | string): string {
+    const e = Number(estado); // <-- convierte string a number
+    if (e === 1) return 'Bueno';
+    if (e === 0) return 'Malo';
+    return 'Desconocido';
+  }
+
+
+
   showAlert(type: 'error', message: string): void {
     Swal.fire({
       title: message,

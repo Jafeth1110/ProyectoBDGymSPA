@@ -8,10 +8,7 @@
       
       <!-- El backend envía 'usuario', no 'user' -->
       <li *ngIf="telefono.usuario">
-        <strong>Usuario:</strong> {{ telefono.usuario.nombre }} {{ telefono.usuario.apellido }} ({{ telefono.usuario.email }})
-      </li>
-      <li *ngIf="telefono.user">
-        <strong>Usuario:</strong> {{ telefono.user.nombre }} {{ telefono.user.apellido }} ({{ telefono.user.email }})
+        <strong>Usuario:</strong> {{ telefono.usuario.nombre }} {{ telefono.usuario.apellido }}
       </li>
       
       <!-- Mostrar rol -->

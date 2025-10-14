@@ -7,30 +7,37 @@
       <strong>Teléfono actual:</strong> {{ telefono.telefono }} ({{ telefono.tipoTel }})
       <br>
       <strong>Usuario:</strong> 
-      <!-- El backend envía 'usuario', no 'user' -->
-      <ng-container *ngIf="telefono.usuario">
-        {{ telefono.usuario.nombre }} {{ telefono.usuario.apellido }} ({{ telefono.usuario.email }})
-      </ng-container>
-      <ng-container *ngIf="telefono.user && !telefono.usuario">
-        {{ telefono.user.nombre }} {{ telefono.user.apellido }} ({{ telefono.user.email }})
-      </ng-container>
-      <ng-container *ngIf="!telefono.usuario && !telefono.user">
-        ID Usuario: {{ telefono.idUsuario }}
-      </ng-container>
+      <span *ngIf="telefono.usuario?.nombre; else fallbackUser">
+        {{ telefono.usuario?.nombre }} {{ telefono.usuario?.apellido }}
+        <span *ngIf="telefono.usuario?.email"> ({{ telefono.usuario?.email }})</span>
+      </span>
+      <ng-template #fallbackUser>
+        <span *ngIf="telefono.user?.nombre; else userIdOnly">
+          {{ telefono.user?.nombre }} {{ telefono.user?.apellido }}
+          <span *ngIf="telefono.user?.email"> ({{ telefono.user?.email }})</span>
+        </span>
+        <ng-template #userIdOnly>
+          ID Usuario: {{ telefono.idUsuario }}
+        </ng-template>
+      </ng-template>
       <br>
       <strong>Rol:</strong> 
-      <ng-container *ngIf="telefono.rol">
-        {{ telefono.rol.nombreRol }}
-      </ng-container>
-      <ng-container *ngIf="telefono.usuario && telefono.usuario.rol && !telefono.rol">
-        {{ telefono.usuario.rol }}
-      </ng-container>
-      <ng-container *ngIf="telefono.user && telefono.user.rol && !telefono.rol && !telefono.usuario?.rol">
-        {{ telefono.user.rol }}
-      </ng-container>
-      <ng-container *ngIf="!telefono.rol && !telefono.usuario?.rol && !telefono.user?.rol">
-        No especificado
-      </ng-container>
+      <span *ngIf="telefono.rol?.nombreRol; else fallbackRol">
+        {{ telefono.rol?.nombreRol }}
+      </span>
+      <ng-template #fallbackRol>
+        <span *ngIf="telefono.usuario?.rol; else userRol">
+          {{ telefono.usuario?.rol }}
+        </span>
+        <ng-template #userRol>
+          <span *ngIf="telefono.user?.rol; else noRol">
+            {{ telefono.user?.rol }}
+          </span>
+          <ng-template #noRol>
+            entrenador
+          </ng-template>
+        </ng-template>
+      </ng-template>
     </div>
 
     <form #telefonoForm="ngForm" (ngSubmit)="onSubmit(telefonoForm)">

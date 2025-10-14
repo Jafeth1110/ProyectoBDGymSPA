@@ -18,7 +18,7 @@
     <tbody>
       <tr *ngFor="let m of filteredMantenimientos">
         <td>{{ m.idMantenimiento }}</td>
-        <td>{{ getUserName(m.idAdmin) }}</td>
+        <td>{{ m.admin_nombre }} {{ m.admin_apellido }}</td>
         <td>{{ m.descripcion }}</td>
         <td>{{ m.costo | currency:'CRC':'symbol':'1.2-2' }}</td>
         <td>

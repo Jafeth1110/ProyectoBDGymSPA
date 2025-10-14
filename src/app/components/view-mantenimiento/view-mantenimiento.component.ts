@@ -4,8 +4,6 @@ import Swal from 'sweetalert2';
 
 import { MantenimientoService } from '../../services/mantenimiento.service';
 import { Mantenimiento } from '../../models/mantenimiento';
-import { AdminService } from '../../services/admin.service';
-import { Admin } from '../../models/admin';
 
 @Component({
   selector: 'app-view-mantenimiento',
@@ -14,62 +12,32 @@ import { Admin } from '../../models/admin';
 })
 export class ViewMantenimientoComponent implements OnInit {
   mantenimientos: Mantenimiento[] = [];
-  admins: Admin[] = [];
   filter: string = '';
 
   constructor(
     private mantenimientoService: MantenimientoService,
-    private adminService: AdminService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    this.loadAdminsAndMantenimientos();
+    this.loadMantenimientos();
   }
 
-  loadAdminsAndMantenimientos(): void {
-    this.adminService.getAdmins().subscribe({
-      next: resAdmins => {
-        console.log('Respuesta de admins en view-mantenimiento:', resAdmins); // Para debugging
-        if (resAdmins.status === 200) {
-          this.admins = resAdmins.data || [];
+  loadMantenimientos(): void {
+    this.mantenimientoService.getMantenimientos().subscribe({
+      next: res => {
+        if (res.status === 200) {
+          this.mantenimientos = res.data || [];
         } else {
-          // Si la respuesta es directamente un array
-          this.admins = Array.isArray(resAdmins) ? resAdmins : [];
+          this.mantenimientos = Array.isArray(res) ? res : [];
         }
-        console.log('Admins procesados:', this.admins); // Para verificar que sea un array
-
-        this.mantenimientoService.getMantenimientos().subscribe({
-          next: resMantenimiento => {
-            console.log('Respuesta de mantenimientos:', resMantenimiento); // Para debugging
-            if (resMantenimiento.status === 200) {
-              this.mantenimientos = resMantenimiento.data || [];
-            } else {
-              this.mantenimientos = Array.isArray(resMantenimiento) ? resMantenimiento : [];
-            }
-          },
-          error: err => {
-            console.error('Error cargando mantenimientos', err);
-            Swal.fire('Error', 'No se pudieron cargar los mantenimientos', 'error');
-          }
-        });
       },
       error: err => {
-        console.error('Error cargando admins', err);
-        this.admins = []; // Asegurar que sea un array vacío
-        Swal.fire('Error', 'No se pudieron cargar los administradores', 'error');
+        console.error('Error cargando mantenimientos', err);
+        Swal.fire('Error', 'No se pudieron cargar los mantenimientos', 'error');
       }
     });
   }
-
-  getUserName(idAdmin: number): string {
-    if (!Array.isArray(this.admins) || this.admins.length === 0) {
-      return 'Cargando...';
-    }
-    const admin = this.admins.find(a => a.idAdmin === idAdmin);
-    return admin ? `${admin.nombre} ${admin.apellido}` : 'Desconocido';
-  }
-
 
   deleteMantenimiento(id: number): void {
     Swal.fire({
@@ -87,7 +55,7 @@ export class ViewMantenimientoComponent implements OnInit {
           next: res => {
             if (res.status === 200) {
               Swal.fire('Eliminado', 'Mantenimiento eliminado correctamente.', 'success');
-              this.loadAdminsAndMantenimientos();
+              this.loadMantenimientos();
             } else {
               Swal.fire('Error', res.message || 'No se pudo eliminar el mantenimiento.', 'error');
             }

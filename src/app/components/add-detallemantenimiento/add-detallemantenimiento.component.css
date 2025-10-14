@@ -69,10 +69,10 @@ h2 {
   background: #fff;
 }
 
-/* Botón */
+/* Botón registrar */
 .btn-primary {
   width: 100%;
-  background: linear-gradient(90deg, #6c63ff 0%, #48c6ef 100%);
+  background: linear-gradient(90deg, #007bff 0%, #64b5f6 100%);
   border: none;
   color: #fff;
   font-weight: 600;
@@ -80,8 +80,9 @@ h2 {
   padding: 0.9rem 0;
   font-size: 1.1rem;
   transition: background 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 2px 8px rgba(76, 110, 245, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.08);
   cursor: pointer;
+  margin-bottom: 0.5rem;
 }
 
 .btn-primary:disabled {
@@ -91,8 +92,8 @@ h2 {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(90deg, #28a745 0%, #88e064 100%);
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  background: linear-gradient(90deg, #0056b3 0%, #42a5f5 100%);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
 /* Botón volver/cancelar */
@@ -108,7 +109,6 @@ h2 {
   transition: background 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 2px 8px rgba(108, 117, 125, 0.08);
   cursor: pointer;
-  margin-top: 0.5rem;
 }
 
 .btn-secondary:hover {
