@@ -1,0 +1,83 @@
+<div class="container">
+  <div class="header">
+    <h1>
+      <i class="fas fa-dumbbell"></i>
+      Gestión de Clases
+    </h1>
+    <button class="btn btn-primary" (click)="addClase()">
+      <i class="fas fa-plus"></i>
+      Nueva Clase
+    </button>
+  </div>
+
+  <!-- Buscador -->
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Buscar clases por nombre, descripción o entrenador..." 
+        [(ngModel)]="searchTerm"
+        (input)="filterClases()">
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando clases...</p>
+  </div>
+
+  <!-- Lista de Clases -->
+  <div *ngIf="!isLoading" class="clases-grid">
+    <div class="clase-card" *ngFor="let clase of filteredClases">
+      <div class="card-header">
+        <h3>{{ clase.nombre }}</h3>
+        <div class="actions">
+          <button class="btn-icon btn-view" (click)="viewClase(clase.idClase)" title="Ver detalles">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn-icon btn-edit" (click)="editClase(clase.idClase)" title="Editar">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon btn-delete" (click)="deleteClase(clase)" title="Eliminar">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Descripción:</span>
+          <span class="value">{{ clase.descripcion | slice:0:80 }}{{ clase.descripcion.length > 80 ? '...' : '' }}</span>
+        </div>
+        
+        <div class="info-row">
+          <span class="label">Capacidad:</span>
+          <span class="value capacity">{{ clase.capacidad }} personas</span>
+        </div>
+        
+        <div class="info-row">
+          <span class="label">Entrenador:</span>
+          <span class="value trainer">{{ clase.getNombreEntrenador() || 'No asignado' }}</span>
+        </div>
+        
+        <div class="info-row" *ngIf="clase.entrenador?.especialidad">
+          <span class="label">Especialidad:</span>
+          <span class="value">{{ clase.entrenador?.especialidad }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay clases -->
+  <div *ngIf="!isLoading && filteredClases.length === 0" class="empty-state">
+    <i class="fas fa-dumbbell"></i>
+    <h3>{{ searchTerm ? 'No se encontraron clases' : 'No hay clases registradas' }}</h3>
+    <p>{{ searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando una nueva clase' }}</p>
+    <button *ngIf="!searchTerm" class="btn btn-primary" (click)="addClase()">
+      <i class="fas fa-plus"></i>
+      Agregar Primera Clase
+    </button>
+  </div>
+</div>

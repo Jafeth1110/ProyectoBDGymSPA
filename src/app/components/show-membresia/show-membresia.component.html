@@ -1,0 +1,72 @@
+<div class="container" *ngIf="membresia">
+  <div class="card">
+    <div class="card-header">
+      <h2>Detalles de la Membresía</h2>
+      <div class="actions">
+        <button class="btn-primary" (click)="editMembresia()">
+          <i class="icon">✏️</i> Editar
+        </button>
+        <button class="btn-danger" (click)="deleteMembresia()">
+          <i class="icon">🗑️</i> Eliminar
+        </button>
+      </div>
+    </div>
+    
+    <div class="card-body">
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>ID de Membresía:</label>
+          <span>{{ membresia.idMembresia }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Tipo:</label>
+          <span class="highlight">{{ membresia.tipo }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Precio:</label>
+          <span class="capacity">${{ membresia.precio | number:'1.2-2' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Duración:</label>
+          <span>{{ membresia.duracionMeses }} {{ membresia.duracionMeses === 1 ? 'mes' : 'meses' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Estado:</label>
+          <span [class]="membresia.estado === 1 ? 'capacity' : 'inactive'">
+            {{ membresia.getEstadoTexto() }}
+          </span>
+        </div>
+        
+        <div class="detail-item full-width">
+          <label>Descripción:</label>
+          <span class="description">{{ membresia.descripcion }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card-footer">
+      <button class="btn-secondary" (click)="goBack()">
+        <i class="icon">⬅️</i> Volver a la Lista
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="container" *ngIf="!membresia && !isLoading">
+  <div class="card error-card">
+    <h2>Membresía No Encontrada</h2>
+    <p>La membresía que buscas no existe o no se pudo cargar.</p>
+    <button class="btn-secondary" (click)="goBack()">Volver a la Lista</button>
+  </div>
+</div>
+
+<div class="container" *ngIf="isLoading">
+  <div class="card loading-card">
+    <h2>Cargando...</h2>
+    <div class="spinner"></div>
+  </div>
+</div>

@@ -138,3 +138,133 @@ export const ROLES = {
 export const TIPOS_TELEFONO = ['celular', 'casa', 'trabajo'] as const;
 
 export type TipoTelefono = typeof TIPOS_TELEFONO[number];
+
+// ===== INTERFACES PARA NUEVAS ENTIDADES =====
+
+export interface ClaseResponse {
+  idClase: number;
+  nombre: string;
+  descripcion: string;
+  capacidad: number;
+  idEntrenador: number;
+  entrenador?: {
+    idEntrenador: number;
+    nombre: string;
+    apellido: string;
+    especialidad?: string;
+  };
+}
+
+export interface InscripcionClaseResponse {
+  idInscripcionClase: number;
+  idCliente: number;
+  idClase: number;
+  fechaInscripcion: string;
+  estado: number;
+  cliente?: {
+    idCliente: number;
+    nombre: string;
+    apellido: string;
+    email: string;
+  };
+  clase?: {
+    idClase: number;
+    nombre: string;
+    descripcion: string;
+    capacidad: number;
+  };
+}
+
+export interface MembresiaResponse {
+  idMembresia: number;
+  tipo: string;
+  precio: number;
+  duracionMeses: number;
+  descripcion: string;
+  estado: number;
+  beneficios?: string[];
+}
+
+export interface MetodoPagoResponse {
+  idMetodoPago: number;
+  nombre: string;
+  descripcion: string;
+  activo: number;
+  requiereAutorizacion: number;
+  comision: number;
+}
+
+export interface PagoResponse {
+  idPago: number;
+  idCliente: number;
+  idMembresia: number;
+  idMetodoPago: number;
+  monto: number;
+  fechaPago: string;
+  fechaVencimiento: string;
+  estado: string;
+  referencia: string;
+  notas: string;
+  cliente?: {
+    idCliente: number;
+    nombre: string;
+    apellido: string;
+    email: string;
+  };
+  membresia?: {
+    idMembresia: number;
+    tipo: string;
+    precio: number;
+    duracionMeses: number;
+  };
+  metodoPago?: {
+    idMetodoPago: number;
+    nombre: string;
+    comision: number;
+  };
+}
+
+// ===== INTERFACES PARA FORMULARIOS DE NUEVAS ENTIDADES =====
+
+export interface ClaseFormData {
+  nombre: string;
+  descripcion: string;
+  capacidad: number;
+  idEntrenador: number;
+}
+
+export interface InscripcionClaseFormData {
+  idCliente: number;
+  idClase: number;
+  fechaInscripcion: string;
+  estado: number;
+}
+
+export interface MembresiaFormData {
+  tipo: string;
+  precio: number;
+  duracionMeses: number;
+  descripcion: string;
+  estado: number;
+  beneficios?: string[];
+}
+
+export interface MetodoPagoFormData {
+  nombre: string;
+  descripcion: string;
+  activo: number;
+  requiereAutorizacion: number;
+  comision: number;
+}
+
+export interface PagoFormData {
+  idCliente: number;
+  idMembresia: number;
+  idMetodoPago: number;
+  monto: number;
+  fechaPago: string;
+  fechaVencimiento: string;
+  estado: string;
+  referencia: string;
+  notas: string;
+}

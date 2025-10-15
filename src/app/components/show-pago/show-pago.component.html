@@ -1,0 +1,92 @@
+<div class="container" *ngIf="pago">
+  <div class="card">
+    <div class="card-header">
+      <h2>Detalles del Pago</h2>
+      <div class="actions">
+        <button class="btn-primary" (click)="editPago()">
+          <i class="icon">✏️</i> Editar
+        </button>
+        <button class="btn-danger" (click)="deletePago()">
+          <i class="icon">🗑️</i> Eliminar
+        </button>
+      </div>
+    </div>
+    
+    <div class="card-body">
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>ID del Pago:</label>
+          <span>{{ pago.idPago }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Referencia:</label>
+          <span class="highlight">{{ pago.referencia }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Cliente:</label>
+          <span class="trainer">{{ pago.getNombreCliente() || 'No disponible' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Membresía:</label>
+          <span>{{ pago.membresia?.tipo || 'No disponible' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Método de Pago:</label>
+          <span>{{ pago.metodoPago?.nombre || 'No disponible' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Monto:</label>
+          <span class="capacity">${{ pago.monto | number:'1.2-2' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Estado:</label>
+          <span [class]="getEstadoClass(pago.estado)">
+            {{ pago.estado }}
+          </span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Fecha de Pago:</label>
+          <span>{{ pago.fechaPago | date:'dd/MM/yyyy' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Fecha de Vencimiento:</label>
+          <span>{{ pago.fechaVencimiento | date:'dd/MM/yyyy' }}</span>
+        </div>
+        
+        <div class="detail-item full-width" *ngIf="pago.notas">
+          <label>Notas:</label>
+          <span class="description">{{ pago.notas }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card-footer">
+      <button class="btn-secondary" (click)="goBack()">
+        <i class="icon">⬅️</i> Volver a la Lista
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="container" *ngIf="!pago && !isLoading">
+  <div class="card error-card">
+    <h2>Pago No Encontrado</h2>
+    <p>El pago que buscas no existe o no se pudo cargar.</p>
+    <button class="btn-secondary" (click)="goBack()">Volver a la Lista</button>
+  </div>
+</div>
+
+<div class="container" *ngIf="isLoading">
+  <div class="card loading-card">
+    <h2>Cargando...</h2>
+    <div class="spinner"></div>
+  </div>
+</div>

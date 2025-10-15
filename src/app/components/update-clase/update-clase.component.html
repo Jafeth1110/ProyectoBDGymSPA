@@ -1,0 +1,142 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-warning text-white">
+          <h4 class="card-title mb-0">
+            <i class="fas fa-edit me-2"></i>Editar Clase
+          </h4>
+        </div>
+        <div class="card-body">
+          <!-- Loading Spinner -->
+          <div *ngIf="isLoading" class="text-center py-4">
+            <div class="spinner-border text-warning" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando datos de la clase...</p>
+          </div>
+
+          <!-- Update Form -->
+          <form *ngIf="!isLoading" #claseForm="ngForm" (ngSubmit)="onSubmit(claseForm)">
+            <div class="row">
+              <!-- Nombre -->
+              <div class="col-md-6 mb-3">
+                <label for="nombre" class="form-label">
+                  <strong>Nombre de la Clase <span class="text-danger">*</span></strong>
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="nombre"
+                  name="nombre"
+                  [(ngModel)]="clase.nombre"
+                  #nombre="ngModel"
+                  required
+                  maxlength="100"
+                  placeholder="Ej: Yoga Matutino">
+                <div *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="nombre.errors?.['required']">El nombre es requerido</div>
+                </div>
+              </div>
+
+              <!-- Capacidad -->
+              <div class="col-md-6 mb-3">
+                <label for="capacidad" class="form-label">
+                  <strong>Capacidad <span class="text-danger">*</span></strong>
+                </label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  id="capacidad"
+                  name="capacidad"
+                  [(ngModel)]="clase.capacidad"
+                  #capacidad="ngModel"
+                  required
+                  min="1"
+                  max="100"
+                  placeholder="Ej: 20">
+                <div *ngIf="capacidad.invalid && (capacidad.dirty || capacidad.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="capacidad.errors?.['required']">La capacidad es requerida</div>
+                  <div *ngIf="capacidad.errors?.['min']">La capacidad debe ser mayor a 0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">
+                <strong>Descripción <span class="text-danger">*</span></strong>
+              </label>
+              <textarea 
+                class="form-control" 
+                id="descripcion"
+                name="descripcion"
+                [(ngModel)]="clase.descripcion"
+                #descripcion="ngModel"
+                required
+                rows="4"
+                maxlength="500"
+                placeholder="Describe la clase, beneficios, nivel de dificultad, etc."></textarea>
+              <div *ngIf="descripcion.invalid && (descripcion.dirty || descripcion.touched)" class="invalid-feedback d-block">
+                <div *ngIf="descripcion.errors?.['required']">La descripción es requerida</div>
+              </div>
+            </div>
+
+            <!-- Entrenador -->
+            <div class="mb-3">
+              <label for="idEntrenador" class="form-label">
+                <strong>Entrenador <span class="text-danger">*</span></strong>
+              </label>
+              <select 
+                class="form-select" 
+                id="idEntrenador"
+                name="idEntrenador"
+                [(ngModel)]="clase.idEntrenador"
+                #idEntrenador="ngModel"
+                required>
+                <option value="">Seleccionar entrenador...</option>
+                <option *ngFor="let entrenador of entrenadores" [value]="entrenador.id">
+                  {{entrenador.nombre}} {{entrenador.apellido}} - {{entrenador.especialidad}}
+                </option>
+              </select>
+              <div *ngIf="idEntrenador.invalid && (idEntrenador.dirty || idEntrenador.touched)" class="invalid-feedback d-block">
+                <div *ngIf="idEntrenador.errors?.['required']">Debe seleccionar un entrenador</div>
+              </div>
+            </div>
+
+            <!-- Validation Errors -->
+            <div *ngIf="validationErrors.length > 0" class="alert alert-danger">
+              <h6><i class="fas fa-exclamation-triangle"></i> Errores de validación:</h6>
+              <ul class="mb-0">
+                <li *ngFor="let error of validationErrors">{{error}}</li>
+              </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between">
+              <button 
+                type="button" 
+                class="btn btn-secondary"
+                (click)="goBack()"
+                [disabled]="isLoading">
+                <i class="fas fa-arrow-left me-2"></i>Cancelar
+              </button>
+              
+              <button 
+                type="submit" 
+                class="btn btn-warning"
+                [disabled]="!claseForm.form.valid || isLoading">
+                <i class="fas fa-save me-2"></i>
+                <span *ngIf="!isLoading">Actualizar Clase</span>
+                <span *ngIf="isLoading">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Actualizando...
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

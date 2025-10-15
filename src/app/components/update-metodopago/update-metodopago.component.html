@@ -1,0 +1,148 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">
+          <h4 class="card-title mb-0">
+            <i class="fas fa-edit me-2"></i>Editar Método de Pago
+          </h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="isLoading" class="text-center py-4">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando datos del método de pago...</p>
+          </div>
+
+          <form *ngIf="!isLoading" #metodoPagoForm="ngForm" (ngSubmit)="onSubmit(metodoPagoForm)">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="nombre" class="form-label">
+                  <strong>Nombre del Método <span class="text-danger">*</span></strong>
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="nombre"
+                  name="nombre"
+                  [(ngModel)]="metodoPago.nombre"
+                  #nombre="ngModel"
+                  required
+                  maxlength="50"
+                  placeholder="Ej: Tarjeta de Crédito, PayPal">
+                <div *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="nombre.errors?.['required']">El nombre es requerido</div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="comision" class="form-label">
+                  <strong>Comisión (%)</strong>
+                </label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  id="comision"
+                  name="comision"
+                  [(ngModel)]="metodoPago.comision"
+                  #comision="ngModel"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  placeholder="0.00">
+                <div *ngIf="comision.invalid && (comision.dirty || comision.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="comision.errors?.['min']">La comisión no puede ser negativa</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="activo" class="form-label">
+                  <strong>Estado <span class="text-danger">*</span></strong>
+                </label>
+                <select 
+                  class="form-select" 
+                  id="activo"
+                  name="activo"
+                  [(ngModel)]="metodoPago.activo"
+                  #activo="ngModel"
+                  required>
+                  <option value="">Seleccionar estado...</option>
+                  <option value="1">Activo</option>
+                  <option value="0">Inactivo</option>
+                </select>
+                <div *ngIf="activo.invalid && (activo.dirty || activo.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="activo.errors?.['required']">Debe seleccionar un estado</div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="requiereAutorizacion" class="form-label">
+                  <strong>Requiere Autorización</strong>
+                </label>
+                <select 
+                  class="form-select" 
+                  id="requiereAutorizacion"
+                  name="requiereAutorizacion"
+                  [(ngModel)]="metodoPago.requiereAutorizacion">
+                  <option value="0">No</option>
+                  <option value="1">Sí</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">
+                <strong>Descripción <span class="text-danger">*</span></strong>
+              </label>
+              <textarea 
+                class="form-control" 
+                id="descripcion"
+                name="descripcion"
+                [(ngModel)]="metodoPago.descripcion"
+                #descripcion="ngModel"
+                required
+                rows="4"
+                maxlength="500"
+                placeholder="Describe las características y condiciones de este método de pago..."></textarea>
+              <div *ngIf="descripcion.invalid && (descripcion.dirty || descripcion.touched)" class="invalid-feedback d-block">
+                <div *ngIf="descripcion.errors?.['required']">La descripción es requerida</div>
+              </div>
+            </div>
+
+            <div *ngIf="validationErrors.length > 0" class="alert alert-danger">
+              <h6><i class="fas fa-exclamation-triangle"></i> Errores de validación:</h6>
+              <ul class="mb-0">
+                <li *ngFor="let error of validationErrors">{{error}}</li>
+              </ul>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <button 
+                type="button" 
+                class="btn btn-secondary"
+                (click)="goBack()"
+                [disabled]="isLoading">
+                <i class="fas fa-arrow-left me-2"></i>Cancelar
+              </button>
+              
+              <button 
+                type="submit" 
+                class="btn btn-success"
+                [disabled]="!metodoPagoForm.form.valid || isLoading">
+                <i class="fas fa-save me-2"></i>
+                <span *ngIf="!isLoading">Actualizar Método</span>
+                <span *ngIf="isLoading">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Actualizando...
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

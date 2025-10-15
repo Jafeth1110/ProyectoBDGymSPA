@@ -1,0 +1,86 @@
+<div class="container">
+  <div class="header">
+    <h1>
+      <i class="fas fa-clipboard-list"></i>
+      Inscripciones a Clases
+    </h1>
+    <button class="btn btn-primary" (click)="addInscripcion()">
+      <i class="fas fa-plus"></i>
+      Nueva Inscripción
+    </button>
+  </div>
+
+  <!-- Buscador -->
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Buscar por cliente, clase o estado..." 
+        [(ngModel)]="searchTerm"
+        (input)="filterInscripciones()">
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando inscripciones...</p>
+  </div>
+
+  <!-- Lista de Inscripciones -->
+  <div *ngIf="!isLoading" class="inscripciones-grid">
+    <div class="inscripcion-card" *ngFor="let inscripcion of filteredInscripciones">
+      <div class="card-header">
+        <h3>{{ inscripcion.getNombreCliente() || 'Cliente no disponible' }}</h3>
+        <div class="estado-badge" [class]="inscripcion.estado === 1 ? 'activo' : 'inactivo'">
+          {{ inscripcion.getEstadoTexto() }}
+        </div>
+        <div class="actions">
+          <button class="btn-icon btn-view" (click)="viewInscripcion(inscripcion.idInscripcionClase)" title="Ver detalles">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn-icon btn-edit" (click)="editInscripcion(inscripcion.idInscripcionClase)" title="Editar">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon btn-delete" (click)="deleteInscripcion(inscripcion)" title="Eliminar">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Clase:</span>
+          <span class="value clase">{{ inscripcion.clase?.nombre || 'No disponible' }}</span>
+        </div>
+        
+        <div class="info-row">
+          <span class="label">Fecha de Inscripción:</span>
+          <span class="value">{{ inscripcion.fechaInscripcion | date:'dd/MM/yyyy' }}</span>
+        </div>
+        
+        <div class="info-row" *ngIf="inscripcion.cliente?.email">
+          <span class="label">Email del Cliente:</span>
+          <span class="value email">{{ inscripcion.cliente?.email }}</span>
+        </div>
+        
+        <div class="info-row" *ngIf="inscripcion.clase">
+          <span class="label">Entrenador:</span>
+          <span class="value trainer">{{ inscripcion.clase.nombre || 'No disponible' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay inscripciones -->
+  <div *ngIf="!isLoading && filteredInscripciones.length === 0" class="empty-state">
+    <i class="fas fa-clipboard-list"></i>
+    <h3>{{ searchTerm ? 'No se encontraron inscripciones' : 'No hay inscripciones registradas' }}</h3>
+    <p>{{ searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando una nueva inscripción' }}</p>
+    <button *ngIf="!searchTerm" class="btn btn-primary" (click)="addInscripcion()">
+      <i class="fas fa-plus"></i>
+      Agregar Primera Inscripción
+    </button>
+  </div>
+</div>

@@ -36,6 +36,34 @@ import { ViewAdminComponent } from './components/view-admin/view-admin.component
 import { ViewClienteComponent } from './components/view-cliente/view-cliente.component';
 import { ViewEntrenadorComponent } from './components/view-entrenador/view-entrenador.component';
 
+// Nuevos componentes
+import { AddClaseComponent } from './components/add-clase/add-clase.component';
+import { AddInscripcionClaseComponent } from './components/add-inscripcionclase/add-inscripcionclase.component';
+import { AddMembresiaComponent } from './components/add-membresia/add-membresia.component';
+import { AddMetodoPagoComponent } from './components/add-metodopago/add-metodopago.component';
+import { AddPagoComponent } from './components/add-pago/add-pago.component';
+
+// Componentes Update nuevos
+import { UpdateClaseComponent } from './components/update-clase/update-clase.component';
+import { UpdateInscripcionclaseComponent } from './components/update-inscripcionclase/update-inscripcionclase.component';
+import { UpdateMembresiaComponent } from './components/update-membresia/update-membresia.component';
+import { UpdateMetodopagoComponent } from './components/update-metodopago/update-metodopago.component';
+import { UpdatePagoComponent } from './components/update-pago/update-pago.component';
+
+// Componentes Show nuevos
+import { ShowClaseComponent } from './components/show-clase/show-clase.component';
+import { ShowInscripcionClaseComponent } from './components/show-inscripcionclase/show-inscripcionclase.component';
+import { ShowMembresiaComponent } from './components/show-membresia/show-membresia.component';
+import { ShowMetodopagoComponent } from './components/show-metodopago/show-metodopago.component';
+import { ShowPagoComponent } from './components/show-pago/show-pago.component';
+
+// Componentes View nuevos
+import { ViewClaseComponent } from './components/view-clase/view-clase.component';
+import { ViewInscripcionclaseComponent } from './components/view-inscripcionclase/view-inscripcionclase.component';
+import { ViewMembresiaComponent } from './components/view-membresia/view-membresia.component';
+import { ViewMetodopagoComponent } from './components/view-metodopago/view-metodopago.component';
+import { ViewPagoComponent } from './components/view-pago/view-pago.component';
+
 
 @NgModule({
   declarations: [
@@ -65,7 +93,31 @@ import { ViewEntrenadorComponent } from './components/view-entrenador/view-entre
     HomeComponent,
     ViewAdminComponent,
     ViewClienteComponent,
-    ViewEntrenadorComponent
+    ViewEntrenadorComponent,
+    // Nuevos componentes
+    AddClaseComponent,
+    AddInscripcionClaseComponent,
+    AddMembresiaComponent,
+    AddMetodoPagoComponent,
+    AddPagoComponent,
+    // Componentes Update nuevos
+    UpdateClaseComponent,
+    UpdateInscripcionclaseComponent,
+    UpdateMembresiaComponent,
+    UpdateMetodopagoComponent,
+    UpdatePagoComponent,
+    // Componentes Show nuevos
+    ShowClaseComponent,
+    ShowInscripcionClaseComponent,
+    ShowMembresiaComponent,
+    ShowMetodopagoComponent,
+    ShowPagoComponent,
+    // Componentes View nuevos
+    ViewClaseComponent,
+    ViewInscripcionclaseComponent,
+    ViewMembresiaComponent,
+    ViewMetodopagoComponent,
+    ViewPagoComponent
 
   ],
   imports: [

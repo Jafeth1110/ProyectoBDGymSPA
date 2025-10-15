@@ -1,0 +1,74 @@
+<div class="container" *ngIf="metodoPago">
+  <div class="card">
+    <div class="card-header">
+      <h2>Detalles del Método de Pago</h2>
+      <div class="actions">
+        <button class="btn-primary" (click)="editMetodoPago()">
+          <i class="icon">✏️</i> Editar
+        </button>
+        <button class="btn-danger" (click)="deleteMetodoPago()">
+          <i class="icon">🗑️</i> Eliminar
+        </button>
+      </div>
+    </div>
+    
+    <div class="card-body">
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>ID del Método:</label>
+          <span>{{ metodoPago.idMetodoPago }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Nombre:</label>
+          <span class="highlight">{{ metodoPago.nombre }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Comisión:</label>
+          <span class="capacity">{{ metodoPago.comision }}%</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Estado:</label>
+          <span [class]="metodoPago.activo === 1 ? 'capacity' : 'inactive'">
+            {{ metodoPago.getEstadoTexto() }}
+          </span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Requiere Autorización:</label>
+          <span [class]="metodoPago.requiereAutorizacion === 1 ? 'capacity' : 'inactive'">
+            {{ metodoPago.getRequiereAutorizacionTexto() }}
+          </span>
+        </div>
+        
+        <div class="detail-item full-width">
+          <label>Descripción:</label>
+          <span class="description">{{ metodoPago.descripcion }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card-footer">
+      <button class="btn-secondary" (click)="goBack()">
+        <i class="icon">⬅️</i> Volver a la Lista
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="container" *ngIf="!metodoPago && !isLoading">
+  <div class="card error-card">
+    <h2>Método de Pago No Encontrado</h2>
+    <p>El método de pago que buscas no existe o no se pudo cargar.</p>
+    <button class="btn-secondary" (click)="goBack()">Volver a la Lista</button>
+  </div>
+</div>
+
+<div class="container" *ngIf="isLoading">
+  <div class="card loading-card">
+    <h2>Cargando...</h2>
+    <div class="spinner"></div>
+  </div>
+</div>

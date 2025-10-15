@@ -1,0 +1,57 @@
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-credit-card"></i> Gestión de Membresías</h1>
+    <button class="btn btn-primary" (click)="addMembresia()">
+      <i class="fas fa-plus"></i> Nueva Membresía
+    </button>
+  </div>
+
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Buscar membresías..." [(ngModel)]="searchTerm" (input)="filterMembresias()">
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando membresías...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="membresias-grid">
+    <div class="membresia-card" *ngFor="let membresia of filteredMembresias">
+      <div class="card-header">
+        <h3>{{ membresia.tipo }}</h3>
+        <div class="precio">${{ membresia.precio | number:'1.2-2' }}</div>
+        <div class="actions">
+          <button class="btn-icon btn-view" (click)="viewMembresia(membresia.idMembresia)"><i class="fas fa-eye"></i></button>
+          <button class="btn-icon btn-edit" (click)="editMembresia(membresia.idMembresia)"><i class="fas fa-edit"></i></button>
+          <button class="btn-icon btn-delete" (click)="deleteMembresia(membresia)"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Duración:</span>
+          <span class="value">{{ membresia.duracionMeses }} {{ membresia.duracionMeses === 1 ? 'mes' : 'meses' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Estado:</span>
+          <span class="value" [class]="membresia.estado === 1 ? 'activo' : 'inactivo'">{{ membresia.getEstadoTexto() }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Descripción:</span>
+          <span class="value description">{{ membresia.descripcion | slice:0:100 }}{{ membresia.descripcion.length > 100 ? '...' : '' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && filteredMembresias.length === 0" class="empty-state">
+    <i class="fas fa-credit-card"></i>
+    <h3>{{ searchTerm ? 'No se encontraron membresías' : 'No hay membresías registradas' }}</h3>
+    <p>{{ searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando una nueva membresía' }}</p>
+    <button *ngIf="!searchTerm" class="btn btn-primary" (click)="addMembresia()">
+      <i class="fas fa-plus"></i> Agregar Primera Membresía
+    </button>
+  </div>
+</div>

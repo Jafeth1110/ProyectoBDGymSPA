@@ -1,0 +1,66 @@
+<div class="container" *ngIf="inscripcion">
+  <div class="card">
+    <div class="card-header">
+      <h2>Detalles de la Inscripción</h2>
+      <div class="actions">
+        <button class="btn-primary" (click)="editInscripcion()">Editar</button>
+        <button class="btn-danger" (click)="deleteInscripcion()">Eliminar</button>
+      </div>
+    </div>
+    
+    <div class="card-body">
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>ID de Inscripción:</label>
+          <span>{{ inscripcion.idInscripcionClase }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Cliente:</label>
+          <span class="highlight">{{ inscripcion.getNombreCliente() || 'No disponible' }}</span>
+        </div>
+        
+        <div class="detail-item" *ngIf="inscripcion.cliente?.email">
+          <label>Email del Cliente:</label>
+          <span>{{ inscripcion.cliente?.email }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Clase:</label>
+          <span class="trainer">{{ inscripcion.clase?.nombre || 'No disponible' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Fecha de Inscripción:</label>
+          <span>{{ inscripcion.fechaInscripcion | date:'dd/MM/yyyy' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Estado:</label>
+          <span [class]="inscripcion.estado === 1 ? 'capacity' : 'inactive'">
+            {{ inscripcion.getEstadoTexto() }}
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card-footer">
+      <button class="btn-secondary" (click)="goBack()">Volver a la Lista</button>
+    </div>
+  </div>
+</div>
+
+<div class="container" *ngIf="!inscripcion && !isLoading">
+  <div class="card error-card">
+    <h2>Inscripción No Encontrada</h2>
+    <p>La inscripción que buscas no existe o no se pudo cargar.</p>
+    <button class="btn-secondary" (click)="goBack()">Volver a la Lista</button>
+  </div>
+</div>
+
+<div class="container" *ngIf="isLoading">
+  <div class="card loading-card">
+    <h2>Cargando...</h2>
+    <div class="spinner"></div>
+  </div>
+</div>

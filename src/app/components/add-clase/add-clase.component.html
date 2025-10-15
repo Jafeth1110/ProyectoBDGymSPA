@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Agregar Clase</title>
+  <link rel="stylesheet" href="add-clase.component.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <div class="container">
+    <div class="card shadow p-4">
+      <h2 class="mb-4 text-center">Agregar Clase</h2>
+      <form #claseForm="ngForm" (ngSubmit)="onSubmit(claseForm)">
+        <div class="form-group">
+          <label for="nombre">Nombre de la Clase</label>
+          <input [(ngModel)]="clase.nombre" name="nombre" id="nombre" type="text" 
+                 placeholder="Ej: Yoga Matutino, CrossFit Avanzado" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="descripcion">Descripción</label>
+          <textarea [(ngModel)]="clase.descripcion" name="descripcion" id="descripcion" 
+                    rows="4" placeholder="Describe la clase, objetivos, nivel requerido, etc." required></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="capacidad">Capacidad Máxima</label>
+          <input [(ngModel)]="clase.capacidad" name="capacidad" id="capacidad" type="number" 
+                 min="1" max="100" placeholder="Número máximo de participantes" required />
+          <small class="form-text">Ingresa el número máximo de personas que pueden participar en la clase</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="entrenador">Entrenador Asignado</label>
+          <select [(ngModel)]="clase.idEntrenador" name="entrenador" id="entrenador" required>
+            <option value="" disabled>Selecciona un entrenador</option>
+            <option *ngFor="let entrenador of entrenadores" [value]="entrenador.idEntrenador">
+              {{entrenador.user?.nombre}} {{entrenador.user?.apellido}}
+              <span *ngIf="entrenador.especialidad"> - {{entrenador.especialidad}}</span>
+            </option>
+          </select>
+          <small class="form-text" *ngIf="isLoading">Cargando entrenadores...</small>
+          <small class="form-text" *ngIf="!isLoading && entrenadores.length === 0">No hay entrenadores disponibles</small>
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="btn-primary" [disabled]="!claseForm.form.valid || isLoading">
+            <span *ngIf="isLoading">Guardando...</span>
+            <span *ngIf="!isLoading">Crear Clase</span>
+          </button>
+          <button type="button" class="btn-secondary" (click)="goBack()">Cancelar</button>
+        </div>
+      </form>
+      
+      <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+        <h4>Errores de validación:</h4>
+        <ul>
+          <li *ngFor="let err of validationErrors">{{ err }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Inscribir a Clase</title>
+  <link rel="stylesheet" href="add-inscripcionclase.component.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <div class="container">
+    <div class="card shadow p-4">
+      <h2 class="mb-4 text-center">Inscribir Cliente a Clase</h2>
+      <form #inscripcionForm="ngForm" (ngSubmit)="onSubmit(inscripcionForm)">
+        
+        <div class="form-group">
+          <label for="cliente">Cliente</label>
+          <select [(ngModel)]="inscripcion.idCliente" name="cliente" id="cliente" required>
+            <option value="" disabled>Selecciona un cliente</option>
+            <option *ngFor="let cliente of clientes" [value]="cliente.idCliente">
+              {{cliente.user?.nombre}} {{cliente.user?.apellido}} - {{cliente.user?.email}}
+            </option>
+          </select>
+          <small class="form-text" *ngIf="clientes.length === 0">No hay clientes disponibles</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="clase">Clase</label>
+          <select [(ngModel)]="inscripcion.idClase" name="clase" id="clase" required>
+            <option value="" disabled>Selecciona una clase</option>
+            <option *ngFor="let clase of clases" [value]="clase.idClase">
+              {{clase.nombre}} - Capacidad: {{clase.capacidad}}
+              <span *ngIf="clase.entrenador"> (Entrenador: {{clase.entrenador.nombre}})</span>
+            </option>
+          </select>
+          <small class="form-text" *ngIf="clases.length === 0">No hay clases disponibles</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="fechaInscripcion">Fecha de Inscripción</label>
+          <input [(ngModel)]="inscripcion.fechaInscripcion" name="fechaInscripcion" id="fechaInscripcion" 
+                 type="date" required />
+          <small class="form-text">Fecha en que se realiza la inscripción</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="estado">Estado</label>
+          <select [(ngModel)]="inscripcion.estado" name="estado" id="estado" required>
+            <option [value]="1">Activa</option>
+            <option [value]="0">Inactiva</option>
+          </select>
+          <small class="form-text">Estado inicial de la inscripción</small>
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="btn-primary" [disabled]="!inscripcionForm.form.valid || isLoading">
+            <span *ngIf="isLoading">Guardando...</span>
+            <span *ngIf="!isLoading">Crear Inscripción</span>
+          </button>
+          <button type="button" class="btn-secondary" (click)="goBack()">Cancelar</button>
+        </div>
+      </form>
+      
+      <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+        <h4>Errores de validación:</h4>
+        <ul>
+          <li *ngFor="let err of validationErrors">{{ err }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
