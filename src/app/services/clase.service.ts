@@ -3,12 +3,6 @@ import { Injectable } from "@angular/core";
 import { server } from "./global";
 import { Clase } from "../models/clase";
 import { Observable } from "rxjs";
-import { 
-  ApiResponse, 
-  ClaseResponse, 
-  ClaseFormData 
-} from "../models/api-interfaces";
-import { ValidationService } from "./validation.service";
 
 @Injectable({
   providedIn: 'root'
@@ -16,124 +10,119 @@ import { ValidationService } from "./validation.service";
 export class ClaseService {
   private urlAPI: string;
 
-  constructor(
-    private _http: HttpClient,
-    private validationService: ValidationService
-  ) {
-    this.urlAPI = server.url + 'clases/';
+  constructor(private _http: HttpClient) {
+    this.urlAPI = server.url + 'clases';
   }
 
   /**
    * Obtiene todas las clases
    */
-  getClases(): Observable<ApiResponse<ClaseResponse[]>> {
+  getClases(): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.get<ApiResponse<ClaseResponse[]>>(this.urlAPI, { headers });
+    return this._http.get<any>(this.urlAPI, { headers });
   }
 
   /**
    * Obtiene una clase específica por ID
    */
-  getClase(id: number): Observable<ApiResponse<ClaseResponse>> {
+  getClase(id: number): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.get<ApiResponse<ClaseResponse>>(`${this.urlAPI}${id}`, { headers });
+    return this._http.get<any>(`${this.urlAPI}/${id}`, { headers });
   }
 
   /**
    * Crea una nueva clase
    */
-  addClase(claseData: ClaseFormData): Observable<ApiResponse<ClaseResponse>> {
-    // Validaciones
-    const validation = this.validateClaseData(claseData);
-    if (!validation.isValid) {
-      throw new Error(validation.errors.join(', '));
-    }
-
+  addClase(claseData: any): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     });
 
-    const params = JSON.stringify(claseData);
-    return this._http.post<ApiResponse<ClaseResponse>>(this.urlAPI, params, { headers });
+    // Preparar datos según lo que espera el backend
+    const dataToSend = {
+      diaSemana: claseData.diaSemana,
+      hora: claseData.hora,
+      nombre: claseData.nombre,
+      descripcion: claseData.descripcion || null,
+      cupoMax: claseData.cupoMax
+    };
+
+    return this._http.post<any>(this.urlAPI, dataToSend, { headers });
   }
 
   /**
    * Actualiza una clase existente
    */
-  updateClase(id: number, claseData: ClaseFormData): Observable<ApiResponse<ClaseResponse>> {
-    // Validaciones
-    const validation = this.validateClaseData(claseData);
-    if (!validation.isValid) {
-      throw new Error(validation.errors.join(', '));
-    }
-
+  updateClase(id: number, claseData: any): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     });
 
-    const params = JSON.stringify(claseData);
-    return this._http.put<ApiResponse<ClaseResponse>>(`${this.urlAPI}${id}`, params, { headers });
+    // Preparar datos según lo que espera el backend
+    const dataToSend = {
+      diaSemana: claseData.diaSemana,
+      hora: claseData.hora,
+      nombre: claseData.nombre,
+      descripcion: claseData.descripcion || null,
+      cupoMax: claseData.cupoMax
+    };
+
+    return this._http.put<any>(`${this.urlAPI}/${id}`, dataToSend, { headers });
   }
 
   /**
    * Elimina una clase
    */
-  deleteClase(id: number): Observable<ApiResponse<any>> {
+  deleteClase(id: number): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.delete<ApiResponse<any>>(`${this.urlAPI}${id}`, { headers });
+    return this._http.delete<any>(`${this.urlAPI}/${id}`, { headers });
   }
 
   /**
    * Valida los datos de una clase
    */
-  private validateClaseData(claseData: ClaseFormData): { isValid: boolean; errors: string[] } {
+  validateClaseData(claseData: any): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
+
+    // Validar horario
+    if (!claseData.horario || claseData.horario.trim().length === 0) {
+      errors.push('El horario es obligatorio');
+    }
 
     // Validar nombre
     if (!claseData.nombre || claseData.nombre.trim().length === 0) {
       errors.push('El nombre de la clase es obligatorio');
-    } else if (claseData.nombre.trim().length < 3) {
-      errors.push('El nombre de la clase debe tener al menos 3 caracteres');
-    } else if (claseData.nombre.trim().length > 100) {
-      errors.push('El nombre de la clase no puede exceder 100 caracteres');
+    } else if (claseData.nombre.trim().length > 45) {
+      errors.push('El nombre de la clase no puede exceder 45 caracteres');
     }
 
     // Validar descripción
-    if (!claseData.descripcion || claseData.descripcion.trim().length === 0) {
-      errors.push('La descripción es obligatoria');
-    } else if (claseData.descripcion.trim().length > 500) {
-      errors.push('La descripción no puede exceder 500 caracteres');
+    if (claseData.descripcion && claseData.descripcion.trim().length > 255) {
+      errors.push('La descripción no puede exceder 255 caracteres');
     }
 
-    // Validar capacidad
-    if (!claseData.capacidad || claseData.capacidad <= 0) {
-      errors.push('La capacidad debe ser mayor a 0');
-    } else if (claseData.capacidad > 100) {
-      errors.push('La capacidad no puede exceder 100 personas');
-    }
-
-    // Validar entrenador
-    if (!claseData.idEntrenador || claseData.idEntrenador <= 0) {
-      errors.push('Debe seleccionar un entrenador válido');
+    // Validar cupo máximo
+    if (!claseData.cupoMax || claseData.cupoMax <= 0) {
+      errors.push('El cupo máximo debe ser mayor a 0');
     }
 
     return {
@@ -145,26 +134,27 @@ export class ClaseService {
   /**
    * Convierte la respuesta de la API a modelo local
    */
-  mapResponseToModel(response: ClaseResponse): Clase {
+  mapResponseToModel(response: any): Clase {
     return new Clase(
-      response.idClase,
-      response.nombre,
-      response.descripcion,
-      response.capacidad,
-      response.idEntrenador,
-      response.entrenador
+      response.idClase || 0,
+      response.diaSemana || '',
+      response.hora || '',
+      response.nombre || '',
+      response.descripcion || '',
+      response.cupoMax || 0
     );
   }
 
   /**
    * Convierte el modelo local a datos para la API
    */
-  mapModelToFormData(clase: Clase): ClaseFormData {
+  mapModelToFormData(clase: Clase): any {
     return {
+      diaSemana: clase.diaSemana,
+      hora: clase.hora,
       nombre: clase.nombre,
       descripcion: clase.descripcion,
-      capacidad: clase.capacidad,
-      idEntrenador: clase.idEntrenador
+      cupoMax: clase.cupoMax
     };
   }
 }

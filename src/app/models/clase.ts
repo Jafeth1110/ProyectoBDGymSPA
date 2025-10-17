@@ -1,30 +1,55 @@
 export class Clase {
   constructor(
     public idClase: number = 0,
+    public diaSemana: string = '',
+    public hora: string = '',
     public nombre: string = '',
     public descripcion: string = '',
-    public capacidad: number = 0,
-    public idEntrenador: number = 0,
-    public entrenador?: {
-      idEntrenador: number;
-      nombre: string;
-      apellido: string;
-      especialidad?: string;
-    }
+    public cupoMax: number = 0
   ) {}
 
   // Método para validar los datos de la clase
   isValid(): boolean {
     return this.nombre.trim() !== '' && 
-           this.capacidad > 0 && 
-           this.idEntrenador > 0;
+           this.cupoMax > 0 && 
+           this.diaSemana.trim() !== '' &&
+           this.hora.trim() !== '';
   }
 
-  // Método para obtener el nombre completo del entrenador
-  getNombreEntrenador(): string {
-    if (this.entrenador) {
-      return `${this.entrenador.nombre} ${this.entrenador.apellido}`;
+  // Días válidos según el backend
+  static getDiasValidos(): string[] {
+    return ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  }
+
+  // Método para formatear hora a HH:MM
+  private formatHora(hora: string): string {
+    if (!hora) return '';
+    
+    // Si viene como datetime completo, extraer solo la hora
+    if (hora.includes('T')) {
+      const timePart = hora.split('T')[1];
+      return timePart.substring(0, 5); // HH:MM
     }
-    return '';
+    
+    // Si viene con segundos y microsegundos (HH:MM:SS.sssssss)
+    if (hora.includes(':')) {
+      const parts = hora.split(':');
+      if (parts.length >= 2) {
+        return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+      }
+    }
+    
+    // Si ya viene como HH:MM
+    return hora;
+  }
+
+  // Método para obtener horario completo formateado
+  getHorarioCompleto(): string {
+    return `${this.diaSemana} a las ${this.formatHora(this.hora)}`;
+  }
+
+  // Método para obtener solo la hora formateada
+  getHoraFormateada(): string {
+    return this.formatHora(this.hora);
   }
 }

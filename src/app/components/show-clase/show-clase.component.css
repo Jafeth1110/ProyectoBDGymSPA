@@ -90,11 +90,14 @@ html, body {
 }
 
 .description {
-  line-height: 1.6;
+  line-height: 1.7;
   background: #f8f9fa;
-  padding: 1rem;
+  padding: 1.25rem;
   border-radius: 8px;
   border-left: 4px solid #007bff;
+  font-size: 1.3rem;
+  color: #495057;
+  font-weight: 500;
 }
 
 .capacity {

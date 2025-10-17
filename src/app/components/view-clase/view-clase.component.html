@@ -35,13 +35,13 @@
         <h3>{{ clase.nombre }}</h3>
         <div class="actions">
           <button class="btn-icon btn-view" (click)="viewClase(clase.idClase)" title="Ver detalles">
-            <i class="fas fa-eye"></i>
+            <span class="icon-text">👁</span>
           </button>
-          <button class="btn-icon btn-edit" (click)="editClase(clase.idClase)" title="Editar">
-            <i class="fas fa-edit"></i>
+          <button class="btn-icon btn-edit" (click)="editClase(clase.idClase)" title="Editar clase">
+            <span class="icon-text">✎</span>
           </button>
-          <button class="btn-icon btn-delete" (click)="deleteClase(clase)" title="Eliminar">
-            <i class="fas fa-trash"></i>
+          <button class="btn-icon btn-delete" (click)="deleteClase(clase)" title="Eliminar clase">
+            <span class="icon-text">×</span>
           </button>
         </div>
       </div>
@@ -53,18 +53,13 @@
         </div>
         
         <div class="info-row">
-          <span class="label">Capacidad:</span>
-          <span class="value capacity">{{ clase.capacidad }} personas</span>
+          <span class="label">Cupo Máximo:</span>
+          <span class="value capacity">{{ clase.cupoMax }} personas</span>
         </div>
         
         <div class="info-row">
-          <span class="label">Entrenador:</span>
-          <span class="value trainer">{{ clase.getNombreEntrenador() || 'No asignado' }}</span>
-        </div>
-        
-        <div class="info-row" *ngIf="clase.entrenador?.especialidad">
-          <span class="label">Especialidad:</span>
-          <span class="value">{{ clase.entrenador?.especialidad }}</span>
+          <span class="label">Horario:</span>
+          <span class="value horario">{{ clase.getHorarioCompleto() }}</span>
         </div>
       </div>
     </div>

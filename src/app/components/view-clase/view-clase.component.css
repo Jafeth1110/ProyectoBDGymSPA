@@ -150,36 +150,40 @@
 }
 
 .btn-icon {
-  width: 35px;
-  height: 35px;
+  width: 38px;
+  height: 38px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  font-size: 0.875rem;
+  font-size: 1.2rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-view {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(23, 162, 184, 0.8);
   color: white;
 }
 
 .btn-view:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+  background: rgba(23, 162, 184, 1);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
 }
 
 .btn-edit {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(40, 167, 69, 0.8);
   color: white;
 }
 
 .btn-edit:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+  background: rgba(40, 167, 69, 1);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
 }
 
 .btn-delete {
@@ -189,7 +193,27 @@
 
 .btn-delete:hover {
   background: rgba(220, 53, 69, 1);
-  transform: scale(1.1);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+/* Estilo para iconos de texto */
+.icon-text {
+  font-size: 1.1rem;
+  font-weight: bold;
+  display: block;
+}
+
+/* Estados de focus para accesibilidad */
+.btn-icon:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Animación al hacer clic */
+.btn-icon:active {
+  transform: scale(1.05);
+  transition: transform 0.1s ease;
 }
 
 .card-body {
@@ -219,6 +243,13 @@
   color: #212529;
   font-size: 1rem;
   line-height: 1.5;
+}
+
+/* Aumentar tamaño específico para la descripción */
+.info-row:first-child .value {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #495057;
 }
 
 .capacity {

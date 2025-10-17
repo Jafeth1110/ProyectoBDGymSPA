@@ -1,9 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ClaseService } from '../../services/clase.service';
-import { EntrenadorService } from '../../services/entrenador.service';
 import { Clase } from '../../models/clase';
-import { ClaseFormData } from '../../models/api-interfaces';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -11,139 +9,114 @@ import Swal from 'sweetalert2';
   templateUrl: './add-clase.component.html',
   styleUrls: ['./add-clase.component.css']
 })
-export class AddClaseComponent implements OnInit {
-  public clase: Clase = new Clase();
-  public entrenadores: any[] = [];
+export class AddClaseComponent {
+  public clase: Clase = new Clase(0, '', '', '', '', 0);
   public validationErrors: string[] = [];
   public isLoading: boolean = false;
+  public diasSemana: string[] = Clase.getDiasValidos();
 
   constructor(
     private _claseService: ClaseService,
-    private _entrenadorService: EntrenadorService,
     private _router: Router
   ) {
     this.resetClase();
   }
 
-  ngOnInit(): void {
-    this.loadEntrenadores();
-  }
-
   resetClase() {
-    this.clase = new Clase(0, '', '', 0, 0);
-  }
-
-  loadEntrenadores(): void {
-    this.isLoading = true;
-    this._entrenadorService.getEntrenadores().subscribe({
-      next: (response: any) => {
-        if (response && response.data) {
-          this.entrenadores = response.data;
-        }
-        this.isLoading = false;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar entrenadores:', error);
-        this.showAlert('error', 'Error al cargar la lista de entrenadores');
-        this.isLoading = false;
-      }
-    });
+    this.clase = new Clase(0, '', '', '', '', 0);
   }
 
   onSubmit(form?: any): void {
     this.validationErrors = [];
 
     // Validaciones básicas
-    if (!this.clase.nombre || !this.clase.descripcion || 
-        !this.clase.capacidad || !this.clase.idEntrenador) {
+    if (!this.clase.diaSemana || !this.clase.hora || !this.clase.nombre || !this.clase.descripcion || !this.clase.cupoMax) {
       this.showAlert('error', 'Debes completar todos los campos antes de enviar.');
       return;
     }
 
-    // Validar que la capacidad sea un número positivo
-    if (this.clase.capacidad <= 0) {
-      this.showAlert('error', 'La capacidad debe ser mayor a 0.');
+    // Validar que el cupo máximo sea un número positivo
+    if (this.clase.cupoMax <= 0) {
+      this.showAlert('error', 'El cupo máximo debe ser un número mayor a cero.');
       return;
     }
 
-    // Validar que se haya seleccionado un entrenador
-    if (this.clase.idEntrenador <= 0) {
-      this.showAlert('error', 'Debes seleccionar un entrenador válido.');
+    // Validar día de la semana
+    if (!this.diasSemana.includes(this.clase.diaSemana)) {
+      this.showAlert('error', 'Debe seleccionar un día de la semana válido.');
       return;
     }
 
+    // Validar horario (formato básico HH:MM)
+    const horarioRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!horarioRegex.test(this.clase.hora)) {
+      this.showAlert('error', 'El horario debe tener formato HH:MM (ejemplo: 14:30).');
+      return;
+    }
+
+    // Enviar clase directamente
     this.isLoading = true;
-
-    const claseData: ClaseFormData = {
-      nombre: this.clase.nombre.trim(),
-      descripcion: this.clase.descripcion.trim(),
-      capacidad: this.clase.capacidad,
-      idEntrenador: this.clase.idEntrenador
-    };
-
-    this._claseService.addClase(claseData).subscribe({
-      next: (response: any) => {
-        if (response && response.status === 201) {
-          this.showAlert('success', 'Clase creada correctamente', () => {
-            this._router.navigate(['/show-clase']);
-          });
+    this._claseService.addClase(this.clase).subscribe({
+      next: (res: any) => {
+        this.isLoading = false;
+        console.log('Respuesta exitosa completa:', res);
+        
+        // El backend responde con res.code y res.status, no res.status como HTTP status
+        if (res.code === 200 || res.code === 201 || res.status === 'success') {
+          if (form) form.reset();
+          this.resetClase();
+          this.showAlert('success', res.message || 'Clase registrada correctamente.');
+          // Pequeño delay para que se vea la alerta antes de navegar
+          setTimeout(() => {
+            this._router.navigate(['/view-clase']);
+          }, 1500);
         } else {
-          this.showAlert('error', response?.message || 'Error al crear la clase');
+          console.log('Respuesta no exitosa:', res);
+          this.showAlert('error', res.message || 'No se pudo registrar la clase.');
         }
-        this.isLoading = false;
       },
-      error: (error: any) => {
-        console.error('Error al crear clase:', error);
-        this.handleErrorResponse(error);
+      error: (err: any) => {
         this.isLoading = false;
+        console.error('Error completo:', err);
+        
+        // Manejar errores específicos de la base de datos
+        let errorMessage = 'Error inesperado del servidor.';
+        
+        if (err.error?.message) {
+          const message = err.error.message;
+          
+          // Detectar errores de conflicto (código 409)
+          if (err.status === 409 || err.error?.code === 409) {
+            errorMessage = message; // Usar el mensaje específico del backend
+          } else {
+            errorMessage = message;
+          }
+        }
+        
+        if (err.status === 422 && err.error?.errors) {
+          this.validationErrors = Object.values(err.error.errors).flat() as string[];
+        }
+        
+        this.showAlert('error', errorMessage);
       }
     });
   }
 
-  private handleErrorResponse(error: any): void {
-    if (error.error && error.error.errors) {
-      const errors = error.error.errors;
-      this.validationErrors = [];
-      
-      for (const field in errors) {
-        if (Array.isArray(errors[field])) {
-          this.validationErrors.push(...errors[field]);
-        } else {
-          this.validationErrors.push(errors[field]);
-        }
-      }
-      
-      this.showAlert('error', 'Errores de validación: ' + this.validationErrors.join(', '));
-    } else if (error.error && error.error.message) {
-      this.showAlert('error', error.error.message);
-    } else if (error.message) {
-      this.showAlert('error', error.message);
-    } else {
-      this.showAlert('error', 'Error inesperado al crear la clase. Inténtalo de nuevo.');
-    }
-  }
-
-  private showAlert(type: 'success' | 'error' | 'warning' | 'info', message: string, callback?: () => void): void {
+  showAlert(type: 'success' | 'error', message: string) {
     const config: any = {
-      title: type === 'success' ? '¡Éxito!' : type === 'error' ? '¡Error!' : '¡Atención!',
-      text: message,
+      title: type === 'success' ? '¡Éxito!' : '¡Error!',
+      html: message.replace(/\n/g, '<br>'), // Convertir saltos de línea a HTML
       icon: type,
       confirmButtonText: 'Aceptar',
-      confirmButtonColor: '#28a745'
+      confirmButtonColor: type === 'success' ? '#28a745' : '#dc3545',
+      timer: type === 'success' ? 3000 : undefined,
+      showConfirmButton: type === 'error' ? true : false
     };
 
-    if (type === 'error') {
-      config.confirmButtonColor = '#dc3545';
-    }
-
-    Swal.fire(config).then((result) => {
-      if (result.isConfirmed && callback) {
-        callback();
-      }
-    });
+    Swal.fire(config);
   }
 
   goBack(): void {
-    this._router.navigate(['/show-clase']);
+    this._router.navigate(['/view-clase']);
   }
 }

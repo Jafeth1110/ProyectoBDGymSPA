@@ -55,7 +55,8 @@ export class ViewClaseComponent implements OnInit {
       this.filteredClases = this.clases.filter(clase =>
         clase.nombre.toLowerCase().includes(term) ||
         clase.descripcion.toLowerCase().includes(term) ||
-        clase.getNombreEntrenador()?.toLowerCase().includes(term)
+        clase.diaSemana.toLowerCase().includes(term) ||
+        clase.hora.toLowerCase().includes(term)
       );
     }
   }

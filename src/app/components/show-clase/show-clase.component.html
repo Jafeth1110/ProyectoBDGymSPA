@@ -3,11 +3,11 @@
     <div class="card-header">
       <h2>Detalles de la Clase</h2>
       <div class="actions">
-        <button class="btn-primary" (click)="editClase()" title="Editar clase">
-          <i class="icon">✏️</i> Editar
+        <button class="btn-primary" (click)="editClase()" title="Editar clase"> 
+          Editar
         </button>
         <button class="btn-danger" (click)="deleteClase()" title="Eliminar clase">
-          <i class="icon">🗑️</i> Eliminar
+          Eliminar
         </button>
       </div>
     </div>
@@ -30,25 +30,20 @@
         </div>
         
         <div class="detail-item">
-          <label>Capacidad:</label>
-          <span class="capacity">{{ clase.capacidad }} personas</span>
+          <label>Cupo Máximo:</label>
+          <span class="capacity">{{ clase.cupoMax }} personas</span>
         </div>
         
         <div class="detail-item">
-          <label>Entrenador:</label>
-          <span class="trainer">{{ clase.getNombreEntrenador() || 'No asignado' }}</span>
-        </div>
-        
-        <div class="detail-item" *ngIf="clase.entrenador?.especialidad">
-          <label>Especialidad del Entrenador:</label>
-          <span>{{ clase.entrenador?.especialidad }}</span>
+          <label>Horario:</label>
+          <span class="horario">{{ clase.getHorarioCompleto() }}</span>
         </div>
       </div>
     </div>
     
     <div class="card-footer">
       <button class="btn-secondary" (click)="goBack()">
-        <i class="icon">⬅️</i> Volver a la Lista
+        Volver a la Lista
       </button>
     </div>
   </div>
