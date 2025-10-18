@@ -56,9 +56,23 @@ export class UpdateMetodopagoComponent implements OnInit {
   onSubmit(form?: any): void {
     this.validationErrors = [];
 
-    if (!this.metodoPago.nombre || !this.metodoPago.descripcion || 
-        this.metodoPago.activo === undefined || this.metodoPago.comision < 0) {
-      this.showAlert('error', 'Debes completar todos los campos antes de enviar.');
+    if (!this.metodoPago.nombre.trim()) {
+      this.showAlert('error', 'El nombre del método de pago es obligatorio.');
+      return;
+    }
+
+    if (this.metodoPago.nombre.trim().length > 45) {
+      this.showAlert('error', 'El nombre no puede exceder 45 caracteres.');
+      return;
+    }
+
+    if (this.metodoPago.descripcion && this.metodoPago.descripcion.trim().length > 100) {
+      this.showAlert('error', 'La descripción no puede exceder 100 caracteres.');
+      return;
+    }
+
+    if (this.metodoPago.comision < 0 || this.metodoPago.comision > 100) {
+      this.showAlert('error', 'La comisión debe estar entre 0 y 100.');
       return;
     }
 
@@ -67,16 +81,16 @@ export class UpdateMetodopagoComponent implements OnInit {
     const metodoPagoData: MetodoPagoFormData = {
       nombre: this.metodoPago.nombre.trim(),
       descripcion: this.metodoPago.descripcion.trim(),
-      activo: this.metodoPago.activo,
+      estado: this.metodoPago.estado,
       requiereAutorizacion: this.metodoPago.requiereAutorizacion,
       comision: this.metodoPago.comision
     };
 
     this._metodoPagoService.updateMetodoPago(this.metodoPagoId, metodoPagoData).subscribe({
       next: (response: any) => {
-        if (response && (response.status === 200 || response.status === 201)) {
-          this.showAlert('success', 'Método de pago actualizado correctamente', () => {
-            this._router.navigate(['/show-metodopago', this.metodoPagoId]);
+        if (response && (response.code === 200 || response.status === 'success')) {
+          this.showAlert('success', response.message || 'Método de pago actualizado correctamente', () => {
+            this._router.navigate(['/view-metodopago']);
           });
         } else {
           this.showAlert('error', response?.message || 'Error al actualizar el método de pago');
@@ -135,6 +149,6 @@ export class UpdateMetodopagoComponent implements OnInit {
   }
 
   goBack(): void {
-    this._router.navigate(['/show-metodopago', this.metodoPagoId]);
+    this._router.navigate(['/view-metodopago']);
   }
 }

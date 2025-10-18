@@ -4,10 +4,10 @@
       <h2>Detalles del Método de Pago</h2>
       <div class="actions">
         <button class="btn-primary" (click)="editMetodoPago()">
-          <i class="icon">✏️</i> Editar
+          Editar
         </button>
         <button class="btn-danger" (click)="deleteMetodoPago()">
-          <i class="icon">🗑️</i> Eliminar
+          Eliminar
         </button>
       </div>
     </div>
@@ -31,7 +31,7 @@
         
         <div class="detail-item">
           <label>Estado:</label>
-          <span [class]="metodoPago.activo === 1 ? 'capacity' : 'inactive'">
+          <span [class]="metodoPago.estado === 1 ? 'capacity' : 'inactive'">
             {{ metodoPago.getEstadoTexto() }}
           </span>
         </div>
@@ -52,7 +52,7 @@
     
     <div class="card-footer">
       <button class="btn-secondary" (click)="goBack()">
-        <i class="icon">⬅️</i> Volver a la Lista
+        Volver a la Lista
       </button>
     </div>
   </div>

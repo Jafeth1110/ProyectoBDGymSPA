@@ -15,13 +15,15 @@
         <div class="form-group">
           <label for="nombre">Nombre del Método</label>
           <input [(ngModel)]="metodoPago.nombre" name="nombre" id="nombre" type="text" 
-                 placeholder="Ej: Efectivo, Tarjeta de Crédito, SINPE" required />
+                 maxlength="45" placeholder="Ej: Efectivo, Tarjeta de Crédito, SINPE" required />
+          <small class="form-text">Máximo 45 caracteres</small>
         </div>
         
         <div class="form-group">
           <label for="descripcion">Descripción</label>
           <textarea [(ngModel)]="metodoPago.descripcion" name="descripcion" id="descripcion" 
-                    rows="3" placeholder="Describe el método de pago y sus características" required></textarea>
+                    maxlength="100" rows="3" placeholder="Describe el método de pago y sus características"></textarea>
+          <small class="form-text">Máximo 100 caracteres (opcional)</small>
         </div>
         
         <div class="form-group">
@@ -41,19 +43,19 @@
         </div>
         
         <div class="form-group">
-          <label for="activo">Estado</label>
-          <select [(ngModel)]="metodoPago.activo" name="activo" id="activo" required>
+          <label for="estado">Estado</label>
+          <select [(ngModel)]="metodoPago.estado" name="estado" id="estado" required>
             <option [value]="1">Activo</option>
             <option [value]="0">Inactivo</option>
           </select>
         </div>
 
         <div class="button-group">
+          <button type="button" class="btn-secondary" (click)="goBack()">Cancelar</button>
           <button type="submit" class="btn-primary" [disabled]="!metodoPagoForm.form.valid || isLoading">
             <span *ngIf="isLoading">Guardando...</span>
             <span *ngIf="!isLoading">Crear Método de Pago</span>
           </button>
-          <button type="button" class="btn-secondary" (click)="goBack()">Cancelar</button>
         </div>
       </form>
       

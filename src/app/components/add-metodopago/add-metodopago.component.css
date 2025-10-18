@@ -93,14 +93,14 @@ h2 {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #007bff, #0056b3);
+  background: linear-gradient(135deg, #28a745, #20c997);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0056b3, #004085);
+  background: linear-gradient(135deg, #218838, #1e7e34);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
 .btn-primary:disabled {
@@ -139,5 +139,13 @@ h2 {
   .btn-primary,
   .btn-secondary {
     flex: 1;
+  }
+  
+  .btn-primary {
+    order: 2;
+  }
+  
+  .btn-secondary {
+    order: 1;
   }
 }

@@ -65,7 +65,7 @@ export class MetodoPagoService {
       'Authorization': `Bearer ${token}`
     });
 
-    const params = JSON.stringify(metodoPagoData);
+    const params = JSON.stringify({ data: metodoPagoData });
     return this._http.post<ApiResponse<MetodoPagoResponse>>(this.urlAPI, params, { headers });
   }
 
@@ -85,7 +85,7 @@ export class MetodoPagoService {
       'Authorization': `Bearer ${token}`
     });
 
-    const params = JSON.stringify(metodoPagoData);
+    const params = JSON.stringify({ data: metodoPagoData });
     return this._http.put<ApiResponse<MetodoPagoResponse>>(`${this.urlAPI}${id}`, params, { headers });
   }
 
@@ -113,20 +113,18 @@ export class MetodoPagoService {
       errors.push('El nombre del método de pago es obligatorio');
     } else if (metodoPagoData.nombre.trim().length < 3) {
       errors.push('El nombre debe tener al menos 3 caracteres');
-    } else if (metodoPagoData.nombre.trim().length > 100) {
-      errors.push('El nombre no puede exceder 100 caracteres');
+    } else if (metodoPagoData.nombre.trim().length > 45) {
+      errors.push('El nombre no puede exceder 45 caracteres');
     }
 
     // Validar descripción
-    if (!metodoPagoData.descripcion || metodoPagoData.descripcion.trim().length === 0) {
-      errors.push('La descripción es obligatoria');
-    } else if (metodoPagoData.descripcion.trim().length > 500) {
-      errors.push('La descripción no puede exceder 500 caracteres');
+    if (metodoPagoData.descripcion && metodoPagoData.descripcion.trim().length > 100) {
+      errors.push('La descripción no puede exceder 100 caracteres');
     }
 
-    // Validar estado activo
-    if (metodoPagoData.activo !== 0 && metodoPagoData.activo !== 1) {
-      errors.push('El estado activo debe ser 0 (Inactivo) o 1 (Activo)');
+    // Validar estado
+    if (metodoPagoData.estado !== 0 && metodoPagoData.estado !== 1) {
+      errors.push('El estado debe ser 0 (Inactivo) o 1 (Activo)');
     }
 
     // Validar requiere autorización
@@ -152,12 +150,12 @@ export class MetodoPagoService {
    */
   mapResponseToModel(response: MetodoPagoResponse): MetodoPago {
     return new MetodoPago(
-      response.idMetodoPago,
+      Number(response.idMetodoPago),
       response.nombre,
       response.descripcion,
-      response.activo,
-      response.requiereAutorizacion,
-      response.comision
+      Number(response.estado), // Conversión explícita a número
+      Number(response.requiereAutorizacion), // Conversión explícita a número
+      Number(response.comision)
     );
   }
 
@@ -168,7 +166,7 @@ export class MetodoPagoService {
     return {
       nombre: metodoPago.nombre,
       descripcion: metodoPago.descripcion,
-      activo: metodoPago.activo,
+      estado: metodoPago.estado,
       requiereAutorizacion: metodoPago.requiereAutorizacion,
       comision: metodoPago.comision
     };

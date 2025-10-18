@@ -189,7 +189,7 @@ export interface MetodoPagoResponse {
   idMetodoPago: number;
   nombre: string;
   descripcion: string;
-  activo: number;
+  estado: number;
   requiereAutorizacion: number;
   comision: number;
 }
@@ -252,7 +252,7 @@ export interface MembresiaFormData {
 export interface MetodoPagoFormData {
   nombre: string;
   descripcion: string;
-  activo: number;
+  estado: number;
   requiereAutorizacion: number;
   comision: number;
 }
