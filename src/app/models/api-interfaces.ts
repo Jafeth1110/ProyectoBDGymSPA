@@ -176,13 +176,56 @@ export interface InscripcionClaseResponse {
 }
 
 export interface MembresiaResponse {
-  idMembresia: number;
-  tipo: string;
+  idMembresia: string;          // Cambiado a string
+  idCliente: string | null;     // Cambiado a string/null
+  nombre?: string;
+  descripcion?: string;
+  tipoMem: string;
+  precio: string;               // Cambiado a string
+  descuento?: string;           // Cambiado a string
+  fechaVenc: string | null;     // Permite null
+  fechaInicio: string | null;   // Permite null
+  fechaCreacion?: string;
+  estado: string;               // Cambiado a string
+  esPlantilla?: string;         // Cambiado a string
+  precioFinal?: string;         // Nuevo campo como string
+  precio_formateado?: string;
+  precio_final?: number;
+  estado_texto?: string;
+  // Formato de objeto cliente (si viene separado)
+  cliente?: {
+    idCliente: number;
+    nombre: string;
+    apellido: string;
+    email: string;
+  };
+  // Formato directo (como en getActivas, getVencidas, etc.)
+  cliente_nombre?: string | null;
+  cliente_apellido?: string | null;
+  cliente_email?: string | null;
+  cliente_fechaRegistro?: string | null;
+}
+
+export interface MembresiaFormData {
+  idCliente?: number;
+  nombre?: string;
+  descripcion?: string;
+  tipoMem: string;
   precio: number;
-  duracionMeses: number;
-  descripcion: string;
-  estado: number;
-  beneficios?: string[];
+  descuento?: number;
+  fechaVenc?: string;
+  fechaInicio?: string;
+  estado?: number;
+  esPlantilla?: number;
+}
+
+export interface PlantillaMembresiaFormData {
+  nombre: string;
+  descripcion?: string;
+  tipoMem: string;
+  precio: number;
+  descuento?: number;
+  estado?: number;
 }
 
 export interface MetodoPagoResponse {
@@ -213,9 +256,10 @@ export interface PagoResponse {
   };
   membresia?: {
     idMembresia: number;
-    tipo: string;
+    tipoMem: string;
     precio: number;
-    duracionMeses: number;
+    fechaVenc: string;
+    fechaInicio: string;
   };
   metodoPago?: {
     idMetodoPago: number;
@@ -241,12 +285,16 @@ export interface InscripcionClaseFormData {
 }
 
 export interface MembresiaFormData {
-  tipo: string;
+  idCliente?: number;
+  nombre?: string;
+  descripcion?: string;
+  tipoMem: string;
   precio: number;
-  duracionMeses: number;
-  descripcion: string;
-  estado: number;
-  beneficios?: string[];
+  descuento?: number;
+  fechaVenc?: string;
+  fechaInicio?: string;
+  estado?: number;
+  esPlantilla?: number;
 }
 
 export interface MetodoPagoFormData {

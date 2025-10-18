@@ -1,66 +1,313 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Agregar Membresía</title>
-  <link rel="stylesheet" href="add-membresia.component.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-  <div class="container">
-    <div class="card shadow p-4">
-      <h2 class="mb-4 text-center">Agregar Membresía</h2>
-      <form #membresiaForm="ngForm" (ngSubmit)="onSubmit(membresiaForm)">
-        
-        <div class="form-group">
-          <label for="tipo">Tipo de Membresía</label>
-          <input [(ngModel)]="membresia.tipo" name="tipo" id="tipo" type="text" 
-                 placeholder="Ej: Básica, Premium, VIP" required />
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-plus me-2"></i>Nueva Membresía
+          </h5>
         </div>
         
-        <div class="form-group">
-          <label for="precio">Precio (₡)</label>
-          <input [(ngModel)]="membresia.precio" name="precio" id="precio" type="number" 
-                 min="0" step="0.01" placeholder="Precio en colones" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="duracionMeses">Duración (meses)</label>
-          <input [(ngModel)]="membresia.duracionMeses" name="duracionMeses" id="duracionMeses" 
-                 type="number" min="1" max="36" placeholder="Duración en meses" required />
-          <small class="form-text">Duración entre 1 y 36 meses</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="descripcion">Descripción</label>
-          <textarea [(ngModel)]="membresia.descripcion" name="descripcion" id="descripcion" 
-                    rows="4" placeholder="Describe los beneficios y características de la membresía" required></textarea>
-        </div>
-        
-        <div class="form-group">
-          <label for="estado">Estado</label>
-          <select [(ngModel)]="membresia.estado" name="estado" id="estado" required>
-            <option [value]="1">Activa</option>
-            <option [value]="0">Inactiva</option>
-          </select>
-        </div>
+        <div class="card-body">
+          <!-- Selector de tipo de creación -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <label for="tipoCreacion" class="form-label">
+                <strong>¿Qué deseas crear?</strong>
+              </label>
+              <select [(ngModel)]="tipoCreacion" name="tipoCreacion" id="tipoCreacion" 
+                      (change)="onTipoCreacionChange()" class="form-control">
+                <option value="cliente">Membresía para Cliente</option>
+                <option value="plantilla">Plantilla de Membresía</option>
+              </select>
+            </div>
+          </div>
 
-        <div class="button-group">
-          <button type="submit" class="btn-primary" [disabled]="!membresiaForm.form.valid || isLoading">
-            <span *ngIf="isLoading">Guardando...</span>
-            <span *ngIf="!isLoading">Crear Membresía</span>
-          </button>
-          <button type="button" class="btn-secondary" (click)="goBack()">Cancelar</button>
+          <form #membresiaForm="ngForm" (ngSubmit)="onSubmit(membresiaForm)">
+            
+            <!-- Información del tipo de registro -->
+            <div class="row mb-3">
+              <div class="col-12">
+                <div class="alert" [class.alert-info]="isPlantilla()" [class.alert-success]="!isPlantilla()">
+                  <div class="d-flex align-items-center">
+                    <i [class]="isPlantilla() ? 'fas fa-clipboard-list me-2' : 'fas fa-user me-2'"></i>
+                    <div>
+                      <strong>{{ isPlantilla() ? 'Crear Plantilla de Membresía' : 'Crear Membresía de Cliente' }}</strong>
+                      <small class="d-block mt-1">
+                        {{ isPlantilla() ? 
+                           'Las plantillas pueden ser reutilizadas para crear múltiples membresías.' : 
+                           'Esta membresía será asignada a un cliente específico.' }}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selector de plantilla (solo para cliente) -->
+            <div *ngIf="!isPlantilla() && plantillas.length > 0" class="row mb-3">
+              <div class="col-12">
+                <label for="plantillaSeleccionada" class="form-label">
+                  <strong>Usar Plantilla (Opcional)</strong>
+                </label>
+                <select [(ngModel)]="plantillaSeleccionada" name="plantillaSeleccionada" id="plantillaSeleccionada" 
+                        class="form-control" (change)="onPlantillaSelect()">
+                  <option [ngValue]="null">Crear membresía manualmente</option>
+                  <option *ngFor="let plantilla of plantillas" [ngValue]="plantilla">
+                    {{ plantilla.nombre }} - {{ plantilla.tipoMem }} ({{ getPrecioFormateado(plantilla.precio) }})
+                  </option>
+                </select>
+                <small class="form-text text-muted">
+                  {{ isLoadingPlantillas ? 'Cargando plantillas...' : 'Si seleccionas una plantilla, los campos se llenarán automáticamente' }}
+                </small>
+              </div>
+            </div>
+
+            <!-- Información básica -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="nombre" class="form-label">
+                  <strong>Nombre de la Membresía</strong>
+                  <span *ngIf="isPlantilla()" class="text-danger">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="nombre"
+                  name="nombre"
+                  [(ngModel)]="formData.nombre"
+                  #nombre="ngModel"
+                  [required]="isPlantilla()"
+                  placeholder="Ej: Membresía Premium">
+                <div *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="nombre.errors?.['required']">El nombre es requerido para plantillas</div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="tipoMem" class="form-label">
+                  <strong>Tipo de Membresía <span class="text-danger">*</span></strong>
+                </label>
+                <select 
+                  class="form-control" 
+                  id="tipoMem"
+                  name="tipoMem"
+                  [(ngModel)]="formData.tipoMem"
+                  #tipoMem="ngModel"
+                  (change)="onTipoMembresiaChange()"
+                  required>
+                  <option value="">Selecciona un tipo</option>
+                  <option *ngFor="let tipo of tiposMembresia" [value]="tipo">{{ tipo }}</option>
+                </select>
+                <div *ngIf="tipoMem.invalid && (tipoMem.dirty || tipoMem.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="tipoMem.errors?.['required']">El tipo es requerido</div>
+                </div>
+              </div>
+
+              <div class="col-12 mb-2">
+                <label for="descripcion" class="form-label">
+                  <strong>Descripción</strong>
+                </label>
+                <textarea 
+                  class="form-control" 
+                  id="descripcion"
+                  name="descripcion"
+                  [(ngModel)]="formData.descripcion"
+                  rows="2"
+                  placeholder="Descripción opcional de la membresía..."></textarea>
+              </div>
+            </div>
+
+            <!-- Información de precios -->
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="precio" class="form-label">
+                  <strong>Precio Base (₡) <span class="text-danger">*</span></strong>
+                </label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  id="precio"
+                  name="precio"
+                  [(ngModel)]="formData.precio"
+                  #precioInput="ngModel"
+                  required
+                  min="0"
+                  step="0.01"
+                  placeholder="Precio en colones">
+                <div *ngIf="precioInput.invalid && (precioInput.dirty || precioInput.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="precioInput.errors?.['required']">El precio es requerido</div>
+                  <div *ngIf="precioInput.errors?.['min']">El precio debe ser mayor a 0</div>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label for="descuento" class="form-label">
+                  <strong>Descuento (%)</strong>
+                </label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  id="descuento"
+                  name="descuento"
+                  [(ngModel)]="formData.descuento"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  placeholder="0">
+                <small class="form-text text-muted">Opcional: descuento en porcentaje</small>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label for="estado" class="form-label">
+                  <strong>Estado <span class="text-danger">*</span></strong>
+                </label>
+                <select 
+                  class="form-control" 
+                  id="estado"
+                  name="estado"
+                  [(ngModel)]="formData.estado"
+                  #estado="ngModel"
+                  required>
+                  <option [value]="1">Activa</option>
+                  <option [value]="0">Inactiva</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Información del cliente (solo si no es plantilla) -->
+            <div *ngIf="!isPlantilla()" class="row">
+              <div class="col-12 mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2">Información del Cliente</h6>
+              </div>
+              
+              <div class="col-md-12 mb-2">
+                <label for="idCliente" class="form-label">
+                  <strong>Cliente <span class="text-danger">*</span></strong>
+                </label>
+                <select 
+                  class="form-control" 
+                  id="idCliente"
+                  name="idCliente"
+                  [(ngModel)]="formData.idCliente"
+                  #idCliente="ngModel"
+                  [required]="!isPlantilla()">
+                  <option value="">
+                    {{ isLoadingClientes ? 'Cargando clientes...' : 'Seleccione un cliente' }}
+                  </option>
+                  <option *ngFor="let cliente of clientes" [value]="cliente.idCliente">
+                    {{ cliente.nombre }} {{ cliente.apellido }} - {{ cliente.email }}
+                  </option>
+                </select>
+                <div *ngIf="idCliente.invalid && (idCliente.dirty || idCliente.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="idCliente.errors?.['required']">Debe seleccionar un cliente</div>
+                </div>
+                <small class="form-text text-muted" *ngIf="!isLoadingClientes && clientes.length > 0">{{ clientes.length }} clientes disponibles</small>
+              </div>
+
+              <div class="col-md-6 mb-2">
+                <label for="fechaInicio" class="form-label">
+                  <strong>Fecha de Inicio <span class="text-danger">*</span></strong>
+                </label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  id="fechaInicio"
+                  name="fechaInicio"
+                  [(ngModel)]="formData.fechaInicio"
+                  #fechaInicio="ngModel"
+                  (change)="onFechaInicioChange()"
+                  [readonly]="!isPlantilla()"
+                  [required]="!isPlantilla()">
+                <div *ngIf="fechaInicio.invalid && (fechaInicio.dirty || fechaInicio.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="fechaInicio.errors?.['required']">La fecha de inicio es requerida</div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-2">
+                <label for="fechaVenc" class="form-label">
+                  <strong>Fecha de Vencimiento <span class="text-danger">*</span></strong>
+                  <small class="text-muted" *ngIf="!isPlantilla()"> (Calculada automáticamente)</small>
+                </label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  id="fechaVenc"
+                  name="fechaVenc"
+                  [(ngModel)]="formData.fechaVenc"
+                  #fechaVenc="ngModel"
+                  [readonly]="!isPlantilla()"
+                  [required]="!isPlantilla()">
+                <div *ngIf="fechaVenc.invalid && (fechaVenc.dirty || fechaVenc.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="fechaVenc.errors?.['required']">La fecha de vencimiento es requerida</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vista previa de precios -->
+            <div *ngIf="formData.precio > 0" class="row">
+              <div class="col-12">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title">Vista Previa de Precios</h6>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <small class="text-muted">Precio Base:</small>
+                        <div class="fw-bold">{{ getPrecioFormateado(formData.precio) }}</div>
+                      </div>
+                      <div *ngIf="formData.descuento && formData.descuento > 0" class="col-md-4">
+                        <small class="text-muted">Descuento:</small>
+                        <div class="fw-bold text-danger">-{{ formData.descuento }}%</div>
+                      </div>
+                      <div *ngIf="formData.descuento && formData.descuento > 0" class="col-md-4">
+                        <small class="text-muted">Precio Final:</small>
+                        <div class="fw-bold text-success">{{ getPrecioFormateado(getPrecioFinal()) }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="row mt-3">
+              <div class="col-12">
+                <div class="d-flex justify-content-between">
+                  <button 
+                    type="button" 
+                    class="btn btn-secondary"
+                    (click)="goBack()">
+                    <i class="fas fa-arrow-left me-1"></i>Cancelar
+                  </button>
+                  
+                  <button 
+                    type="submit" 
+                    class="btn btn-primary"
+                    [disabled]="!membresiaForm.form.valid || isLoading">
+                    <span *ngIf="isLoading">
+                      <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Creando...
+                    </span>
+                    <span *ngIf="!isLoading">
+                      <i class="fas fa-save me-1"></i>
+                      {{ isPlantilla() ? 'Crear Plantilla' : 'Crear Membresía' }}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+            <h6 class="alert-heading">
+              <i class="fas fa-exclamation-triangle me-2"></i>Errores de validación:
+            </h6>
+            <ul class="mb-0">
+              <li *ngFor="let error of validationErrors">{{ error }}</li>
+            </ul>
+          </div>
         </div>
-      </form>
-      
-      <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
-        <h4>Errores de validación:</h4>
-        <ul>
-          <li *ngFor="let err of validationErrors">{{ err }}</li>
-        </ul>
       </div>
     </div>
   </div>
-</body>
-</html>
+</div>

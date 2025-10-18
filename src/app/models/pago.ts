@@ -18,9 +18,10 @@ export class Pago {
     },
     public membresia?: {
       idMembresia: number;
-      tipo: string;
+      tipoMem: string;
       precio: number;
-      duracionMeses: number;
+      fechaVenc: string;
+      fechaInicio: string;
     },
     public metodoPago?: {
       idMetodoPago: number;

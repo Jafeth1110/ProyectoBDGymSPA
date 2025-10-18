@@ -1,13 +1,13 @@
 <div class="container" *ngIf="membresia">
   <div class="card">
     <div class="card-header">
-      <h2>Detalles de la Membresía</h2>
+      <h2>{{ esPlantilla() ? 'Detalles de la Plantilla' : 'Detalles de la Membresía' }}</h2>
       <div class="actions">
         <button class="btn-primary" (click)="editMembresia()">
-          <i class="icon">✏️</i> Editar
+          Editar
         </button>
         <button class="btn-danger" (click)="deleteMembresia()">
-          <i class="icon">🗑️</i> Eliminar
+          Eliminar
         </button>
       </div>
     </div>
@@ -15,42 +15,95 @@
     <div class="card-body">
       <div class="details-grid">
         <div class="detail-item">
-          <label>ID de Membresía:</label>
+          <label>ID:</label>
           <span>{{ membresia.idMembresia }}</span>
         </div>
-        
+
         <div class="detail-item">
-          <label>Tipo:</label>
-          <span class="highlight">{{ membresia.tipo }}</span>
+          <label>Nombre:</label>
+          <span class="highlight">{{ membresia.nombre || membresia.tipoMem }}</span>
+        </div>
+
+        <div class="detail-item" *ngIf="membresia.descripcion">
+          <label>Descripción:</label>
+          <span>{{ membresia.descripcion }}</span>
+        </div>
+        
+        <div class="detail-item" *ngIf="!esPlantilla()">
+          <label>Cliente:</label>
+          <span class="highlight">{{ membresia.cliente_nombre }} {{ membresia.cliente_apellido }}</span>
+        </div>
+        
+        <div class="detail-item" *ngIf="!esPlantilla() && membresia.cliente_email">
+          <label>Email del Cliente:</label>
+          <span>{{ membresia.cliente_email }}</span>
         </div>
         
         <div class="detail-item">
-          <label>Precio:</label>
-          <span class="capacity">${{ membresia.precio | number:'1.2-2' }}</span>
+          <label>Tipo de Membresía:</label>
+          <span class="highlight">{{ membresia.tipoMem }}</span>
         </div>
         
         <div class="detail-item">
-          <label>Duración:</label>
-          <span>{{ membresia.duracionMeses }} {{ membresia.duracionMeses === 1 ? 'mes' : 'meses' }}</span>
+          <label>Precio Base:</label>
+          <span class="capacity">{{ getPrecioFormateado(membresia.precio) }}</span>
+        </div>
+
+        <div class="detail-item" *ngIf="hasDescuento()">
+          <label>Descuento:</label>
+          <span class="descuento">{{ membresia.descuento }}%</span>
+        </div>
+
+        <div class="detail-item" *ngIf="hasDescuento()">
+          <label>Precio Final:</label>
+          <span class="precio-final">{{ getPrecioFormateado(getPrecioFinal()) }}</span>
+        </div>
+        
+        <div class="detail-item" *ngIf="!esPlantilla() && membresia.fechaInicio">
+          <label>Fecha de Inicio:</label>
+          <span>{{ membresia.fechaInicio | date:'dd/MM/yyyy' }}</span>
+        </div>
+        
+        <div class="detail-item" *ngIf="!esPlantilla() && membresia.fechaVenc">
+          <label>Fecha de Vencimiento:</label>
+          <span [class.vencida]="isVencida()" [class.vence-pronto]="vencePronto()">
+            {{ membresia.fechaVenc | date:'dd/MM/yyyy' }}
+          </span>
         </div>
         
         <div class="detail-item">
           <label>Estado:</label>
-          <span [class]="membresia.estado === 1 ? 'capacity' : 'inactive'">
-            {{ membresia.getEstadoTexto() }}
+          <span [class]="estaActiva() ? 'capacity' : 'inactive'">
+            {{ getEstadoTexto() }}
           </span>
         </div>
         
-        <div class="detail-item full-width">
-          <label>Descripción:</label>
-          <span class="description">{{ membresia.descripcion }}</span>
+        <div class="detail-item full-width" *ngIf="!esPlantilla() && estaActiva() && isVencida()">
+          <label>⚠️ Estado de Vencimiento:</label>
+          <span class="vencida">
+            Vencida hace {{ Math.abs(getDiasRestantes()) }} días
+          </span>
+        </div>
+        
+        <div class="detail-item full-width" *ngIf="!esPlantilla() && estaActiva() && !isVencida() && getDiasRestantes() > 0">
+          <label>📅 Tiempo Restante:</label>
+          <span class="vigente" [class.vence-pronto]="vencePronto()">
+            {{ getDiasRestantes() }} días restantes
+          </span>
+        </div>
+
+        <div class="detail-item full-width" *ngIf="esPlantilla()">
+          <label>Tipo:</label>
+          <span class="plantilla-badge">
+            📋 Plantilla de Membresía
+          </span>
         </div>
       </div>
     </div>
     
     <div class="card-footer">
       <button class="btn-secondary" (click)="goBack()">
-        <i class="icon">⬅️</i> Volver a la Lista
+        Volver a la Lista
       </button>
     </div>
   </div>

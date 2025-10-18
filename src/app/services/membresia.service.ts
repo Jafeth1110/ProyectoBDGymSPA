@@ -65,7 +65,7 @@ export class MembresiaService {
       'Authorization': `Bearer ${token}`
     });
 
-    const params = JSON.stringify(membresiaData);
+    const params = JSON.stringify({ data: membresiaData });
     return this._http.post<ApiResponse<MembresiaResponse>>(this.urlAPI, params, { headers });
   }
 
@@ -103,43 +103,99 @@ export class MembresiaService {
   }
 
   /**
+   * Obtiene membresías activas
+   */
+  getMembresiasByEstado(activas: boolean = true): Observable<ApiResponse<MembresiaResponse[]>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    const endpoint = activas ? 'activas' : 'vencidas';
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}${endpoint}`, { headers });
+  }
+
+  /**
+   * Obtiene membresías por cliente
+   */
+  getMembresiasByCliente(idCliente: number): Observable<ApiResponse<MembresiaResponse[]>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}cliente/${idCliente}`, { headers });
+  }
+
+  /**
+   * Actualiza estados de todas las membresías
+   */
+  actualizarEstados(): Observable<ApiResponse<any>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this._http.post<ApiResponse<any>>(`${this.urlAPI}update-estados`, {}, { headers });
+  }
+
+  /**
    * Valida los datos de una membresía
    */
   private validateMembresiaData(membresiaData: MembresiaFormData): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    // Validar tipo
-    if (!membresiaData.tipo || membresiaData.tipo.trim().length === 0) {
-      errors.push('El tipo de membresía es obligatorio');
-    } else if (membresiaData.tipo.trim().length < 3) {
-      errors.push('El tipo de membresía debe tener al menos 3 caracteres');
-    } else if (membresiaData.tipo.trim().length > 50) {
-      errors.push('El tipo de membresía no puede exceder 50 caracteres');
+    // Determinar si es plantilla
+    const esPlantilla = Number(membresiaData.esPlantilla) === 1 || String(membresiaData.esPlantilla) === "1";
+
+    // Validar cliente (solo para membresías de cliente)
+    if (!esPlantilla) {
+      if (!membresiaData.idCliente || membresiaData.idCliente <= 0) {
+        errors.push('Debe seleccionar un cliente válido para membresías de cliente');
+      }
     }
 
-    // Validar precio
-    if (!membresiaData.precio || membresiaData.precio <= 0) {
+    // Validar tipo de membresía (siempre requerido)
+    const tiposValidos = ['Diaria', 'Semanal', 'Quincenal', 'Mensual', 'Trimestral', 'Semestral', 'Anual'];
+    if (!membresiaData.tipoMem || !tiposValidos.includes(membresiaData.tipoMem)) {
+      errors.push('El tipo de membresía debe ser uno de: ' + tiposValidos.join(', '));
+    }
+
+    // Validar precio (siempre requerido)
+    const precioNum = Number(membresiaData.precio);
+    if (!precioNum || precioNum <= 0) {
       errors.push('El precio debe ser mayor a 0');
-    } else if (membresiaData.precio > 1000000) {
-      errors.push('El precio no puede exceder ₡1,000,000');
+    } else if (precioNum > 10000000) {
+      errors.push('El precio no puede exceder ₡10,000,000');
     }
 
-    // Validar duración
-    if (!membresiaData.duracionMeses || membresiaData.duracionMeses <= 0) {
-      errors.push('La duración debe ser mayor a 0 meses');
-    } else if (membresiaData.duracionMeses > 36) {
-      errors.push('La duración no puede exceder 36 meses');
+    // Validar fechas (solo para membresías de cliente)
+    if (!esPlantilla) {
+      if (!membresiaData.fechaInicio) {
+        errors.push('La fecha de inicio es obligatoria para membresías de cliente');
+      }
+
+      if (!membresiaData.fechaVenc) {
+        errors.push('La fecha de vencimiento es obligatoria para membresías de cliente');
+      }
+
+      // Validar que la fecha de vencimiento sea posterior a la de inicio
+      if (membresiaData.fechaInicio && membresiaData.fechaVenc) {
+        const fechaInicio = new Date(membresiaData.fechaInicio);
+        const fechaVenc = new Date(membresiaData.fechaVenc);
+        
+        if (fechaVenc <= fechaInicio) {
+          errors.push('La fecha de vencimiento debe ser posterior a la fecha de inicio');
+        }
+      }
     }
 
-    // Validar descripción
-    if (!membresiaData.descripcion || membresiaData.descripcion.trim().length === 0) {
-      errors.push('La descripción es obligatoria');
-    } else if (membresiaData.descripcion.trim().length > 1000) {
-      errors.push('La descripción no puede exceder 1000 caracteres');
-    }
-
-    // Validar estado
-    if (membresiaData.estado !== 0 && membresiaData.estado !== 1) {
+    // Validar estado (convertir a número para comparación)
+    const estadoNum = Number(membresiaData.estado);
+    if (estadoNum !== 0 && estadoNum !== 1) {
       errors.push('El estado debe ser 0 (Inactiva) o 1 (Activa)');
     }
 
@@ -153,15 +209,36 @@ export class MembresiaService {
    * Convierte la respuesta de la API a modelo local
    */
   mapResponseToModel(response: MembresiaResponse): Membresia {
-    return new Membresia(
-      response.idMembresia,
-      response.tipo,
-      response.precio,
-      response.duracionMeses,
-      response.descripcion,
-      response.estado,
-      response.beneficios
+    const membresia = new Membresia(
+      Number(response.idMembresia),
+      response.idCliente ? Number(response.idCliente) : 0,
+      response.nombre || '',
+      response.descripcion || '',
+      response.tipoMem,
+      Number(response.precio),
+      Number(response.descuento || 0),
+      response.fechaVenc || '',
+      response.fechaInicio || '',
+      response.fechaCreacion || '',
+      Number(response.estado),
+      Number(response.esPlantilla || 0)
     );
+
+    // Si el backend incluye datos del cliente en un objeto cliente separado
+    if (response.cliente) {
+      (membresia as any).clienteInfo = response.cliente;
+    }
+    // Si el backend incluye datos del cliente directamente en la respuesta (como en getActivas)
+    else if ((response as any).cliente_nombre && (response as any).cliente_apellido) {
+      (membresia as any).clienteInfo = {
+        idCliente: response.idCliente,
+        nombre: (response as any).cliente_nombre,
+        apellido: (response as any).cliente_apellido,
+        email: (response as any).cliente_email || ''
+      };
+    }
+
+    return membresia;
   }
 
   /**
@@ -169,12 +246,109 @@ export class MembresiaService {
    */
   mapModelToFormData(membresia: Membresia): MembresiaFormData {
     return {
-      tipo: membresia.tipo,
-      precio: membresia.precio,
-      duracionMeses: membresia.duracionMeses,
+      idCliente: membresia.idCliente,
+      nombre: membresia.nombre,
       descripcion: membresia.descripcion,
+      tipoMem: membresia.tipoMem,
+      precio: membresia.precio,
+      descuento: membresia.descuento,
+      fechaVenc: membresia.fechaVenc,
+      fechaInicio: membresia.fechaInicio,
       estado: membresia.estado,
-      beneficios: membresia.beneficios
+      esPlantilla: membresia.esPlantilla
     };
+  }
+
+  /**
+   * Obtiene plantillas de membresía disponibles
+   */
+  getPlantillas(): Observable<ApiResponse<MembresiaResponse[]>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}plantillas`, { headers });
+  }
+
+  /**
+   * Crea una nueva plantilla de membresía
+   */
+  createPlantilla(plantillaData: any): Observable<ApiResponse<MembresiaResponse>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    const params = JSON.stringify({ data: plantillaData });
+    return this._http.post<ApiResponse<MembresiaResponse>>(`${this.urlAPI}plantillas`, params, { headers });
+  }
+
+  /**
+   * Asigna una membresía a un cliente basada en una plantilla
+   */
+  asignarMembresiaCliente(asignacionData: any): Observable<ApiResponse<MembresiaResponse>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    const params = JSON.stringify({ data: asignacionData });
+    return this._http.post<ApiResponse<MembresiaResponse>>(`${this.urlAPI}asignar`, params, { headers });
+  }
+
+  /**
+   * Obtiene membresías de un cliente específico
+   */
+  getMembresiasCliente(idCliente: number): Observable<ApiResponse<MembresiaResponse[]>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}cliente/${idCliente}`, { headers });
+  }
+
+  /**
+   * Obtiene estadísticas de membresías
+   */
+  getEstadisticas(): Observable<ApiResponse<any>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this._http.get<ApiResponse<any>>(`${this.urlAPI}estadisticas`, { headers });
+  }
+
+  /**
+   * Obtiene membresías activas
+   */
+  getActivas(): Observable<ApiResponse<MembresiaResponse[]>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}activas`, { headers });
+  }
+
+  /**
+   * Obtiene membresías vencidas
+   */
+  getVencidas(): Observable<ApiResponse<MembresiaResponse[]>> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}vencidas`, { headers });
   }
 }

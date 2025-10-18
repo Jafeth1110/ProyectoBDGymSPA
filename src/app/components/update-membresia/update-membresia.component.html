@@ -2,11 +2,13 @@
   <div class="row justify-content-center">
     <div class="col-md-8">
       <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-          <h4 class="card-title mb-0">
-            <i class="fas fa-edit me-2"></i>Editar Membresía
-          </h4>
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-edit me-2"></i>
+            {{ membresia?.esPlantilla ? 'Editar Plantilla de Membresía' : 'Editar Membresía' }}
+          </h5>
         </div>
+        
         <div class="card-body">
           <div *ngIf="isLoading" class="text-center py-4">
             <div class="spinner-border text-primary" role="status">
@@ -15,140 +17,266 @@
             <p class="mt-2">Cargando datos de la membresía...</p>
           </div>
 
-          <form *ngIf="!isLoading" #membresiaForm="ngForm" (ngSubmit)="onSubmit(membresiaForm)">
+          <form *ngIf="!isLoading && membresia" #membresiaForm="ngForm" (ngSubmit)="onSubmit(membresiaForm)">
+            
+
+
+            <!-- Información básica -->
             <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="tipo" class="form-label">
-                  <strong>Tipo de Membresía <span class="text-danger">*</span></strong>
+              <div class="col-md-6 mb-2">
+                <label for="nombre" class="form-label">
+                  <strong>Nombre de la Membresía</strong>
+                  <span *ngIf="formData.esPlantilla" class="text-danger">*</span>
                 </label>
                 <input 
                   type="text" 
                   class="form-control" 
-                  id="tipo"
-                  name="tipo"
-                  [(ngModel)]="membresia.tipo"
-                  #tipo="ngModel"
-                  required
-                  maxlength="50"
-                  placeholder="Ej: Premium, Básica, VIP">
-                <div *ngIf="tipo.invalid && (tipo.dirty || tipo.touched)" class="invalid-feedback d-block">
-                  <div *ngIf="tipo.errors?.['required']">El tipo es requerido</div>
+                  id="nombre"
+                  name="nombre"
+                  [(ngModel)]="formData.nombre"
+                  #nombre="ngModel"
+                  [required]="formData.esPlantilla"
+                  placeholder="Ej: Membresía Premium">
+                <div *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="nombre.errors?.['required']">El nombre es requerido para plantillas</div>
                 </div>
               </div>
 
-              <div class="col-md-6 mb-3">
+              <div class="col-md-6 mb-2">
+                <label for="tipoMem" class="form-label">
+                  <strong>Tipo de Membresía <span class="text-danger">*</span></strong>
+                </label>
+                <select 
+                  class="form-control" 
+                  id="tipoMem"
+                  name="tipoMem"
+                  [(ngModel)]="formData.tipoMem"
+                  #tipoMem="ngModel"
+                  (change)="onTipoMembresiaChange()"
+                  required>
+                  <option value="">Selecciona un tipo</option>
+                  <option *ngFor="let tipo of tiposMembresia" [value]="tipo">{{ tipo }}</option>
+                </select>
+                <div *ngIf="tipoMem.invalid && (tipoMem.dirty || tipoMem.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="tipoMem.errors?.['required']">El tipo es requerido</div>
+                </div>
+              </div>
+
+              <div class="col-12 mb-2">
+                <label for="descripcion" class="form-label">
+                  <strong>Descripción</strong>
+                </label>
+                <textarea 
+                  class="form-control" 
+                  id="descripcion"
+                  name="descripcion"
+                  [(ngModel)]="formData.descripcion"
+                  rows="2"
+                  placeholder="Descripción opcional de la membresía..."></textarea>
+              </div>
+            </div>
+
+            <!-- Información de precios -->
+            <div class="row">
+              <div class="col-md-4 mb-2">
                 <label for="precio" class="form-label">
-                  <strong>Precio <span class="text-danger">*</span></strong>
+                  <strong>Precio Base (₡) <span class="text-danger">*</span></strong>
                 </label>
                 <input 
                   type="number" 
                   class="form-control" 
                   id="precio"
                   name="precio"
-                  [(ngModel)]="membresia.precio"
-                  #precio="ngModel"
+                  [(ngModel)]="formData.precio"
+                  #precioInput="ngModel"
                   required
-                  min="0.01"
+                  min="0"
                   step="0.01"
-                  placeholder="0.00">
-                <div *ngIf="precio.invalid && (precio.dirty || precio.touched)" class="invalid-feedback d-block">
-                  <div *ngIf="precio.errors?.['required']">El precio es requerido</div>
-                  <div *ngIf="precio.errors?.['min']">El precio debe ser mayor a 0</div>
+                  placeholder="Precio en colones">
+                <div *ngIf="precioInput.invalid && (precioInput.dirty || precioInput.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="precioInput.errors?.['required']">El precio es requerido</div>
+                  <div *ngIf="precioInput.errors?.['min']">El precio debe ser mayor a 0</div>
                 </div>
               </div>
-            </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="duracionMeses" class="form-label">
-                  <strong>Duración (Meses) <span class="text-danger">*</span></strong>
+              <div class="col-md-4 mb-2">
+                <label for="descuento" class="form-label">
+                  <strong>Descuento (%)</strong>
                 </label>
                 <input 
                   type="number" 
                   class="form-control" 
-                  id="duracionMeses"
-                  name="duracionMeses"
-                  [(ngModel)]="membresia.duracionMeses"
-                  #duracionMeses="ngModel"
-                  required
-                  min="1"
-                  max="60"
-                  placeholder="Ej: 12">
-                <div *ngIf="duracionMeses.invalid && (duracionMeses.dirty || duracionMeses.touched)" class="invalid-feedback d-block">
-                  <div *ngIf="duracionMeses.errors?.['required']">La duración es requerida</div>
-                  <div *ngIf="duracionMeses.errors?.['min']">La duración debe ser mayor a 0</div>
-                </div>
+                  id="descuento"
+                  name="descuento"
+                  [(ngModel)]="formData.descuento"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  placeholder="0">
+                <small class="form-text text-muted">Opcional: descuento en porcentaje</small>
               </div>
 
-              <div class="col-md-6 mb-3">
+              <div class="col-md-4 mb-2">
                 <label for="estado" class="form-label">
                   <strong>Estado <span class="text-danger">*</span></strong>
                 </label>
                 <select 
-                  class="form-select" 
+                  class="form-control" 
                   id="estado"
                   name="estado"
-                  [(ngModel)]="membresia.estado"
+                  [(ngModel)]="formData.estado"
+                  (change)="onEstadoChange($event)"
                   #estado="ngModel"
                   required>
-                  <option value="">Seleccionar estado...</option>
-                  <option value="1">Activa</option>
-                  <option value="0">Inactiva</option>
+                  <option [value]="1">Activa</option>
+                  <option [value]="0">Inactiva</option>
                 </select>
-                <div *ngIf="estado.invalid && (estado.dirty || estado.touched)" class="invalid-feedback d-block">
-                  <div *ngIf="estado.errors?.['required']">Debe seleccionar un estado</div>
+              </div>
+
+
+            </div>
+
+            <!-- Información del cliente (solo si no es plantilla) -->
+            <div *ngIf="!formData.esPlantilla" class="row">
+              <div class="col-12 mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2">Información del Cliente</h6>
+              </div>
+              
+              <!-- Cliente asignado (readonly) -->
+              <div class="col-md-12 mb-2" *ngIf="clienteActual && !puedeEditarCliente">
+                <label class="form-label">
+                  <strong>Cliente Asignado</strong>
+                </label>
+                <div class="alert alert-info d-flex justify-content-between align-items-center mb-0">
+                  <div>
+                    <strong>{{ clienteActual.nombre }} {{ clienteActual.apellido }}</strong><br>
+                    <small class="text-muted">{{ clienteActual.email }}</small>
+                  </div>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-warning btn-sm"
+                    (click)="convertirAPlantilla()"
+                    title="Convertir a plantilla para poder reasignar">
+                    <i class="fas fa-exchange-alt me-1"></i>Desasignar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Selector de cliente (solo si se puede editar) -->
+              <div class="col-md-12 mb-2" *ngIf="puedeEditarCliente">
+                <label for="idCliente" class="form-label">
+                  <strong>Seleccionar Cliente <span class="text-danger">*</span></strong>
+                </label>
+                <select 
+                  class="form-control" 
+                  id="idCliente"
+                  name="idCliente"
+                  [(ngModel)]="formData.idCliente"
+                  #idCliente="ngModel"
+                  (change)="onClienteChange()"
+                  required>
+                  <option value="">
+                    {{ isLoadingClientes ? 'Cargando clientes...' : 'Seleccione un cliente' }}
+                  </option>
+                  <option *ngFor="let cliente of clientes" [value]="cliente.id">
+                    {{ cliente.nombre }} {{ cliente.apellido }} - {{ cliente.email }}
+                  </option>
+                </select>
+                <div *ngIf="idCliente.invalid && (idCliente.dirty || idCliente.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="idCliente.errors?.['required']">Debe seleccionar un cliente</div>
+                </div>
+              </div>
+
+              <!-- Botón para asignar cliente a plantilla -->
+              <div class="col-md-12 mb-2" *ngIf="formData.esPlantilla && !puedeEditarCliente && !clienteActual">
+                <div class="alert alert-light text-center">
+                  <p class="mb-2">Esta es una <strong>plantilla de membresía</strong></p>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-primary"
+                    (click)="habilitarEdicionCliente()">
+                    <i class="fas fa-user-plus me-1"></i>Asignar a Cliente
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-2">
+                <label for="fechaInicio" class="form-label">
+                  <strong>Fecha de Inicio <span class="text-danger">*</span></strong>
+                </label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  id="fechaInicio"
+                  name="fechaInicio"
+                  [(ngModel)]="formData.fechaInicio"
+                  #fechaInicio="ngModel"
+                  (change)="onFechaInicioChange()"
+                  [required]="!formData.esPlantilla">
+                <div *ngIf="fechaInicio.invalid && (fechaInicio.dirty || fechaInicio.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="fechaInicio.errors?.['required']">La fecha de inicio es requerida</div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-2">
+                <label for="fechaVenc" class="form-label">
+                  <strong>Fecha de Vencimiento <span class="text-danger">*</span></strong>
+                  <small class="text-muted" *ngIf="!formData.esPlantilla"> (Calculada automáticamente)</small>
+                </label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  id="fechaVenc"
+                  name="fechaVenc"
+                  [(ngModel)]="formData.fechaVenc"
+                  #fechaVenc="ngModel"
+                  [readonly]="!formData.esPlantilla"
+                  [required]="!formData.esPlantilla">
+                <div *ngIf="fechaVenc.invalid && (fechaVenc.dirty || fechaVenc.touched)" class="invalid-feedback d-block">
+                  <div *ngIf="fechaVenc.errors?.['required']">La fecha de vencimiento es requerida</div>
                 </div>
               </div>
             </div>
 
-            <div class="mb-3">
-              <label for="descripcion" class="form-label">
-                <strong>Descripción <span class="text-danger">*</span></strong>
-              </label>
-              <textarea 
-                class="form-control" 
-                id="descripcion"
-                name="descripcion"
-                [(ngModel)]="membresia.descripcion"
-                #descripcion="ngModel"
-                required
-                rows="4"
-                maxlength="500"
-                placeholder="Describe los beneficios y características de esta membresía..."></textarea>
-              <div *ngIf="descripcion.invalid && (descripcion.dirty || descripcion.touched)" class="invalid-feedback d-block">
-                <div *ngIf="descripcion.errors?.['required']">La descripción es requerida</div>
+
+
+            <!-- Botones de acción -->
+            <div class="row mt-3">
+              <div class="col-12">
+                <div class="d-flex justify-content-between">
+                  <button 
+                    type="button" 
+                    class="btn btn-secondary"
+                    (click)="navigateToViewMembresias()">
+                    <i class="fas fa-arrow-left me-1"></i>Cancelar
+                  </button>
+                  
+                  <button 
+                    type="submit" 
+                    class="btn btn-primary"
+                    [disabled]="!membresiaForm.form.valid || isLoading">
+                    <span *ngIf="isLoading">
+                      <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Actualizando...
+                    </span>
+                    <span *ngIf="!isLoading">
+                      <i class="fas fa-save me-1"></i>
+                      {{ formData.esPlantilla ? 'Actualizar Plantilla' : 'Actualizar Membresía' }}
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div *ngIf="validationErrors.length > 0" class="alert alert-danger">
-              <h6><i class="fas fa-exclamation-triangle"></i> Errores de validación:</h6>
-              <ul class="mb-0">
-                <li *ngFor="let error of validationErrors">{{error}}</li>
-              </ul>
-            </div>
-
-            <div class="d-flex justify-content-between">
-              <button 
-                type="button" 
-                class="btn btn-secondary"
-                (click)="goBack()"
-                [disabled]="isLoading">
-                <i class="fas fa-arrow-left me-2"></i>Cancelar
-              </button>
-              
-              <button 
-                type="submit" 
-                class="btn btn-primary"
-                [disabled]="!membresiaForm.form.valid || isLoading">
-                <i class="fas fa-save me-2"></i>
-                <span *ngIf="!isLoading">Actualizar Membresía</span>
-                <span *ngIf="isLoading">
-                  <span class="spinner-border spinner-border-sm me-2"></span>
-                  Actualizando...
-                </span>
-              </button>
-            </div>
           </form>
+
+          <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+            <h6 class="alert-heading">
+              <i class="fas fa-exclamation-triangle me-2"></i>Errores de validación:
+            </h6>
+            <ul class="mb-0">
+              <li *ngFor="let error of validationErrors">{{ error }}</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

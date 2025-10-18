@@ -53,7 +53,7 @@
                   required>
                   <option value="">Seleccionar membresía...</option>
                   <option *ngFor="let membresia of membresias" [value]="membresia.id">
-                    {{membresia.tipo}} - ${{membresia.precio}}
+                    {{membresia.tipoMem}} - ${{membresia.precio}}
                   </option>
                 </select>
                 <div *ngIf="idMembresia.invalid && (idMembresia.dirty || idMembresia.touched)" class="invalid-feedback d-block">

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MembresiaService } from '../../services/membresia.service';
-import { Membresia } from '../../models/membresia';
+import { MembresiaResponse } from '../../models/api-interfaces';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -10,8 +10,9 @@ import Swal from 'sweetalert2';
   styleUrls: ['./show-membresia.component.css']
 })
 export class ShowMembresiaComponent implements OnInit {
-  public membresia: Membresia | null = null;
+  public membresia: MembresiaResponse | null = null;
   public isLoading: boolean = false;
+  public Math = Math; // Para usar Math.abs en el template
 
   constructor(
     private _membresiaService: MembresiaService,
@@ -33,7 +34,7 @@ export class ShowMembresiaComponent implements OnInit {
     this._membresiaService.getMembresia(id).subscribe({
       next: (response: any) => {
         if (response && response.data) {
-          this.membresia = this._membresiaService.mapResponseToModel(response.data);
+          this.membresia = response.data;
         } else {
           this.showAlert('error', 'Membresía no encontrada');
           this._router.navigate(['/view-membresia']);
@@ -49,6 +50,69 @@ export class ShowMembresiaComponent implements OnInit {
     });
   }
 
+  // Funciones de utilidad para mostrar datos
+  getEstadoTexto(): string {
+    if (!this.membresia) return '';
+    
+    // Convertir estado a número para comparación correcta
+    const estado = parseInt(String(this.membresia.estado), 10);
+    const esPlantilla = parseInt(String(this.membresia.esPlantilla), 10) === 1;
+    
+    if (esPlantilla) {
+      return estado === 1 ? 'Disponible' : 'No Disponible';
+    }
+    return estado === 1 ? 'Activa' : 'Inactiva';
+  }
+
+  getPrecioFormateado(precio: number | string): string {
+    const precioNum = typeof precio === 'string' ? parseFloat(precio) : precio;
+    return '₡' + Number(precioNum).toLocaleString('es-CR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  hasDescuento(): boolean {
+    return !!(this.membresia?.descuento && parseFloat(this.membresia.descuento) > 0);
+  }
+
+  esPlantilla(): boolean {
+    return parseInt(String(this.membresia?.esPlantilla), 10) === 1;
+  }
+
+  // Método para verificar si está activa (para usar en el HTML)
+  estaActiva(): boolean {
+    return parseInt(String(this.membresia?.estado), 10) === 1;
+  }
+
+  getPrecioFinal(): number {
+    if (!this.membresia) return 0;
+    const precio = parseFloat(this.membresia.precio);
+    const descuento = parseFloat(this.membresia.descuento || "0");
+    
+    if (descuento > 0) {
+      return precio * (1 - descuento / 100);
+    }
+    return precio;
+  }
+
+  isVencida(): boolean {
+    if (!this.membresia || !this.membresia.fechaVenc || parseInt(String(this.membresia.esPlantilla), 10) === 1) return false;
+    return new Date(this.membresia.fechaVenc) < new Date();
+  }
+
+  vencePronto(): boolean {
+    if (!this.membresia || !this.membresia.fechaVenc || parseInt(String(this.membresia.esPlantilla), 10) === 1) return false;
+    const hoy = new Date();
+    const vencimiento = new Date(this.membresia.fechaVenc);
+    const diasRestantes = Math.ceil((vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+    return diasRestantes <= 7 && diasRestantes > 0;
+  }
+
+  getDiasRestantes(): number {
+    if (!this.membresia || !this.membresia.fechaVenc || parseInt(String(this.membresia.esPlantilla), 10) === 1) return 0;
+    const hoy = new Date();
+    const vencimiento = new Date(this.membresia.fechaVenc);
+    return Math.ceil((vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
   editMembresia(): void {
     if (this.membresia) {
       this._router.navigate(['/update-membresia', this.membresia.idMembresia]);
@@ -58,9 +122,12 @@ export class ShowMembresiaComponent implements OnInit {
   deleteMembresia(): void {
     if (!this.membresia) return;
 
+    const tipo = parseInt(String(this.membresia.esPlantilla), 10) === 1 ? 'plantilla' : 'membresía';
+    const nombre = this.membresia.nombre || this.membresia.tipoMem;
+
     Swal.fire({
       title: '¿Estás seguro?',
-      text: `¿Deseas eliminar la membresía "${this.membresia.tipo}"?`,
+      text: `¿Deseas eliminar la ${tipo} "${nombre}"?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc3545',
@@ -69,15 +136,15 @@ export class ShowMembresiaComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed && this.membresia) {
-        this._membresiaService.deleteMembresia(this.membresia.idMembresia).subscribe({
+        this._membresiaService.deleteMembresia(parseInt(this.membresia.idMembresia)).subscribe({
           next: (response: any) => {
-            this.showAlert('success', 'Membresía eliminada correctamente', () => {
+            this.showAlert('success', `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} eliminada correctamente`, () => {
               this._router.navigate(['/view-membresia']);
             });
           },
           error: (error: any) => {
-            console.error('Error al eliminar membresía:', error);
-            this.showAlert('error', 'Error al eliminar la membresía');
+            console.error(`Error al eliminar ${tipo}:`, error);
+            this.showAlert('error', `Error al eliminar la ${tipo}`);
           }
         });
       }

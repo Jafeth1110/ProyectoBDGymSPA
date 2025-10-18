@@ -29,8 +29,8 @@
                   (change)="onMembresiaChange()" required>
             <option value="" disabled>Selecciona una membresía</option>
             <option *ngFor="let membresia of membresias" [value]="membresia.idMembresia">
-              {{membresia.tipo}} - ₡{{membresia.precio.toLocaleString('es-CR')}} 
-              ({{membresia.duracionMeses}} mes{{membresia.duracionMeses > 1 ? 'es' : ''}})
+              {{membresia.tipoMem}} - ₡{{membresia.precio.toLocaleString('es-CR')}} 
+              ({{ membresia.fechaInicio }} a {{ membresia.fechaVenc }})
             </option>
           </select>
           <small class="form-text" *ngIf="membresias.length === 0">No hay membresías activas disponibles</small>
