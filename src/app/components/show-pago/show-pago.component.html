@@ -1,6 +1,6 @@
 <div class="container" *ngIf="pago">
-  <div class="card">
-    <div class="card-header">
+  <div class="card" [class]="pago.esPagoMembresia() ? 'card-income' : 'card-expense'">
+    <div class="card-header" [class]="pago.esPagoMembresia() ? 'card-header-income' : 'card-header-expense'">
       <h2>Detalles del Pago</h2>
       <div class="actions">
         <button class="btn-primary" (click)="editPago()">
@@ -18,52 +18,105 @@
           <label>ID del Pago:</label>
           <span>{{ pago.idPago }}</span>
         </div>
-        
+
         <div class="detail-item">
-          <label>Referencia:</label>
-          <span class="highlight">{{ pago.referencia }}</span>
+          <label>Tipo de Transacción:</label>
+          <span class="badge" [class]="pago.esPagoMembresia() ? 'badge-success' : 'badge-warning'">
+            {{ pago.getTipoIcono() }} {{ pago.esPagoMembresia() ? 'Ingreso - Membresía' : 'Gasto - Mantenimiento' }}
+          </span>
         </div>
         
-        <div class="detail-item">
-          <label>Cliente:</label>
-          <span class="trainer">{{ pago.getNombreCliente() || 'No disponible' }}</span>
-        </div>
-        
-        <div class="detail-item">
-          <label>Membresía:</label>
-          <span>{{ pago.membresia?.tipoMem || 'No disponible' }}</span>
-        </div>
+        <!-- Información para pagos de membresía -->
+        <ng-container *ngIf="pago.esPagoMembresia()">
+          <div class="detail-item">
+            <label>Cliente:</label>
+            <span class="trainer">{{ pago.getNombreCliente() || 'No disponible' }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="pago.cliente_email">
+            <label>Email del Cliente:</label>
+            <span>{{ pago.cliente_email }}</span>
+          </div>
+          
+          <div class="detail-item">
+            <label>Tipo de Membresía:</label>
+            <span>{{ pago.getTipoMembresia() || 'No disponible' }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="pago.membresia_precio">
+            <label>Precio Membresía:</label>
+            <span class="capacity">{{ pago.membresia_precio | currency:'CRC':'symbol':'1.0-0' }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="pago.fechaVenc">
+            <label>Vence Membresía:</label>
+            <span>{{ pago.fechaVenc | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </ng-container>
+
+        <!-- Información para pagos de mantenimiento -->
+        <ng-container *ngIf="pago.esPagoMantenimiento()">
+          <div class="detail-item">
+            <label>Administrador:</label>
+            <span class="trainer">{{ pago.getNombreAdmin() }}</span>
+          </div>
+
+          <div class="detail-item">
+            <label>Equipo:</label>
+            <span>{{ pago.equipo_nombre || 'No disponible' }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="pago.equipo_tipo">
+            <label>Tipo de Equipo:</label>
+            <span>{{ pago.equipo_tipo }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="pago.mantenimiento_descripcion">
+            <label>Descripción del Mantenimiento:</label>
+            <span>{{ pago.mantenimiento_descripcion }}</span>
+          </div>
+        </ng-container>
         
         <div class="detail-item">
           <label>Método de Pago:</label>
-          <span>{{ pago.metodoPago?.nombre || 'No disponible' }}</span>
+          <span>{{ pago.getNombreMetodoPago() || 'No disponible' }}</span>
+        </div>
+
+        <div class="detail-item" *ngIf="pago.metodoPago_comision">
+          <label>Comisión Método:</label>
+          <span>{{ pago.metodoPago_comision }}%</span>
         </div>
         
         <div class="detail-item">
           <label>Monto:</label>
-          <span class="capacity">${{ pago.monto | number:'1.2-2' }}</span>
+          <span class="capacity">{{ pago.getMontoFormateado() }}</span>
         </div>
-        
-        <div class="detail-item">
-          <label>Estado:</label>
-          <span [class]="getEstadoClass(pago.estado)">
-            {{ pago.estado }}
-          </span>
+
+        <div class="detail-item" *ngIf="pago.getComisionAplicada() > 0">
+          <label>Comisión Aplicada:</label>
+          <span class="pending">{{ pago.getComisionAplicada() | currency:'CRC':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <div class="detail-item" *ngIf="pago.getMontoNeto() !== pago.monto">
+          <label>Monto Neto:</label>
+          <span class="capacity">{{ pago.getMontoNeto() | currency:'CRC':'symbol':'1.2-2' }}</span>
         </div>
         
         <div class="detail-item">
           <label>Fecha de Pago:</label>
           <span>{{ pago.fechaPago | date:'dd/MM/yyyy' }}</span>
         </div>
-        
+
         <div class="detail-item">
-          <label>Fecha de Vencimiento:</label>
-          <span>{{ pago.fechaVencimiento | date:'dd/MM/yyyy' }}</span>
+          <label>Es del Mes Actual:</label>
+          <span [class]="pago.esDeMesActual() ? 'capacity' : 'inactive'">
+            {{ pago.esDeMesActual() ? 'Sí' : 'No' }}
+          </span>
         </div>
-        
-        <div class="detail-item full-width" *ngIf="pago.notas">
-          <label>Notas:</label>
-          <span class="description">{{ pago.notas }}</span>
+
+        <div class="detail-item" *ngIf="pago.descripcion">
+          <label>Descripción Adicional:</label>
+          <span class="description">{{ pago.descripcion }}</span>
         </div>
       </div>
     </div>

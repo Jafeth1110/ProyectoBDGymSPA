@@ -21,15 +21,37 @@
   width: 100%;
   max-width: 700px;
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Bordes sutiles para diferentes tipos de pago */
+.card-income {
+  border: 2px solid rgba(40, 167, 69, 0.2);
+  box-shadow: 0 4px 24px rgba(40, 167, 69, 0.15);
+}
+
+.card-expense {
+  border: 2px solid rgba(220, 53, 69, 0.2);
+  box-shadow: 0 4px 24px rgba(220, 53, 69, 0.15);
 }
 
 .card-header {
-  background: linear-gradient(135deg, #dc3545, #c82333);
   color: white;
   padding: 1.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all 0.3s ease;
+}
+
+/* Estilo para pagos de ingreso (membresías) */
+.card-header-income {
+  background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+/* Estilo para pagos de gasto (mantenimientos) */
+.card-header-expense {
+  background: linear-gradient(135deg, #dc3545, #c82333);
 }
 
 .card-header h2 {
@@ -221,4 +243,37 @@
   .details-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Estilos para badges de tipo de pago */
+.badge {
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+/* Estilo para la descripción */
+.description {
+  font-style: italic;
+  color: #6c757d;
+  background: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border-left: 3px solid #007bff;
 }

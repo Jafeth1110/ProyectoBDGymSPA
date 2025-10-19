@@ -238,16 +238,53 @@ export interface MetodoPagoResponse {
 }
 
 export interface PagoResponse {
+  // Datos principales del pago
   idPago: number;
-  idCliente: number;
-  idMembresia: number;
-  idMetodoPago: number;
-  monto: number;
   fechaPago: string;
-  fechaVencimiento: string;
-  estado: string;
-  referencia: string;
-  notas: string;
+  monto: number;
+  
+  // Nuevos campos para el sistema híbrido
+  tipoPago: 'membresia' | 'mantenimiento';
+  descripcion?: string;
+  
+  // IDs de relaciones (condicionales según tipoPago)
+  idMembresia?: number;
+  idMetodoPago: number;
+  idDetalleMantenimiento?: number;
+  
+  // Datos de la membresía (solo para tipoPago = 'membresia')
+  tipoMem?: string;
+  membresia_precio?: number;
+  fechaVenc?: string;
+  fechaInicio?: string;
+  membresia_estado?: number;
+  
+  // Datos del método de pago
+  metodoPago_nombre: string;
+  metodoPago_descripcion?: string;
+  metodoPago_comision: number;
+  metodoPago_requiereAutorizacion: number;
+  metodoPago_estado: number;
+  
+  // Datos del cliente (solo para tipoPago = 'membresia')
+  idCliente?: number;
+  cliente_nombre?: string;
+  cliente_apellido?: string;
+  cliente_email?: string;
+  
+  // Datos del mantenimiento (solo para tipoPago = 'mantenimiento')
+  equipo_nombre?: string;
+  equipo_tipo?: string;
+  mantenimiento_tipo?: string;
+  mantenimiento_descripcion?: string;
+
+  // Datos del admin (para pagos de mantenimiento)
+  idAdmin?: number;
+  admin_nombre?: string;
+  admin_apellido?: string;
+  admin_email?: string;
+
+  // Objetos relacionados completos (para casos específicos)
   cliente?: {
     idCliente: number;
     nombre: string;
@@ -260,6 +297,7 @@ export interface PagoResponse {
     precio: number;
     fechaVenc: string;
     fechaInicio: string;
+    idCliente: number;
   };
   metodoPago?: {
     idMetodoPago: number;
@@ -306,13 +344,12 @@ export interface MetodoPagoFormData {
 }
 
 export interface PagoFormData {
-  idCliente: number;
-  idMembresia: number;
+  tipoPago: 'membresia' | 'mantenimiento';
   idMetodoPago: number;
-  monto: number;
   fechaPago: string;
-  fechaVencimiento: string;
-  estado: string;
-  referencia: string;
-  notas: string;
+  monto: number;
+  descripcion?: string;
+  // Campos condicionales
+  idMembresia?: number; // Solo para tipoPago = 'membresia'
+  idDetalleMantenimiento?: number; // Solo para tipoPago = 'mantenimiento'
 }

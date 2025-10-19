@@ -8,7 +8,6 @@ import {
   PagoResponse, 
   PagoFormData 
 } from "../models/api-interfaces";
-import { ValidationService } from "./validation.service";
 
 @Injectable({
   providedIn: 'root'
@@ -16,90 +15,140 @@ import { ValidationService } from "./validation.service";
 export class PagoService {
   private urlAPI: string;
 
-  constructor(
-    private _http: HttpClient,
-    private validationService: ValidationService
-  ) {
+  constructor(private _http: HttpClient) {
     this.urlAPI = server.url + 'pagos/';
+  }
+
+  /**
+   * Obtiene headers con token de autorización
+   */
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
   }
 
   /**
    * Obtiene todos los pagos
    */
   getPagos(): Observable<ApiResponse<PagoResponse[]>> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+    return this._http.get<ApiResponse<PagoResponse[]>>(this.urlAPI, { 
+      headers: this.getHeaders() 
     });
-
-    return this._http.get<ApiResponse<PagoResponse[]>>(this.urlAPI, { headers });
   }
 
   /**
    * Obtiene un pago específico por ID
    */
   getPago(id: number): Observable<ApiResponse<PagoResponse>> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+    return this._http.get<ApiResponse<PagoResponse>>(`${this.urlAPI}${id}`, { 
+      headers: this.getHeaders() 
     });
-
-    return this._http.get<ApiResponse<PagoResponse>>(`${this.urlAPI}${id}`, { headers });
   }
 
   /**
    * Crea un nuevo pago
    */
-  addPago(pagoData: PagoFormData): Observable<ApiResponse<PagoResponse>> {
+  addPago(pagoData: PagoFormData): Observable<ApiResponse<any>> {
     // Validaciones
     const validation = this.validatePagoData(pagoData);
     if (!validation.isValid) {
       throw new Error(validation.errors.join(', '));
     }
 
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+    return this._http.post<ApiResponse<any>>(this.urlAPI, { data: pagoData }, { 
+      headers: this.getHeaders() 
     });
-
-    const params = JSON.stringify(pagoData);
-    return this._http.post<ApiResponse<PagoResponse>>(this.urlAPI, params, { headers });
   }
 
   /**
    * Actualiza un pago existente
    */
-  updatePago(id: number, pagoData: PagoFormData): Observable<ApiResponse<PagoResponse>> {
+  updatePago(id: number, pagoData: PagoFormData): Observable<ApiResponse<any>> {
     // Validaciones
     const validation = this.validatePagoData(pagoData);
     if (!validation.isValid) {
       throw new Error(validation.errors.join(', '));
     }
 
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+    return this._http.put<ApiResponse<any>>(`${this.urlAPI}${id}`, { data: pagoData }, { 
+      headers: this.getHeaders() 
     });
-
-    const params = JSON.stringify(pagoData);
-    return this._http.put<ApiResponse<PagoResponse>>(`${this.urlAPI}${id}`, params, { headers });
   }
 
   /**
    * Elimina un pago
    */
   deletePago(id: number): Observable<ApiResponse<any>> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+    return this._http.delete<ApiResponse<any>>(`${this.urlAPI}${id}`, { 
+      headers: this.getHeaders() 
     });
+  }
 
-    return this._http.delete<ApiResponse<any>>(`${this.urlAPI}${id}`, { headers });
+  /**
+   * Obtiene pagos por cliente
+   */
+  getPagosByCliente(idCliente: number): Observable<ApiResponse<PagoResponse[]>> {
+    return this._http.get<ApiResponse<PagoResponse[]>>(`${this.urlAPI}cliente/${idCliente}`, { 
+      headers: this.getHeaders() 
+    });
+  }
+
+  /**
+   * Obtiene pagos por membresía
+   */
+  getPagosByMembresia(idMembresia: number): Observable<ApiResponse<PagoResponse[]>> {
+    return this._http.get<ApiResponse<PagoResponse[]>>(`${this.urlAPI}membresia/${idMembresia}`, { 
+      headers: this.getHeaders() 
+    });
+  }
+
+  /**
+   * Obtiene pagos por detalle de mantenimiento
+   */
+  getPagosByDetalleMantenimiento(idDetalleMantenimiento: number): Observable<ApiResponse<PagoResponse[]>> {
+    return this._http.get<ApiResponse<PagoResponse[]>>(`${this.urlAPI}mantenimiento/${idDetalleMantenimiento}`, { 
+      headers: this.getHeaders() 
+    });
+  }
+
+  /**
+   * Obtiene pagos por tipo (ingresos o gastos)
+   */
+  getPagosByTipo(tipoPago: 'membresia' | 'mantenimiento'): Observable<ApiResponse<PagoResponse[]>> {
+    return this._http.get<ApiResponse<PagoResponse[]>>(`${this.urlAPI}tipo/${tipoPago}`, { 
+      headers: this.getHeaders() 
+    });
+  }
+
+  /**
+   * Obtiene pagos por método de pago
+   */
+  getPagosByMetodoPago(idMetodoPago: number): Observable<ApiResponse<PagoResponse[]>> {
+    return this._http.get<ApiResponse<PagoResponse[]>>(`${this.urlAPI}metodo-pago/${idMetodoPago}`, { 
+      headers: this.getHeaders() 
+    });
+  }
+
+  /**
+   * Obtiene resumen de pagos
+   */
+  getResumenPagos(): Observable<ApiResponse<any>> {
+    return this._http.get<ApiResponse<any>>(`${this.urlAPI}resumen`, { 
+      headers: this.getHeaders() 
+    });
+  }
+
+  /**
+   * Obtiene pagos por período
+   */
+  getPagosPorPeriodo(fechaInicio: string, fechaFin: string): Observable<ApiResponse<PagoResponse[]>> {
+    return this._http.get<ApiResponse<PagoResponse[]>>(`${this.urlAPI}reportes/por-periodo`, { 
+      params: { fecha_inicio: fechaInicio, fecha_fin: fechaFin },
+      headers: this.getHeaders() 
+    });
   }
 
   /**
@@ -108,14 +157,20 @@ export class PagoService {
   private validatePagoData(pagoData: PagoFormData): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    // Validar cliente
-    if (!pagoData.idCliente || pagoData.idCliente <= 0) {
-      errors.push('Debe seleccionar un cliente válido');
+    // Validar tipo de pago
+    if (!pagoData.tipoPago || (pagoData.tipoPago !== 'membresia' && pagoData.tipoPago !== 'mantenimiento')) {
+      errors.push('Debe seleccionar un tipo de pago válido');
     }
 
-    // Validar membresía
-    if (!pagoData.idMembresia || pagoData.idMembresia <= 0) {
-      errors.push('Debe seleccionar una membresía válida');
+    // Validar según el tipo de pago
+    if (pagoData.tipoPago === 'membresia') {
+      if (!pagoData.idMembresia || pagoData.idMembresia <= 0) {
+        errors.push('Debe seleccionar una membresía válida');
+      }
+    } else if (pagoData.tipoPago === 'mantenimiento') {
+      if (!pagoData.idDetalleMantenimiento || pagoData.idDetalleMantenimiento <= 0) {
+        errors.push('Debe seleccionar un detalle de mantenimiento válido');
+      }
     }
 
     // Validar método de pago
@@ -140,41 +195,6 @@ export class PagoService {
       }
     }
 
-    // Validar fecha de vencimiento
-    if (!pagoData.fechaVencimiento || pagoData.fechaVencimiento.trim().length === 0) {
-      errors.push('La fecha de vencimiento es obligatoria');
-    } else {
-      const fechaVencimiento = new Date(pagoData.fechaVencimiento);
-      if (isNaN(fechaVencimiento.getTime())) {
-        errors.push('La fecha de vencimiento no es válida');
-      } else if (pagoData.fechaPago) {
-        const fechaPago = new Date(pagoData.fechaPago);
-        if (fechaVencimiento < fechaPago) {
-          errors.push('La fecha de vencimiento no puede ser anterior a la fecha de pago');
-        }
-      }
-    }
-
-    // Validar estado
-    const estadosValidos = ['Pendiente', 'Completado', 'Cancelado'];
-    if (!pagoData.estado || !estadosValidos.includes(pagoData.estado)) {
-      errors.push('El estado debe ser: Pendiente, Completado o Cancelado');
-    }
-
-    // Validar referencia (opcional pero si se proporciona debe tener formato)
-    if (pagoData.referencia && pagoData.referencia.trim().length > 0) {
-      if (pagoData.referencia.trim().length < 3) {
-        errors.push('La referencia debe tener al menos 3 caracteres');
-      } else if (pagoData.referencia.trim().length > 100) {
-        errors.push('La referencia no puede exceder 100 caracteres');
-      }
-    }
-
-    // Validar notas (opcional)
-    if (pagoData.notas && pagoData.notas.trim().length > 1000) {
-      errors.push('Las notas no pueden exceder 1000 caracteres');
-    }
-
     return {
       isValid: errors.length === 0,
       errors
@@ -186,19 +206,49 @@ export class PagoService {
    */
   mapResponseToModel(response: PagoResponse): Pago {
     return new Pago(
+      // Datos principales del pago
       response.idPago,
-      response.idCliente,
-      response.idMembresia,
-      response.idMetodoPago,
-      response.monto,
       response.fechaPago,
-      response.fechaVencimiento,
-      response.estado,
-      response.referencia,
-      response.notas,
-      response.cliente,
-      response.membresia,
-      response.metodoPago
+      response.monto,
+      response.tipoPago,
+      response.descripcion || '',
+      
+      // IDs de relaciones (condicionales según tipo de pago)
+      response.idMembresia || 0,
+      response.idMetodoPago,
+      response.idDetalleMantenimiento || 0,
+      
+      // Datos de la membresía (solo para pagos de membresía)
+      response.tipoMem || '',
+      response.membresia_precio || 0,
+      response.fechaVenc || '',
+      response.fechaInicio || '',
+      response.membresia_estado || 1,
+      
+      // Datos del método de pago
+      response.metodoPago_nombre || '',
+      response.metodoPago_descripcion || '',
+      response.metodoPago_comision || 0,
+      response.metodoPago_requiereAutorizacion || 0,
+      response.metodoPago_estado || 1,
+      
+      // Datos del cliente (solo para pagos de membresía)
+      response.idCliente || 0,
+      response.cliente_nombre || '',
+      response.cliente_apellido || '',
+      response.cliente_email || '',
+      
+      // Datos de mantenimiento (solo para pagos de mantenimiento)
+      response.equipo_nombre || '',
+      response.equipo_tipo || '',
+      response.mantenimiento_tipo || '',
+      response.mantenimiento_descripcion || '',
+      
+      // Datos del admin (para pagos de mantenimiento)
+      response.idAdmin || 0,
+      response.admin_nombre || '',
+      response.admin_apellido || '',
+      response.admin_email || ''
     );
   }
 
@@ -206,16 +256,21 @@ export class PagoService {
    * Convierte el modelo local a datos para la API
    */
   mapModelToFormData(pago: Pago): PagoFormData {
-    return {
-      idCliente: pago.idCliente,
-      idMembresia: pago.idMembresia,
+    const formData: PagoFormData = {
+      tipoPago: pago.tipoPago,
       idMetodoPago: pago.idMetodoPago,
-      monto: pago.monto,
       fechaPago: pago.fechaPago,
-      fechaVencimiento: pago.fechaVencimiento,
-      estado: pago.estado,
-      referencia: pago.referencia,
-      notas: pago.notas
+      monto: pago.monto,
+      descripcion: pago.descripcion
     };
+
+    // Agregar campos condicionales según el tipo de pago
+    if (pago.tipoPago === 'membresia') {
+      formData.idMembresia = pago.idMembresia;
+    } else if (pago.tipoPago === 'mantenimiento') {
+      formData.idDetalleMantenimiento = pago.idDetalleMantenimiento;
+    }
+
+    return formData;
   }
 }

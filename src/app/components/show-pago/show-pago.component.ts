@@ -32,8 +32,11 @@ export class ShowPagoComponent implements OnInit {
     this.isLoading = true;
     this._pagoService.getPago(id).subscribe({
       next: (response: any) => {
+        console.log('📥 Respuesta completa del pago:', response);
         if (response && response.data) {
+          console.log('📊 Datos del pago recibidos:', response.data);
           this.pago = this._pagoService.mapResponseToModel(response.data);
+          console.log('🔄 Pago mapeado:', this.pago);
         } else {
           this.showAlert('error', 'Pago no encontrado');
           this._router.navigate(['/view-pago']);
@@ -60,7 +63,7 @@ export class ShowPagoComponent implements OnInit {
 
     Swal.fire({
       title: '¿Estás seguro?',
-      text: `¿Deseas eliminar el pago con referencia "${this.pago.referencia}"?`,
+      text: `¿Deseas eliminar este pago de ₡${this.pago.getMontoFormateado()}?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc3545',

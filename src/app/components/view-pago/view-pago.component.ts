@@ -15,6 +15,7 @@ export class ViewPagoComponent implements OnInit {
   public searchTerm: string = '';
   public filteredPagos: Pago[] = [];
   public selectedEstado: string = '';
+  public selectedTipoPago: string = ''; // Nueva propiedad para filtrar por tipo de pago
 
   constructor(
     private _pagoService: PagoService,
@@ -27,22 +28,59 @@ export class ViewPagoComponent implements OnInit {
 
   loadPagos(): void {
     this.isLoading = true;
+    console.log('🔄 Iniciando carga de pagos...');
+    
     this._pagoService.getPagos().subscribe({
       next: (response: any) => {
-        if (response && response.data) {
-          this.pagos = response.data.map((pagoData: any) => 
-            this._pagoService.mapResponseToModel(pagoData)
-          );
-          this.filteredPagos = [...this.pagos];
+        console.log('📥 Respuesta del servidor:', response);
+        
+        // Más flexible en el manejo de la respuesta
+        if (response && response.data && Array.isArray(response.data)) {
+          console.log('✅ Datos válidos recibidos:', response.data.length, 'pagos');
+          
+          try {
+            this.pagos = response.data.map((pagoData: any, index: number) => {
+              console.log(`🔄 Procesando pago ${index + 1}:`, pagoData);
+              return this._pagoService.mapResponseToModel(pagoData);
+            });
+            
+            this.filteredPagos = [...this.pagos];
+            console.log('✅ Pagos procesados exitosamente:', this.pagos.length);
+            
+          } catch (mappingError) {
+            console.error('❌ Error al mapear los datos:', mappingError);
+            this.showAlert('error', 'Error al procesar los datos de pagos');
+          }
+          
+        } else if (response && response.data && response.data.length === 0) {
+          console.log('ℹ️ No hay pagos en la base de datos');
+          this.pagos = [];
+          this.filteredPagos = [];
+          
         } else {
+          console.log('⚠️ Respuesta no válida del servidor:', response);
           this.pagos = [];
           this.filteredPagos = [];
         }
+        
         this.isLoading = false;
       },
       error: (error: any) => {
-        console.error('Error al cargar pagos:', error);
-        this.showAlert('error', 'Error al cargar los pagos');
+        console.error('❌ Error completo:', error);
+        console.error('Status:', error.status);
+        console.error('Message:', error.message);
+        console.error('Error body:', error.error);
+        
+        let errorMessage = 'Error de conexión con el servidor';
+        if (error.status === 401) {
+          errorMessage = 'No autorizado - Token inválido';
+        } else if (error.status === 500) {
+          errorMessage = 'Error interno del servidor';
+        } else if (error.status === 0) {
+          errorMessage = 'No se puede conectar al servidor';
+        }
+        
+        this.showAlert('error', errorMessage);
         this.isLoading = false;
       }
     });
@@ -54,20 +92,32 @@ export class ViewPagoComponent implements OnInit {
     // Filtro por término de búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(pago =>
-        pago.monto.toString().includes(term) ||
-        pago.fechaPago.toLowerCase().includes(term) ||
-        pago.estado.toLowerCase().includes(term) ||
-        pago.referencia.toLowerCase().includes(term) ||
-        (pago.notas && pago.notas.toLowerCase().includes(term)) ||
-        (pago.cliente && pago.getNombreCliente().toLowerCase().includes(term))
-      );
+      filtered = filtered.filter(pago => {
+        const searchableText = [
+          pago.monto.toString(),
+          pago.fechaPago,
+          pago.getNombreDescriptivo(), // Incluye tanto cliente como equipo
+          pago.getTipoMembresia(),
+          pago.getNombreMetodoPago(),
+          pago.cliente_email || '',
+          pago.equipo_nombre || '',
+          pago.mantenimiento_descripcion || '',
+          pago.descripcion || ''
+        ].join(' ').toLowerCase();
+        
+        return searchableText.includes(term);
+      });
     }
 
-    // Filtro por estado
+    // Filtro por tipo de pago (ingresos/gastos)
+    if (this.selectedTipoPago) {
+      filtered = filtered.filter(pago => pago.tipoPago === this.selectedTipoPago);
+    }
+
+    // Filtro por tipo de membresía o período (usando selectedEstado como filtro general)
     if (this.selectedEstado) {
       filtered = filtered.filter(pago => 
-        pago.estado.toLowerCase() === this.selectedEstado.toLowerCase()
+        pago.getTipoMembresia().toLowerCase().includes(this.selectedEstado.toLowerCase())
       );
     }
 
@@ -75,6 +125,10 @@ export class ViewPagoComponent implements OnInit {
   }
 
   onEstadoChange(): void {
+    this.filterPagos();
+  }
+
+  onTipoPagoChange(): void {
     this.filterPagos();
   }
 
@@ -119,20 +173,13 @@ export class ViewPagoComponent implements OnInit {
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedEstado = '';
+    this.selectedTipoPago = '';
     this.filterPagos();
   }
 
-  getEstadoClass(estado: string): string {
-    switch (estado.toLowerCase()) {
-      case 'completado':
-        return 'success';
-      case 'pendiente':
-        return 'warning';
-      case 'fallido':
-        return 'danger';
-      default:
-        return 'secondary';
-    }
+  // Método para determinar si un pago es reciente (del mes actual)
+  isRecentPayment(pago: Pago): boolean {
+    return pago.esDeMesActual();
   }
 
   private showAlert(type: 'success' | 'error' | 'warning' | 'info', message: string): void {

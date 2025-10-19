@@ -1,111 +1,171 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Registrar Pago</title>
-  <link rel="stylesheet" href="add-pago.component.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-  <div class="container">
-    <div class="card shadow p-4">
-      <h2 class="mb-4 text-center">Registrar Pago</h2>
-      <form #pagoForm="ngForm" (ngSubmit)="onSubmit(pagoForm)">
-        
-        <div class="form-group">
-          <label for="cliente">Cliente</label>
-          <select [(ngModel)]="pago.idCliente" name="cliente" id="cliente" required>
-            <option value="" disabled>Selecciona un cliente</option>
-            <option *ngFor="let cliente of clientes" [value]="cliente.idCliente">
-              {{cliente.user?.nombre}} {{cliente.user?.apellido}} - {{cliente.user?.email}}
-            </option>
-          </select>
-          <small class="form-text" *ngIf="clientes.length === 0">No hay clientes disponibles</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="membresia">Membresía</label>
-          <select [(ngModel)]="pago.idMembresia" name="membresia" id="membresia" 
-                  (change)="onMembresiaChange()" required>
-            <option value="" disabled>Selecciona una membresía</option>
-            <option *ngFor="let membresia of membresias" [value]="membresia.idMembresia">
-              {{membresia.tipoMem}} - ₡{{membresia.precio.toLocaleString('es-CR')}} 
-              ({{ membresia.fechaInicio }} a {{ membresia.fechaVenc }})
-            </option>
-          </select>
-          <small class="form-text" *ngIf="membresias.length === 0">No hay membresías activas disponibles</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="metodoPago">Método de Pago</label>
-          <select [(ngModel)]="pago.idMetodoPago" name="metodoPago" id="metodoPago" required>
-            <option value="" disabled>Selecciona un método de pago</option>
-            <option *ngFor="let metodo of metodosPago" [value]="metodo.idMetodoPago">
-              {{metodo.nombre}} 
-              <span *ngIf="metodo.comision > 0">({{metodo.comision}}% comisión)</span>
-            </option>
-          </select>
-          <small class="form-text" *ngIf="metodosPago.length === 0">No hay métodos de pago activos</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="monto">Monto (₡)</label>
-          <input [(ngModel)]="pago.monto" name="monto" id="monto" type="number" 
-                 min="0" step="0.01" placeholder="Monto del pago" required />
-          <small class="form-text">Se actualizará automáticamente al seleccionar la membresía</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="fechaPago">Fecha de Pago</label>
-          <input [(ngModel)]="pago.fechaPago" name="fechaPago" id="fechaPago" 
-                 type="date" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="fechaVencimiento">Fecha de Vencimiento</label>
-          <input [(ngModel)]="pago.fechaVencimiento" name="fechaVencimiento" id="fechaVencimiento" 
-                 type="date" required />
-          <small class="form-text">Fecha hasta la cual es válida la membresía</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="estado">Estado del Pago</label>
-          <select [(ngModel)]="pago.estado" name="estado" id="estado" required>
-            <option value="Pendiente">Pendiente</option>
-            <option value="Completado">Completado</option>
-            <option value="Cancelado">Cancelado</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label for="referencia">Referencia (Opcional)</label>
-          <input [(ngModel)]="pago.referencia" name="referencia" id="referencia" type="text" 
-                 placeholder="Número de referencia o comprobante" />
-          <small class="form-text">Número de comprobante, referencia bancaria, etc.</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="notas">Notas (Opcional)</label>
-          <textarea [(ngModel)]="pago.notas" name="notas" id="notas" 
-                    rows="3" placeholder="Observaciones adicionales sobre el pago"></textarea>
-        </div>
+<div class="container">
+  <div class="card shadow p-4">
+    <div class="card-header">
+      <h2><i class="fas fa-plus"></i> Registrar Nuevo Pago</h2>
+      <p class="card-description">Complete los datos para registrar un nuevo pago</p>
+    </div>
 
-        <div class="button-group">
-          <button type="submit" class="btn-primary" [disabled]="!pagoForm.form.valid || isLoading">
-            <span *ngIf="isLoading">Registrando...</span>
-            <span *ngIf="!isLoading">Registrar Pago</span>
-          </button>
-          <button type="button" class="btn-secondary" (click)="goBack()">Cancelar</button>
-        </div>
-      </form>
+    <form #formRef="ngForm" (ngSubmit)="onSubmit(formRef)" class="form-container">
       
-      <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
-        <h4>Errores de validación:</h4>
-        <ul>
-          <li *ngFor="let err of validationErrors">{{ err }}</li>
-        </ul>
+      <!-- Selector de tipo de pago -->
+      <div class="form-group">
+        <label for="tipoPago" class="required">Tipo de Transacción</label>
+        <select [(ngModel)]="pagoForm.tipoPago" name="tipoPago" id="tipoPago" 
+                (change)="onTipoPagoChange()" required class="form-control">
+          <option value="membresia">💰 Ingreso - Pago de Membresía</option>
+          <option value="mantenimiento">🔧 Gasto - Pago de Mantenimiento</option>
+        </select>
+        <small class="form-text text-muted">
+          Selecciona si es un ingreso por membresía o un gasto por mantenimiento
+        </small>
       </div>
+
+      <!-- Sección para pagos de membresía -->
+      <div *ngIf="pagoForm.tipoPago === 'membresia'" class="form-section">
+        <h5 class="section-title">Información de Membresía</h5>
+        
+        <div class="form-group">
+          <label for="membresia" class="required">Membresía a Pagar</label>
+          <select [(ngModel)]="pagoForm.idMembresia" name="membresia" id="membresia" 
+                  (change)="onMembresiaChange()" required class="form-control">
+            <option value="0" disabled>Selecciona una membresía</option>
+            <option *ngFor="let membresia of membresias" [value]="membresia.idMembresia">
+              {{membresia.nombre}} - {{getClienteNombre(membresia.idCliente)}}
+              <span *ngIf="membresia.precio"> - ₡{{membresia.precio | number:'1.0-0'}}</span>
+            </option>
+          </select>
+          <small class="form-text text-muted" *ngIf="membresias.length === 0">
+            No hay membresías activas disponibles para pago
+          </small>
+          <div *ngIf="getSelectedMembresiaInfo()" class="membership-info alert alert-secondary">
+            <h6><i class="fas fa-user"></i> Información de la Membresía</h6>
+            <strong>Membresía:</strong> {{ getSelectedMembresiaInfo().nombre }}<br>
+            <strong>Tipo:</strong> {{ getSelectedMembresiaInfo().tipoMem }}<br>
+            <strong>Descripción:</strong> {{ getSelectedMembresiaInfo().descripcion }}<br>
+            <strong>Cliente:</strong> {{ getClienteNombre(getSelectedMembresiaInfo().idCliente) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección para pagos de mantenimiento -->
+      <div *ngIf="pagoForm.tipoPago === 'mantenimiento'" class="form-section">
+        <h5 class="section-title">🔧 Información de Mantenimiento</h5>
+        
+        <div class="form-group">
+          <label for="detalleMantenimiento" class="required">Detalle de Mantenimiento</label>
+          <select [(ngModel)]="pagoForm.idDetalleMantenimiento" name="detalleMantenimiento" id="detalleMantenimiento" 
+                  (change)="onDetalleMantenimientoChange()" required class="form-control">
+            <option value="0" disabled>Selecciona un detalle de mantenimiento</option>
+            <option *ngFor="let detalle of detallesMantenimiento" [value]="detalle.idDetalleMantenimiento">
+              {{detalle.nombreEquipo}} - {{detalle.mantenimientoDescripcion}} 
+              - ₡{{detalle.mantenimientoCosto | number:'1.0-0'}}
+              ({{ detalle.fechaMantenimiento | date:'dd/MM/yyyy' }})
+            </option>
+          </select>
+          <small class="form-text text-muted" *ngIf="detallesMantenimiento.length === 0">
+            No hay mantenimientos pendientes de pago
+          </small>
+        </div>
+      </div>
+
+      <!-- Campo de descripción opcional -->
+      <div class="form-group">
+        <label for="descripcion">Descripción Adicional (Opcional)</label>
+        <textarea [(ngModel)]="pagoForm.descripcion" name="descripcion" id="descripcion" 
+                  class="form-control" rows="3" 
+                  placeholder="Ingrese cualquier detalle adicional sobre este pago..."></textarea>
+        <small class="form-text text-muted">
+          Puedes agregar notas adicionales sobre este pago
+        </small>
+      </div>
+      
+      <div class="form-group">
+        <label for="metodoPago" class="required">Método de Pago</label>
+        <select [(ngModel)]="pagoForm.idMetodoPago" name="metodoPago" id="metodoPago" 
+                (change)="onMetodoPagoChange()" required class="form-control">
+          <option value="" disabled>Selecciona un método de pago</option>
+          <option *ngFor="let metodo of metodosPago" [value]="metodo.idMetodoPago">
+            {{metodo.nombre}} 
+            <span *ngIf="metodo.comision > 0">({{metodo.comision}}% comisión)</span>
+          </option>
+        </select>
+        <small class="form-text text-muted" *ngIf="metodosPago.length === 0">
+          No hay métodos de pago activos
+        </small>
+        <div *ngIf="getSelectedMetodoPagoInfo()?.comision > 0" class="alert alert-warning">
+          <i class="fas fa-info-circle"></i> Este método de pago tiene una comisión del {{getSelectedMetodoPagoInfo().comision}}%
+        </div>
+      </div>
+      
+      <!-- Información de cálculos -->
+      <div class="form-section" *ngIf="montoBase > 0">
+        <h6 class="section-title">Desglose de Cálculo</h6>
+        
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="montoBase">Monto Base (₡)</label>
+              <input [value]="montoBase | number:'1.2-2'" name="montoBase" id="montoBase" 
+                     type="text" readonly class="form-control" />
+            </div>
+          </div>
+          
+          <div class="col-md-4" *ngIf="descuentoAplicado > 0">
+            <div class="form-group">
+              <label for="descuento">Descuento (₡)</label>
+              <input [value]="'-' + (descuentoAplicado | number:'1.2-2')" name="descuento" id="descuento" 
+                     type="text" readonly class="form-control text-success" />
+            </div>
+          </div>
+          
+          <div class="col-md-4" *ngIf="comisionAplicada > 0">
+            <div class="form-group">
+              <label for="comision">Comisión (₡)</label>
+              <input [value]="'+' + (comisionAplicada | number:'1.2-2')" name="comision" id="comision" 
+                     type="text" readonly class="form-control text-warning" />
+            </div>
+          </div>
+        </div>
+      </div>
+        
+      <div class="form-group">
+        <label for="monto" class="required">Monto (₡)</label>
+        <input [(ngModel)]="pagoForm.monto" name="monto" id="monto" type="number" 
+               min="0" step="0.01" placeholder="Monto del pago" required readonly class="form-control" />
+        <small class="form-text text-muted">
+          Se calcula automáticamente incluyendo descuentos y comisiones
+        </small>
+      </div>
+      
+      <div class="form-group">
+        <label for="fechaPago" class="required">Fecha de Pago</label>
+        <input [(ngModel)]="pagoForm.fechaPago" name="fechaPago" id="fechaPago" 
+               type="date" [max]="maxDate" required class="form-control" />
+        <small class="form-text text-muted">
+          Solo se permiten fechas hasta el día de hoy ({{maxDate | date:'dd/MM/yyyy'}})
+        </small>
+      </div>
+
+      <div class="button-group mt-4">
+        <button type="button" class="btn btn-secondary" (click)="goBack()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="!formRef.form.valid || isLoading">
+          <span *ngIf="isLoading">
+            <i class="fas fa-spinner fa-spin"></i> Registrando...
+          </span>
+          <span *ngIf="!isLoading">
+            <i class="fas fa-save"></i> Registrar Pago
+          </span>
+        </button>
+      </div>
+    </form>
+    
+    <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
+      <h6><i class="fas fa-exclamation-triangle"></i> Errores de validación:</h6>
+      <ul class="mb-0">
+        <li *ngFor="let error of validationErrors">{{ error }}</li>
+      </ul>
     </div>
   </div>
-</body>
-</html>
+</div>

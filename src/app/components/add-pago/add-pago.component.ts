@@ -4,6 +4,7 @@ import { PagoService } from '../../services/pago.service';
 import { ClienteService } from '../../services/cliente.service';
 import { MembresiaService } from '../../services/membresia.service';
 import { MetodoPagoService } from '../../services/metodoPago.service';
+import { DetalleMantenimientoService } from '../../services/detalleMantenimiento.service';
 import { Pago } from '../../models/pago';
 import { PagoFormData } from '../../models/api-interfaces';
 import Swal from 'sweetalert2';
@@ -14,18 +15,33 @@ import Swal from 'sweetalert2';
   styleUrls: ['./add-pago.component.css']
 })
 export class AddPagoComponent implements OnInit {
-  public pago: Pago = new Pago();
-  public clientes: any[] = [];
+  public pagoForm: PagoFormData = {
+    tipoPago: 'membresia',
+    idMembresia: 0,
+    idDetalleMantenimiento: 0,
+    idMetodoPago: 0,
+    fechaPago: '',
+    monto: 0,
+    descripcion: ''
+  };
   public membresias: any[] = [];
+  public detallesMantenimiento: any[] = [];
   public metodosPago: any[] = [];
+  public clientes: any[] = [];
   public validationErrors: string[] = [];
   public isLoading: boolean = false;
+  
+  // Campos calculados para mostrar
+  public descuentoAplicado: number = 0;
+  public comisionAplicada: number = 0;
+  public montoBase: number = 0;
 
   constructor(
     private _pagoService: PagoService,
-    private _clienteService: ClienteService,
     private _membresiaService: MembresiaService,
     private _metodoPagoService: MetodoPagoService,
+    private _detalleMantenimientoService: DetalleMantenimientoService,
+    private _clienteService: ClienteService,
     private _router: Router
   ) {
     this.resetPago();
@@ -35,15 +51,26 @@ export class AddPagoComponent implements OnInit {
     this.loadClientes();
     this.loadMembresias();
     this.loadMetodosPago();
+    this.loadDetallesMantenimiento();
   }
 
   resetPago() {
     const today = new Date().toISOString().split('T')[0];
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    const vencimiento = nextMonth.toISOString().split('T')[0];
     
-    this.pago = new Pago(0, 0, 0, 0, 0, today, vencimiento, 'Pendiente', '', '');
+    this.pagoForm = {
+      tipoPago: 'membresia',
+      idMembresia: 0,
+      idDetalleMantenimiento: 0,
+      idMetodoPago: 0,
+      fechaPago: today,
+      monto: 0,
+      descripcion: ''
+    };
+  }
+
+  // Getter para obtener la fecha máxima permitida (hoy)
+  get maxDate(): string {
+    return new Date().toISOString().split('T')[0];
   }
 
   loadClientes(): void {
@@ -64,7 +91,12 @@ export class AddPagoComponent implements OnInit {
     this._membresiaService.getMembresias().subscribe({
       next: (response: any) => {
         if (response && response.data) {
-          this.membresias = response.data.filter((m: any) => m.estado === 1); // Solo activas
+          // Filtrar solo membresías activas que tengan cliente asignado
+          this.membresias = response.data.filter((m: any) => {
+            const estadoActivo = m.estado == 1 || m.estado === '1';
+            const tieneCliente = m.idCliente && m.idCliente !== null && m.idCliente !== '' && Number(m.idCliente) > 0;
+            return estadoActivo && tieneCliente;
+          });
         }
       },
       error: (error: any) => {
@@ -78,7 +110,7 @@ export class AddPagoComponent implements OnInit {
     this._metodoPagoService.getMetodosPago().subscribe({
       next: (response: any) => {
         if (response && response.data) {
-          this.metodosPago = response.data.filter((mp: any) => mp.activo === 1); // Solo activos
+          this.metodosPago = response.data.filter((mp: any) => mp.estado == 1 || mp.estado === '1');
         }
       },
       error: (error: any) => {
@@ -89,62 +121,144 @@ export class AddPagoComponent implements OnInit {
   }
 
   onMembresiaChange(): void {
-    if (this.pago.idMembresia) {
-      const membresia = this.membresias.find(m => m.idMembresia === this.pago.idMembresia);
+    // Resetear valores calculados
+    this.descuentoAplicado = 0;
+    this.comisionAplicada = 0;
+    this.montoBase = 0;
+    
+    if (this.pagoForm.idMembresia) {
+      const membresia = this.membresias.find(m => m.idMembresia == this.pagoForm.idMembresia);
       if (membresia) {
-        this.pago.monto = membresia.precio;
+        this.montoBase = Number(membresia.precio) || 0;
+        
+        // Aplicar descuento si existe
+        if (membresia.descuento && Number(membresia.descuento) > 0) {
+          const descuentoPorcentaje = Number(membresia.descuento);
+          this.descuentoAplicado = (this.montoBase * descuentoPorcentaje) / 100;
+        }
+        
+        const montoConDescuento = this.montoBase - this.descuentoAplicado;
+        this.pagoForm.monto = montoConDescuento;
+        
+        // Recalcular con comisión del método de pago si está seleccionado
+        this.calculateFinalAmount();
       }
+    } else {
+      this.pagoForm.monto = 0;
+    }
+  }
+
+  // Método para manejar cambio de método de pago
+  onMetodoPagoChange(): void {
+    this.calculateFinalAmount();
+  }
+
+  // Método para calcular el monto final con comisión
+  calculateFinalAmount(): void {
+    // Resetear comisión
+    this.comisionAplicada = 0;
+    
+    if (!this.pagoForm.idMetodoPago) {
+      return; // No hay método de pago seleccionado
+    }
+
+    const metodoPago = this.metodosPago.find(mp => mp.idMetodoPago == this.pagoForm.idMetodoPago);
+    if (!metodoPago) {
+      return; // Método de pago no encontrado
+    }
+
+    let montoBase = this.pagoForm.monto || 0;
+    
+    // Si hay comisión, aplicarla
+    if (metodoPago.comision && Number(metodoPago.comision) > 0) {
+      const comisionPorcentaje = Number(metodoPago.comision);
+      this.comisionAplicada = (montoBase * comisionPorcentaje) / 100;
+      const montoFinal = montoBase + this.comisionAplicada;
+      
+      this.pagoForm.monto = montoFinal;
+    }
+  }
+
+  // Método para calcular monto de detalle de mantenimiento
+  onDetalleMantenimientoChange(): void {
+    // Resetear valores calculados
+    this.descuentoAplicado = 0;
+    this.comisionAplicada = 0;
+    this.montoBase = 0;
+    
+    if (this.pagoForm.idDetalleMantenimiento) {
+      const detalle = this.detallesMantenimiento.find(d => d.idDetalleMantenimiento == this.pagoForm.idDetalleMantenimiento);
+      if (detalle) {
+        this.montoBase = Number(detalle.mantenimientoCosto) || 0;
+        this.pagoForm.monto = this.montoBase;
+        
+        // Recalcular con comisión del método de pago si está seleccionado
+        this.calculateFinalAmount();
+      }
+    } else {
+      this.pagoForm.monto = 0;
     }
   }
 
   onSubmit(form?: any): void {
     this.validationErrors = [];
 
-    if (!this.pago.idCliente || !this.pago.idMembresia || 
-        !this.pago.idMetodoPago || !this.pago.monto || 
-        !this.pago.fechaPago || !this.pago.fechaVencimiento) {
+    // Validación condicional según tipo de pago
+    let camposIncompletos = false;
+    
+    if (this.pagoForm.tipoPago === 'membresia') {
+      if (!this.pagoForm.idMembresia || !this.pagoForm.idMetodoPago || 
+          !this.pagoForm.monto || !this.pagoForm.fechaPago) {
+        camposIncompletos = true;
+      }
+    } else if (this.pagoForm.tipoPago === 'mantenimiento') {
+      if (!this.pagoForm.idDetalleMantenimiento || !this.pagoForm.idMetodoPago || 
+          !this.pagoForm.monto || !this.pagoForm.fechaPago) {
+        camposIncompletos = true;
+      }
+    }
+    
+    if (camposIncompletos) {
       this.showAlert('error', 'Debes completar todos los campos obligatorios antes de enviar.');
       return;
     }
 
-    if (this.pago.monto <= 0) {
+    if (this.pagoForm.monto <= 0) {
       this.showAlert('error', 'El monto debe ser mayor a 0.');
       return;
     }
 
-    // Validar fechas
-    const fechaPago = new Date(this.pago.fechaPago);
-    const fechaVencimiento = new Date(this.pago.fechaVencimiento);
+    // Validar fecha
+    const fechaPago = new Date(this.pagoForm.fechaPago);
+    const hoy = new Date();
     
-    if (fechaVencimiento < fechaPago) {
-      this.showAlert('error', 'La fecha de vencimiento no puede ser anterior a la fecha de pago.');
+    if (fechaPago > hoy) {
+      this.showAlert('error', 'La fecha de pago no puede ser futura.');
       return;
     }
 
     this.isLoading = true;
 
-    const pagoData: PagoFormData = {
-      idCliente: this.pago.idCliente,
-      idMembresia: this.pago.idMembresia,
-      idMetodoPago: this.pago.idMetodoPago,
-      monto: this.pago.monto,
-      fechaPago: this.pago.fechaPago,
-      fechaVencimiento: this.pago.fechaVencimiento,
-      estado: this.pago.estado,
-      referencia: this.pago.referencia || '',
-      notas: this.pago.notas || ''
-    };
-
-    this._pagoService.addPago(pagoData).subscribe({
+    this._pagoService.addPago(this.pagoForm).subscribe({
       next: (response: any) => {
-        if (response && response.status === 201) {
+        this.isLoading = false;
+        
+        // Verificar si la respuesta indica éxito
+        if (response && (
+          response.status === 201 || 
+          response.status === 200 || 
+          response.code === 201 || 
+          response.code === 200 ||
+          (response.message && response.message.toLowerCase().includes('correcto')) ||
+          (response.message && response.message.toLowerCase().includes('exitoso')) ||
+          (response.message && response.message.toLowerCase().includes('registrado'))
+        )) {
           this.showAlert('success', 'Pago registrado correctamente', () => {
-            this._router.navigate(['/show-pago']);
+            this._router.navigate(['/view-pago']);
           });
         } else {
           this.showAlert('error', response?.message || 'Error al registrar el pago');
         }
-        this.isLoading = false;
       },
       error: (error: any) => {
         console.error('Error al crear pago:', error);
@@ -198,6 +312,64 @@ export class AddPagoComponent implements OnInit {
   }
 
   goBack(): void {
-    this._router.navigate(['/show-pago']);
+    this._router.navigate(['/view-pago']);
+  }
+
+  // Método para obtener información de la membresía seleccionada
+  getSelectedMembresiaInfo(): any {
+    if (this.pagoForm.idMembresia) {
+      return this.membresias.find(m => m.idMembresia === this.pagoForm.idMembresia);
+    }
+    return null;
+  }
+
+  // Método para obtener información del método de pago seleccionado
+  getSelectedMetodoPagoInfo(): any {
+    if (this.pagoForm.idMetodoPago) {
+      return this.metodosPago.find(mp => mp.idMetodoPago === this.pagoForm.idMetodoPago);
+    }
+    return null;
+  }
+
+  // Método que se ejecuta cuando cambia el tipo de pago
+  onTipoPagoChange(): void {
+    // Resetear campos condicionales
+    this.pagoForm.idMembresia = 0;
+    this.pagoForm.idDetalleMantenimiento = 0;
+    this.pagoForm.monto = 0;
+    
+    // Resetear valores calculados
+    this.descuentoAplicado = 0;
+    this.comisionAplicada = 0;
+    this.montoBase = 0;
+  }
+
+  // Cargar detalles de mantenimiento pendientes de pago
+  loadDetallesMantenimiento(): void {
+    this._detalleMantenimientoService.getDetalles().subscribe({
+      next: (response: any) => {
+        if (response && response.data) {
+          // Los detalles de mantenimiento están disponibles para pago
+          this.detallesMantenimiento = response.data;
+        } else {
+          this.detallesMantenimiento = [];
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al cargar detalles de mantenimiento:', error);
+        this.detallesMantenimiento = [];
+      }
+    });
+  }
+
+  // Método para obtener el nombre del cliente
+  getClienteNombre(idCliente: string): string {
+    if (!idCliente || !this.clientes.length) return `Cliente ID: ${idCliente}`;
+    
+    const cliente = this.clientes.find(c => c.idCliente === idCliente || c.idCliente === Number(idCliente));
+    if (cliente) {
+      return `${cliente.nombre} ${cliente.apellido}`;
+    }
+    return `Cliente ID: ${idCliente}`;
   }
 }
