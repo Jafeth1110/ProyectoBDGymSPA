@@ -16,7 +16,7 @@
       <i class="fas fa-search"></i>
       <input 
         type="text" 
-        placeholder="Buscar por cliente, clase o estado..." 
+        placeholder="Buscar por cliente, entrenador o clase..." 
         [(ngModel)]="searchTerm"
         (input)="filterInscripciones()">
     </div>
@@ -33,18 +33,15 @@
     <div class="inscripcion-card" *ngFor="let inscripcion of filteredInscripciones">
       <div class="card-header">
         <h3>{{ inscripcion.getNombreCliente() || 'Cliente no disponible' }}</h3>
-        <div class="estado-badge" [class]="inscripcion.estado === 1 ? 'activo' : 'inactivo'">
-          {{ inscripcion.getEstadoTexto() }}
-        </div>
         <div class="actions">
           <button class="btn-icon btn-view" (click)="viewInscripcion(inscripcion.idInscripcionClase)" title="Ver detalles">
-            <i class="fas fa-eye"></i>
+            <span class="icon-text">👁</span>
           </button>
           <button class="btn-icon btn-edit" (click)="editInscripcion(inscripcion.idInscripcionClase)" title="Editar">
-            <i class="fas fa-edit"></i>
+            <span class="icon-text">✎</span>
           </button>
           <button class="btn-icon btn-delete" (click)="deleteInscripcion(inscripcion)" title="Eliminar">
-            <i class="fas fa-trash"></i>
+            <span class="icon-text">×</span>
           </button>
         </div>
       </div>
@@ -67,7 +64,11 @@
         
         <div class="info-row" *ngIf="inscripcion.clase">
           <span class="label">Entrenador:</span>
-          <span class="value trainer">{{ inscripcion.clase.nombre || 'No disponible' }}</span>
+          <span class="value trainer">
+            {{ inscripcion.entrenador 
+                ? (inscripcion.entrenador.nombre + ' ' + inscripcion.entrenador.apellido)
+                : 'No disponible' }}
+          </span>
         </div>
       </div>
     </div>

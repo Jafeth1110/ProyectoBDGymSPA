@@ -158,14 +158,20 @@ export interface ClaseResponse {
 export interface InscripcionClaseResponse {
   idInscripcionClase: number;
   idCliente: number;
+  idEntrenador: number;
   idClase: number;
   fechaInscripcion: string;
-  estado: number;
   cliente?: {
     idCliente: number;
     nombre: string;
     apellido: string;
     email: string;
+  };
+  entrenador?: {
+    idEntrenador: number;
+    nombre: string;
+    apellido: string;
+    especialidad?: string;
   };
   clase?: {
     idClase: number;
@@ -317,9 +323,9 @@ export interface ClaseFormData {
 
 export interface InscripcionClaseFormData {
   idCliente: number;
+  idEntrenador: number;
   idClase: number;
   fechaInscripcion: string;
-  estado: number;
 }
 
 export interface MembresiaFormData {

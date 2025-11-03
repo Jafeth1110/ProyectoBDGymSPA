@@ -54,8 +54,10 @@ export class ViewInscripcionclaseComponent implements OnInit {
       const term = this.searchTerm.toLowerCase();
       this.filteredInscripciones = this.inscripciones.filter(inscripcion =>
         inscripcion.getNombreCliente()?.toLowerCase().includes(term) ||
-        inscripcion.clase?.nombre.toLowerCase().includes(term) ||
-        inscripcion.getEstadoTexto().toLowerCase().includes(term)
+        (inscripcion.entrenador 
+          ? (inscripcion.entrenador.nombre + ' ' + inscripcion.entrenador.apellido).toLowerCase().includes(term)
+          : false) ||
+        (inscripcion.clase?.nombre || '').toLowerCase().includes(term)
       );
     }
   }
@@ -89,12 +91,14 @@ export class ViewInscripcionclaseComponent implements OnInit {
       if (result.isConfirmed) {
         this._inscripcionService.deleteInscripcion(inscripcion.idInscripcionClase).subscribe({
           next: (response: any) => {
-            this.showAlert('success', 'Inscripción eliminada correctamente');
+            const message = response?.message || 'Inscripción eliminada correctamente';
+            this.showAlert('success', message);
             this.loadInscripciones();
           },
           error: (error: any) => {
             console.error('Error al eliminar inscripción:', error);
-            this.showAlert('error', 'Error al eliminar la inscripción');
+            const msg = error?.error?.message || 'Error al eliminar la inscripción';
+            this.showAlert('error', msg);
           }
         });
       }

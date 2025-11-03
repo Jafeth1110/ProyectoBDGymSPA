@@ -113,6 +113,11 @@ export class InscripcionClaseService {
       errors.push('Debe seleccionar un cliente válido');
     }
 
+    // Validar entrenador
+    if (!inscripcionData.idEntrenador || inscripcionData.idEntrenador <= 0) {
+      errors.push('Debe seleccionar un entrenador válido');
+    }
+
     // Validar clase
     if (!inscripcionData.idClase || inscripcionData.idClase <= 0) {
       errors.push('Debe seleccionar una clase válida');
@@ -132,11 +137,6 @@ export class InscripcionClaseService {
       }
     }
 
-    // Validar estado
-    if (inscripcionData.estado !== 0 && inscripcionData.estado !== 1) {
-      errors.push('El estado debe ser 0 (Inactiva) o 1 (Activa)');
-    }
-
     return {
       isValid: errors.length === 0,
       errors
@@ -147,14 +147,43 @@ export class InscripcionClaseService {
    * Convierte la respuesta de la API a modelo local
    */
   mapResponseToModel(response: InscripcionClaseResponse): InscripcionClase {
+    // Construir objetos anidados de forma robusta si vienen aplanados
+    const cliente = response.cliente ?? (
+      (response as any).cliente_nombre ? {
+        idCliente: response.idCliente,
+        nombre: (response as any).cliente_nombre,
+        apellido: (response as any).cliente_apellido ?? '',
+        email: (response as any).cliente_email ?? ''
+      } : undefined
+    );
+
+    const entrenador = response.entrenador ?? (
+      (response as any).entrenador_nombre ? {
+        idEntrenador: response.idEntrenador,
+        nombre: (response as any).entrenador_nombre,
+        apellido: (response as any).entrenador_apellido ?? '',
+        especialidad: (response as any).entrenador_especialidad ?? undefined
+      } : undefined
+    );
+
+    const clase = response.clase ?? (
+      (response as any).clase_nombre ? {
+        idClase: response.idClase,
+        nombre: (response as any).clase_nombre,
+        descripcion: (response as any).clase_descripcion ?? '',
+        capacidad: Number((response as any).clase_capacidad ?? 0)
+      } : undefined
+    );
+
     return new InscripcionClase(
       response.idInscripcionClase,
       response.idCliente,
+      response.idEntrenador,
       response.idClase,
       response.fechaInscripcion,
-      response.estado,
-      response.cliente,
-      response.clase
+      cliente,
+      entrenador,
+      clase
     );
   }
 
@@ -164,9 +193,9 @@ export class InscripcionClaseService {
   mapModelToFormData(inscripcion: InscripcionClase): InscripcionClaseFormData {
     return {
       idCliente: inscripcion.idCliente,
+      idEntrenador: inscripcion.idEntrenador,
       idClase: inscripcion.idClase,
-      fechaInscripcion: inscripcion.fechaInscripcion,
-      estado: inscripcion.estado
+      fechaInscripcion: inscripcion.fechaInscripcion
     };
   }
 }

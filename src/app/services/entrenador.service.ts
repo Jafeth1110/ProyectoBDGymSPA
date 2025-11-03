@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { server } from './global';
 
 @Injectable({
@@ -18,7 +19,12 @@ export class EntrenadorService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${bearerToken}`
     });
-    return this.http.get(this.urlAPI, { headers });
+    return this.http.get(this.urlAPI, { headers }).pipe(
+      catchError((error) => {
+        // Devolver estructura vacía para no romper la UI y permitir mensajes amigables
+        return of({ code: error.status || 500, status: 'error', data: [] });
+      })
+    );
   }
 
   getEntrenador(id: number): Observable<any> {

@@ -29,17 +29,19 @@
           <label>Clase:</label>
           <span class="trainer">{{ inscripcion.clase?.nombre || 'No disponible' }}</span>
         </div>
+
+        <div class="detail-item">
+          <label>Entrenador:</label>
+          <span class="trainer">
+            {{ inscripcion.entrenador 
+                ? (inscripcion.entrenador.nombre + ' ' + inscripcion.entrenador.apellido)
+                : 'No disponible' }}
+          </span>
+        </div>
         
         <div class="detail-item">
           <label>Fecha de Inscripción:</label>
           <span>{{ inscripcion.fechaInscripcion | date:'dd/MM/yyyy' }}</span>
-        </div>
-        
-        <div class="detail-item">
-          <label>Estado:</label>
-          <span [class]="inscripcion.estado === 1 ? 'capacity' : 'inactive'">
-            {{ inscripcion.getEstadoTexto() }}
-          </span>
         </div>
       </div>
     </div>

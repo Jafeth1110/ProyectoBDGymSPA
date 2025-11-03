@@ -29,7 +29,7 @@
 }
 
 .header h1 i {
-  color: #17a2b8;
+  color: #ffc107;
 }
 
 .btn {
@@ -46,15 +46,16 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #17a2b8, #138496);
+  /* Alinear color del botón con el header de las tarjetas (teal) */
+  background: linear-gradient(135deg, #17a2b8, #117a8b);
   color: white;
-  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.35);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #138496, #117a8b);
+  background: linear-gradient(135deg, #1493a6, #0f6e7d);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
+  box-shadow: 0 6px 20px rgba(23, 162, 184, 0.45);
 }
 
 .search-container {
@@ -86,8 +87,8 @@
 
 .search-box input:focus {
   outline: none;
-  border-color: #17a2b8;
-  box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+  border-color: #ffc107;
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
 }
 
 .loading-container {
@@ -99,7 +100,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #17a2b8;
+  border-top: 4px solid #ffc107;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
@@ -112,7 +113,7 @@
 
 .inscripciones-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
 }
 
@@ -130,41 +131,42 @@
 }
 
 .card-header {
-  background: linear-gradient(135deg, #17a2b8, #138496);
+  /* Paleta para Inscripciones: variante info/teal */
+  background: linear-gradient(135deg, #17a2b8, #117a8b);
   color: white;
   padding: 1.25rem 1.5rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .card-header h3 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  flex: 1;
 }
 
+/* Badge de estado (Activa/Inactiva) */
 .estado-badge {
-  padding: 0.375rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
   letter-spacing: 0.5px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.15);
+  text-transform: uppercase;
 }
 
 .estado-badge.activo {
-  background: rgba(40, 167, 69, 0.2);
-  color: #28a745;
-  border: 1px solid rgba(40, 167, 69, 0.3);
+  background: rgba(40,167,69,0.85);
+  border-color: rgba(255,255,255,0.35);
 }
 
 .estado-badge.inactivo {
-  background: rgba(220, 53, 69, 0.2);
-  color: #dc3545;
-  border: 1px solid rgba(220, 53, 69, 0.3);
+  background: rgba(220,53,69,0.85);
+  border-color: rgba(255,255,255,0.35);
 }
 
 .actions {
@@ -173,36 +175,40 @@
 }
 
 .btn-icon {
-  width: 35px;
-  height: 35px;
+  width: 38px;
+  height: 38px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  font-size: 0.875rem;
+  font-size: 1.2rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-view {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(23, 162, 184, 0.8);
   color: white;
 }
 
 .btn-view:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+  background: rgba(23, 162, 184, 1);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
 }
 
 .btn-edit {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(40, 167, 69, 0.8);
   color: white;
 }
 
 .btn-edit:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+  background: rgba(40, 167, 69, 1);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
 }
 
 .btn-delete {
@@ -212,7 +218,27 @@
 
 .btn-delete:hover {
   background: rgba(220, 53, 69, 1);
-  transform: scale(1.1);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+/* Estilo para iconos de texto */
+.icon-text {
+  font-size: 1.1rem;
+  font-weight: bold;
+  display: block;
+}
+
+/* Estados de focus para accesibilidad */
+.btn-icon:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Animación al hacer clic */
+.btn-icon:active {
+  transform: scale(1.05);
+  transition: transform 0.1s ease;
 }
 
 .card-body {
@@ -244,8 +270,15 @@
   line-height: 1.5;
 }
 
-.clase {
-  color: #ffc107;
+/* Aumentar tamaño específico para la descripción */
+.info-row:first-child .value {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #495057;
+}
+
+.capacity {
+  color: #28a745;
   font-weight: 600;
 }
 
@@ -254,9 +287,14 @@
   font-weight: 600;
 }
 
+/* Estilos específicos de Inscripciones */
+.clase {
+  color: #17a2b8;
+  font-weight: 600;
+}
+
 .email {
   color: #6c757d;
-  font-size: 0.9rem;
 }
 
 .empty-state {
@@ -269,7 +307,7 @@
 
 .empty-state i {
   font-size: 4rem;
-  color: #17a2b8;
+  color: #ffc107;
   margin-bottom: 1.5rem;
 }
 

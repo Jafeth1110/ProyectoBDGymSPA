@@ -71,13 +71,15 @@ export class ShowInscripcionClaseComponent implements OnInit {
       if (result.isConfirmed && this.inscripcion) {
         this._inscripcionService.deleteInscripcion(this.inscripcion.idInscripcionClase).subscribe({
           next: (response: any) => {
-            this.showAlert('success', 'Inscripción eliminada correctamente', () => {
+            const message = response?.message || 'Inscripción eliminada correctamente';
+            this.showAlert('success', message, () => {
               this._router.navigate(['/view-inscripcionclase']);
             });
           },
           error: (error: any) => {
             console.error('Error al eliminar inscripción:', error);
-            this.showAlert('error', 'Error al eliminar la inscripción');
+            const msg = error?.error?.message || 'Error al eliminar la inscripción';
+            this.showAlert('error', msg);
           }
         });
       }

@@ -24,6 +24,17 @@
         </div>
         
         <div class="form-group">
+          <label for="entrenador">Entrenador</label>
+          <select [(ngModel)]="inscripcion.idEntrenador" name="entrenador" id="entrenador" required>
+            <option value="" disabled>Selecciona un entrenador</option>
+            <option *ngFor="let entrenador of entrenadores" [value]="entrenador.idEntrenador">
+              {{entrenador.user?.nombre}} {{entrenador.user?.apellido}}
+            </option>
+          </select>
+          <small class="form-text" *ngIf="entrenadores.length === 0">No hay entrenadores disponibles</small>
+        </div>
+
+        <div class="form-group">
           <label for="clase">Clase</label>
           <select [(ngModel)]="inscripcion.idClase" name="clase" id="clase" required>
             <option value="" disabled>Selecciona una clase</option>
@@ -41,22 +52,13 @@
                  type="date" required />
           <small class="form-text">Fecha en que se realiza la inscripción</small>
         </div>
-        
-        <div class="form-group">
-          <label for="estado">Estado</label>
-          <select [(ngModel)]="inscripcion.estado" name="estado" id="estado" required>
-            <option [value]="1">Activa</option>
-            <option [value]="0">Inactiva</option>
-          </select>
-          <small class="form-text">Estado inicial de la inscripción</small>
-        </div>
 
         <div class="button-group">
+          <button type="button" class="btn-secondary" (click)="goBack()">Cancelar</button>
           <button type="submit" class="btn-primary" [disabled]="!inscripcionForm.form.valid || isLoading">
             <span *ngIf="isLoading">Guardando...</span>
             <span *ngIf="!isLoading">Crear Inscripción</span>
           </button>
-          <button type="button" class="btn-secondary" (click)="goBack()">Cancelar</button>
         </div>
       </form>
       

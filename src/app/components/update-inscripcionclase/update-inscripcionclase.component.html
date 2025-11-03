@@ -1,141 +1,118 @@
-<div class="container mt-4">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card shadow">
-        <div class="card-header bg-info text-white">
-          <h4 class="card-title mb-0">
-            <i class="fas fa-edit me-2"></i>Editar Inscripción a Clase
-          </h4>
-        </div>
-        <div class="card-body">
-          <!-- Loading Spinner -->
-          <div *ngIf="isLoading" class="text-center py-4">
-            <div class="spinner-border text-info" role="status">
-              <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-2">Cargando datos de la inscripción...</p>
-          </div>
-
-          <!-- Update Form -->
-          <form *ngIf="!isLoading" #inscripcionForm="ngForm" (ngSubmit)="onSubmit(inscripcionForm)">
-            <div class="row">
-              <!-- Cliente -->
-              <div class="col-md-6 mb-3">
-                <label for="idCliente" class="form-label">
-                  <strong>Cliente <span class="text-danger">*</span></strong>
-                </label>
-                <select 
-                  class="form-select" 
-                  id="idCliente"
-                  name="idCliente"
-                  [(ngModel)]="inscripcion.idCliente"
-                  #idCliente="ngModel"
-                  required>
-                  <option value="">Seleccionar cliente...</option>
-                  <option *ngFor="let cliente of clientes" [value]="cliente.id">
-                    {{cliente.nombre}} {{cliente.apellido}}
-                  </option>
-                </select>
-                <div *ngIf="idCliente.invalid && (idCliente.dirty || idCliente.touched)" class="invalid-feedback d-block">
-                  <div *ngIf="idCliente.errors?.['required']">Debe seleccionar un cliente</div>
-                </div>
-              </div>
-
-              <!-- Clase -->
-              <div class="col-md-6 mb-3">
-                <label for="idClase" class="form-label">
-                  <strong>Clase <span class="text-danger">*</span></strong>
-                </label>
-                <select 
-                  class="form-select" 
-                  id="idClase"
-                  name="idClase"
-                  [(ngModel)]="inscripcion.idClase"
-                  #idClase="ngModel"
-                  required>
-                  <option value="">Seleccionar clase...</option>
-                  <option *ngFor="let clase of clases" [value]="clase.id">
-                    {{clase.nombre}} - Capacidad: {{clase.capacidad}}
-                  </option>
-                </select>
-                <div *ngIf="idClase.invalid && (idClase.dirty || idClase.touched)" class="invalid-feedback d-block">
-                  <div *ngIf="idClase.errors?.['required']">Debe seleccionar una clase</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Fecha Inscripción -->
-            <div class="mb-3">
-              <label for="fechaInscripcion" class="form-label">
-                <strong>Fecha de Inscripción <span class="text-danger">*</span></strong>
-              </label>
-              <input 
-                type="date" 
-                class="form-control" 
-                id="fechaInscripcion"
-                name="fechaInscripcion"
-                [(ngModel)]="inscripcion.fechaInscripcion"
-                #fechaInscripcion="ngModel"
-                required>
-              <div *ngIf="fechaInscripcion.invalid && (fechaInscripcion.dirty || fechaInscripcion.touched)" class="invalid-feedback d-block">
-                <div *ngIf="fechaInscripcion.errors?.['required']">La fecha de inscripción es requerida</div>
-              </div>
-            </div>
-
-            <!-- Estado -->
-            <div class="mb-3">
-              <label for="estado" class="form-label">
-                <strong>Estado <span class="text-danger">*</span></strong>
-              </label>
-              <select 
-                class="form-select" 
-                id="estado"
-                name="estado"
-                [(ngModel)]="inscripcion.estado"
-                #estado="ngModel"
-                required>
-                <option value="">Seleccionar estado...</option>
-                <option value="1">Activa</option>
-                <option value="0">Inactiva</option>
-              </select>
-              <div *ngIf="estado.invalid && (estado.dirty || estado.touched)" class="invalid-feedback d-block">
-                <div *ngIf="estado.errors?.['required']">Debe seleccionar un estado</div>
-              </div>
-            </div>
-
-            <!-- Validation Errors -->
-            <div *ngIf="validationErrors.length > 0" class="alert alert-danger">
-              <h6><i class="fas fa-exclamation-triangle"></i> Errores de validación:</h6>
-              <ul class="mb-0">
-                <li *ngFor="let error of validationErrors">{{error}}</li>
-              </ul>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="d-flex justify-content-between">
-              <button 
-                type="button" 
-                class="btn btn-secondary"
-                (click)="goBack()"
-                [disabled]="isLoading">
-                <i class="fas fa-arrow-left me-2"></i>Cancelar
-              </button>
-              
-              <button 
-                type="submit" 
-                class="btn btn-info"
-                [disabled]="!inscripcionForm.form.valid || isLoading">
-                <i class="fas fa-save me-2"></i>
-                <span *ngIf="!isLoading">Actualizar Inscripción</span>
-                <span *ngIf="isLoading">
-                  <span class="spinner-border spinner-border-sm me-2"></span>
-                  Actualizando...
-                </span>
-              </button>
-            </div>
-          </form>
-        </div>
+<div class="container">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="card loading-card">
+    <div class="card-header">
+      <h2><i class="fas fa-spinner fa-spin"></i> Cargando...</h2>
+    </div>
+    <div class="card-body">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <p>Cargando datos de la inscripción...</p>
       </div>
     </div>
+  </div>
+
+  <!-- Formulario -->
+  <div *ngIf="!isLoading" class="card">
+    <div class="card-header">
+      <h2><i class="fas fa-edit icon"></i> Editar Inscripción a Clase</h2>
+    </div>
+
+    <form #inscripcionForm="ngForm" (ngSubmit)="onSubmit(inscripcionForm)">
+      <div class="card-body">
+        <div class="form-grid">
+          <!-- Cliente -->
+          <div class="form-group">
+            <label class="form-label">Cliente <span class="required">*</span></label>
+            <select 
+              class="form-control" 
+              name="idCliente" 
+              [(ngModel)]="inscripcion.idCliente"
+              #idCliente="ngModel"
+              required>
+              <option value="">Seleccionar cliente...</option>
+              <option *ngFor="let cliente of clientes" [value]="cliente.idCliente">
+                {{ cliente.user?.nombre }} {{ cliente.user?.apellido }}
+              </option>
+            </select>
+            <div *ngIf="idCliente.invalid && (idCliente.touched || idCliente.dirty)" class="error-message">
+              Debe seleccionar un cliente.
+            </div>
+          </div>
+
+          <!-- Entrenador -->
+          <div class="form-group">
+            <label class="form-label">Entrenador <span class="required">*</span></label>
+            <select 
+              class="form-control" 
+              name="idEntrenador" 
+              [(ngModel)]="inscripcion.idEntrenador"
+              #idEntrenador="ngModel"
+              required>
+              <option value="">Seleccionar entrenador...</option>
+              <option *ngFor="let entrenador of entrenadores" [value]="entrenador.idEntrenador">
+                {{ entrenador.user?.nombre }} {{ entrenador.user?.apellido }}
+              </option>
+            </select>
+            <div *ngIf="idEntrenador.invalid && (idEntrenador.touched || idEntrenador.dirty)" class="error-message">
+              Debe seleccionar un entrenador.
+            </div>
+          </div>
+
+          <!-- Clase -->
+          <div class="form-group">
+            <label class="form-label">Clase <span class="required">*</span></label>
+            <select 
+              class="form-control"
+              name="idClase"
+              [(ngModel)]="inscripcion.idClase"
+              #idClase="ngModel"
+              required>
+              <option value="">Seleccionar clase...</option>
+              <option *ngFor="let clase of clases" [value]="clase.idClase">
+                {{ clase.nombre }} - Capacidad: {{ clase.capacidad }}
+              </option>
+            </select>
+            <div *ngIf="idClase.invalid && (idClase.touched || idClase.dirty)" class="error-message">
+              Debe seleccionar una clase.
+            </div>
+          </div>
+
+          <!-- Fecha Inscripción -->
+          <div class="form-group">
+            <label class="form-label">Fecha de Inscripción <span class="required">*</span></label>
+            <input 
+              type="date" 
+              class="form-control" 
+              name="fechaInscripcion" 
+              [(ngModel)]="inscripcion.fechaInscripcion"
+              #fechaInscripcion="ngModel"
+              required>
+            <div *ngIf="fechaInscripcion.invalid && (fechaInscripcion.touched || fechaInscripcion.dirty)" class="error-message">
+              La fecha de inscripción es requerida.
+            </div>
+          </div>
+        </div>
+
+        <!-- Errores -->
+        <div *ngIf="validationErrors.length > 0" class="error-alert">
+          <h6><i class="fas fa-exclamation-circle"></i> Errores de validación</h6>
+          <ul>
+            <li *ngFor="let error of validationErrors">{{ error }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer">
+        <button type="button" class="btn-secondary" (click)="goBack()" [disabled]="isLoading">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="!inscripcionForm.form.valid || isLoading">
+          <span *ngIf="!isLoading"><i class="fas fa-save"></i> Actualizar Inscripción</span>
+          <span *ngIf="isLoading"> Actualizando...</span>
+        </button>
+      </div>
+    </form>
   </div>
 </div>

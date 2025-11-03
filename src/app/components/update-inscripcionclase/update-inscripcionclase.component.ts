@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { InscripcionClaseService } from '../../services/inscripcionClase.service';
 import { ClienteService } from '../../services/cliente.service';
 import { ClaseService } from '../../services/clase.service';
+import { EntrenadorService } from '../../services/entrenador.service';
 import { InscripcionClase } from '../../models/inscripcionClase';
 import { InscripcionClaseFormData } from '../../models/api-interfaces';
 import Swal from 'sweetalert2';
@@ -15,6 +16,7 @@ import Swal from 'sweetalert2';
 export class UpdateInscripcionclaseComponent implements OnInit {
   public inscripcion: InscripcionClase = new InscripcionClase();
   public clientes: any[] = [];
+  public entrenadores: any[] = [];
   public clases: any[] = [];
   public validationErrors: string[] = [];
   public isLoading: boolean = false;
@@ -23,6 +25,7 @@ export class UpdateInscripcionclaseComponent implements OnInit {
   constructor(
     private _inscripcionService: InscripcionClaseService,
     private _clienteService: ClienteService,
+    private _entrenadorService: EntrenadorService,
     private _claseService: ClaseService,
     private _route: ActivatedRoute,
     private _router: Router
@@ -35,6 +38,7 @@ export class UpdateInscripcionclaseComponent implements OnInit {
         this.inscripcionId = Number(id);
         this.loadInscripcion(this.inscripcionId);
         this.loadClientes();
+        this.loadEntrenadores();
         this.loadClases();
       }
     });
@@ -65,7 +69,9 @@ export class UpdateInscripcionclaseComponent implements OnInit {
     this._clienteService.getClientes().subscribe({
       next: (response: any) => {
         if (response && response.data) {
-          this.clientes = response.data;
+          this.clientes = (response.data as any[]).map(this.normalizeCliente);
+        } else if (Array.isArray(response)) {
+          this.clientes = (response as any[]).map(this.normalizeCliente);
         }
       },
       error: (error: any) => {
@@ -79,6 +85,8 @@ export class UpdateInscripcionclaseComponent implements OnInit {
       next: (response: any) => {
         if (response && response.data) {
           this.clases = response.data;
+        } else if (Array.isArray(response)) {
+          this.clases = response;
         }
       },
       error: (error: any) => {
@@ -87,11 +95,119 @@ export class UpdateInscripcionclaseComponent implements OnInit {
     });
   }
 
+  loadEntrenadores(): void {
+    this._entrenadorService.getEntrenadores().subscribe({
+      next: (response: any) => {
+        if (response && response.data) {
+          this.entrenadores = (response.data as any[]).map(this.normalizeEntrenador);
+        } else if (Array.isArray(response)) {
+          this.entrenadores = (response as any[]).map(this.normalizeEntrenador);
+        }
+        // Fallback si no hay entrenadores
+        if (!this.entrenadores || this.entrenadores.length === 0) {
+          this.fallbackLoadEntrenadoresFromClases();
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al cargar entrenadores:', error);
+        this.fallbackLoadEntrenadoresFromClases();
+      }
+    });
+  }
+
+  private fallbackLoadEntrenadoresFromClases(): void {
+    this._claseService.getClases().subscribe({
+      next: (resp: any) => {
+        const lista = (resp && resp.data) ? resp.data : (Array.isArray(resp) ? resp : []);
+        const mapa = new Map<number, any>();
+        (lista as any[]).forEach((c: any) => {
+          if (c?.entrenador?.idEntrenador) {
+            const id = c.entrenador.idEntrenador;
+            if (!mapa.has(id)) {
+              mapa.set(id, {
+                idEntrenador: id,
+                user: {
+                  nombre: c.entrenador.nombre ?? '',
+                  apellido: c.entrenador.apellido ?? ''
+                }
+              });
+            }
+          } else if (c?.idEntrenador) {
+            const id = c.idEntrenador;
+            if (!mapa.has(id)) {
+              mapa.set(id, {
+                idEntrenador: id,
+                user: {
+                  nombre: c.entrenador_nombre ?? c.nombreEntrenador ?? '',
+                  apellido: c.entrenador_apellido ?? c.apellidoEntrenador ?? ''
+                }
+              });
+            }
+          }
+        });
+        const arr = Array.from(mapa.values());
+        if (arr.length > 0) {
+          console.info('Entrenadores derivados desde clases (fallback).');
+          this.entrenadores = arr;
+        }
+      },
+      error: (e) => {
+        console.warn('Fallback desde clases también falló:', e);
+      }
+    });
+  }
+
+  private normalizeCliente = (item: any) => {
+    if (item && item.user && (item.user.nombre || item.user.apellido || item.user.email)) {
+      return item;
+    }
+    if (item && (item.nombre || item.apellido || item.email)) {
+      return {
+        ...item,
+        user: {
+          nombre: item.nombre ?? item.cliente_nombre ?? '',
+          apellido: item.apellido ?? item.cliente_apellido ?? '',
+          email: item.email ?? item.cliente_email ?? ''
+        }
+      };
+    }
+    return {
+      ...item,
+      user: {
+        nombre: item?.cliente_nombre ?? '',
+        apellido: item?.cliente_apellido ?? '',
+        email: item?.cliente_email ?? ''
+      }
+    };
+  };
+
+  private normalizeEntrenador = (item: any) => {
+    if (item && item.user && (item.user.nombre || item.user.apellido)) {
+      return item;
+    }
+    if (item && (item.nombre || item.apellido)) {
+      return {
+        ...item,
+        user: {
+          nombre: item.nombre ?? item.entrenador_nombre ?? '',
+          apellido: item.apellido ?? item.entrenador_apellido ?? ''
+        }
+      };
+    }
+    return {
+      ...item,
+      user: {
+        nombre: item?.entrenador_nombre ?? '',
+        apellido: item?.entrenador_apellido ?? ''
+      }
+    };
+  };
+
   onSubmit(form?: any): void {
     this.validationErrors = [];
 
-    if (!this.inscripcion.idCliente || !this.inscripcion.idClase || 
-        !this.inscripcion.fechaInscripcion || !this.inscripcion.estado) {
+    if (!this.inscripcion.idCliente || !this.inscripcion.idEntrenador || !this.inscripcion.idClase || 
+        !this.inscripcion.fechaInscripcion) {
       this.showAlert('error', 'Debes completar todos los campos antes de enviar.');
       return;
     }
@@ -100,14 +216,14 @@ export class UpdateInscripcionclaseComponent implements OnInit {
 
     const inscripcionData: InscripcionClaseFormData = {
       idCliente: this.inscripcion.idCliente,
+      idEntrenador: this.inscripcion.idEntrenador,
       idClase: this.inscripcion.idClase,
-      fechaInscripcion: this.inscripcion.fechaInscripcion,
-      estado: this.inscripcion.estado
+      fechaInscripcion: this.inscripcion.fechaInscripcion
     };
 
     this._inscripcionService.updateInscripcion(this.inscripcionId, inscripcionData).subscribe({
       next: (response: any) => {
-        if (response && (response.status === 200 || response.status === 201)) {
+        if (response && (response.status === 200 || response.status === 201 || response.code === 200)) {
           this.showAlert('success', 'Inscripción actualizada correctamente', () => {
             this._router.navigate(['/show-inscripcionclase', this.inscripcionId]);
           });
@@ -168,6 +284,6 @@ export class UpdateInscripcionclaseComponent implements OnInit {
   }
 
   goBack(): void {
-    this._router.navigate(['/show-inscripcionclase', this.inscripcionId]);
+    this._router.navigate(['/view-inscripcionclase']);
   }
 }
