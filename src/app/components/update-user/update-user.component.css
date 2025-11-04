@@ -7,129 +7,198 @@
 
 html, body {
   height: 100%;
-  font-family: Arial, sans-serif;
-  background: #f6f8fa;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f8f9fa;
 }
 
-/* Centramos el formulario */
+/* Contenedor principal */
 .container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
 
-/* Tarjeta */
+/* Card principal */
 .card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  padding: 2.5rem;
-  width: 100%;
-  max-width: 420px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
 }
 
-/* Título */
-h2 {
-  font-weight: 700;
-  color: #2d2d2d;
-  margin-bottom: 2rem;
+/* Header */
+.card-header {
+  background: linear-gradient(135deg, #ffc107, #ff8f00);
+  color: white;
+  padding: 2rem;
   text-align: center;
 }
 
-/* Grupos de campos */
+.card-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* Body */
+.card-body {
+  padding: 2.5rem;
+  background: #f8f9fa;
+}
+
+/* Grid del formulario */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.2rem;
 }
 
-/* Etiquetas */
-.form-group label {
-  font-weight: 500;
-  color: #444;
-  margin-bottom: 0.5rem;
+.form-group.full-width {
+  grid-column: 1 / -1;
 }
 
-/* Inputs y selects */
-.form-group input,
-.form-group select {
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  padding: 0.7rem 1rem;
-  font-size: 1rem;
-  background: #f9fafb;
-  transition: border-color 0.2s;
-  outline: none;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  border-color: #6c63ff;
-  background: #fff;
-}
-
-/* Botón guardar */
-.btn-success {
-  width: 100%;
-  background: linear-gradient(90deg, #28a745 0%, #88e064 100%);
-  border: none;
-  color: #fff;
+/* Labels */
+.form-label {
+  color: #495057;
   font-weight: 600;
-  border-radius: 8px;
-  padding: 0.9rem 0;
-  font-size: 1.1rem;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.08);
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.required {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* Controles */
+.form-control {
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #ffc107;
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.form-control:hover {
+  border-color: #ffc107;
+}
+
+/* Estados de validación */
+.form-control.ng-invalid.ng-touched {
+  border-color: #dc3545;
+  animation: shake 0.5s ease-in-out;
+}
+
+.form-control.ng-valid.ng-touched {
+  border-color: #28a745;
+}
+
+/* Textarea */
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Select */
+select.form-control {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5rem 1.5rem;
+  padding-right: 3rem;
+  appearance: none;
+}
+
+/* Mensajes de error */
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Alertas */
+.error-alert, .validation-errors {
+  background: #f8d7da;
+  border: 2px solid #dc3545;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #721c24;
+}
+
+.error-alert h6, .validation-errors h4 {
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Footer */
+.card-footer {
+  background: white;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Botones */
+.btn-primary, .btn-secondary, .btn-add-telefono, .btn-remove {
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  transition: all 0.3s ease;
   cursor: pointer;
-  margin-bottom: 0.5rem;
 }
 
-.btn-success:disabled {
-  background: #bdbdbd;
-  color: #fff;
-  cursor: not-allowed;
+/* Botón principal */
+.btn-primary {
+  background: linear-gradient(135deg, #ffc107, #ff8f00);
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
 }
 
-.btn-success:hover:not(:disabled) {
-  background: linear-gradient(90deg, #218838 0%, #6fdc6f 100%);
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff8f00, #f57c00);
+  transform: translateY(-2px);
 }
 
 /* Botón cancelar */
 .btn-secondary {
-  width: 100%;
   background: #6c757d;
-  border: none;
-  color: #fff;
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 0.9rem 0;
-  font-size: 1.1rem;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.08);
-  cursor: pointer;
+  color: white;
+  padding: 1rem 2rem;
 }
 
-.btn-secondary:hover {
-  background: #495057;
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
+.btn-secondary:hover:not(:disabled) {
+  background: #545b62;
+  transform: translateY(-2px);
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .card {
-    padding: 1.5rem;
-  }
-}
-
-/* Estilos para la sección de teléfonos */
+/* Sección teléfonos */
 .telefono-section {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
+  grid-column: 1 / -1;
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #e9ecef;
+  padding: 1.5rem;
 }
 
 .telefono-header {
@@ -139,229 +208,82 @@ h2 {
   margin-bottom: 1rem;
 }
 
-.telefono-header h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2d2d2d;
-  margin: 0;
-}
-
 .btn-add-telefono {
-  background: #28a745;
+  background: linear-gradient(135deg, #28a745, #88e064);
   color: white;
-  border: none;
-  padding: 0.5rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.2s;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
 }
 
 .btn-add-telefono:hover {
-  background: #218838;
+  background: linear-gradient(135deg, #218838, #6fdc6f);
 }
 
-.no-telefonos {
-  text-align: center;
-  color: #6c757d;
-  font-style: italic;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 6px;
-  border: 1px dashed #dee2e6;
-}
-
+/* Teléfonos */
 .telefono-item {
-  margin-bottom: 0.8rem;
-  padding: 1rem;
   background: white;
-  border-radius: 8px;
   border: 1px solid #dee2e6;
-}
-
-.telefono-item:last-child {
-  margin-bottom: 0;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
 .telefono-row {
   display: flex;
-  gap: 0.8rem;
+  gap: 1rem;
   align-items: flex-end;
-}
-
-.form-group.small {
-  margin-bottom: 0;
-}
-
-.form-group.small:first-child {
-  flex: 0 0 120px; /* Ancho más compacto para el tipo */
-}
-
-.form-group.small:nth-child(2) {
-  flex: 1; /* El número ocupa el resto del espacio */
-}
-
-.form-group.small label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 0.4rem;
-  color: #495057;
-}
-
-.form-group.small input,
-.form-group.small select {
-  padding: 0.6rem;
-  font-size: 0.9rem;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  transition: border-color 0.2s;
-}
-
-.form-group.small input:focus,
-.form-group.small select:focus {
-  border-color: #6c63ff;
-  outline: none;
 }
 
 .btn-remove {
   background: #dc3545;
   color: white;
-  border: none;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: background 0.2s;
-  flex-shrink: 0;
 }
 
 .btn-remove:hover {
   background: #c82333;
 }
 
-/* Responsive para pantallas pequeñas */
-@media (max-width: 600px) {
-  .telefono-row {
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-  
-  .form-group.small:first-child {
-    flex: 1;
-  }
-  
-  .btn-remove {
-    align-self: center;
-  }
-}
-
-/* Estilos para errores de validación */
-.validation-errors {
-  background-color: #fee;
-  border: 1px solid #fcc;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-}
-
-.validation-errors h4 {
-  color: #c33;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-}
-
-.validation-errors ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.validation-errors li {
-  color: #c33;
-  margin-bottom: 0.25rem;
-  padding-left: 1rem;
-  position: relative;
-}
-
-.validation-errors li:before {
-  content: "⚠";
-  position: absolute;
-  left: 0;
-  color: #c33;
-}
-
-/* Información de teléfonos */
-.telefono-info {
-  background-color: #f0f8ff;
-  border: 1px solid #cce7ff;
-  border-radius: 6px;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.telefono-info small {
-  color: #0066cc;
-  font-size: 0.875rem;
-  line-height: 1.4;
-}
-
-/* Mejorar validación visual en inputs */
-input:invalid:not(:focus):not(:placeholder-shown) {
-  border-color: #ff6b6b;
-  background-color: #fff5f5;
-}
-
-input:valid:not(:focus):not(:placeholder-shown) {
-  border-color: #51cf66;
-  background-color: #f8fffe;
-}
-
-select:invalid:not(:focus) {
-  border-color: #ff6b6b;
-  background-color: #fff5f5;
-}
-
-/* Estilos para teléfonos marcados para eliminación */
+/* Estado eliminación */
 .marcado-para-eliminacion {
   background-color: #ffe6e6;
   border: 2px dashed #ff4444;
-  border-radius: 8px;
-  opacity: 0.7;
-  position: relative;
+  opacity: 0.85;
 }
 
 .eliminacion-indicator {
-  background-color: #ff4444;
+  background: #ff4444;
   color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  font-size: 0.85rem;
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
   text-align: center;
 }
 
-.eliminacion-text {
-  font-weight: 500;
-  font-size: 0.8rem;
+/* Responsive */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .card-footer {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+  .telefono-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
-.marcado-para-eliminacion input,
-.marcado-para-eliminacion select {
-  background-color: #f5f5f5;
-  color: #666;
-  cursor: not-allowed;
-}
-
-.marcado-para-eliminacion .btn-remove {
-  background-color: #4CAF50;
-  color: white;
-  border: 2px solid #4CAF50;
-}
-
-.marcado-para-eliminacion .btn-remove:hover {
-  background-color: #45a049;
-  border-color: #45a049;
+/* Animaciones */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }

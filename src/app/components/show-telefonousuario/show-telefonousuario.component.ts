@@ -58,6 +58,50 @@ export class ShowTelefonousuarioComponent implements OnInit {
     });
   }
 
+  editTelefono(): void {
+    if (this.telefono) {
+      this._router.navigate([
+        '/update-telefonousuario',
+        this.telefono.idTelefono,
+        this.telefono.tipoTel
+      ]);
+    }
+  }
+
+  deleteTelefono(): void {
+    if (!this.telefono) return;
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar el teléfono "${this.telefono.telefono}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed && this.telefono) {
+        this._telefonoService.deleteTelefono(this.telefono.idTelefono).subscribe(
+          response => {
+            Swal.fire({
+              title: 'Eliminado',
+              text: 'El teléfono ha sido eliminado correctamente',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this._router.navigate(['/view-telefonousuario']);
+          },
+          error => {
+            console.error('Error al eliminar teléfono:', error);
+            this.showAlert('error', 'Error al eliminar el teléfono');
+          }
+        );
+      }
+    });
+  }
+
   showAlert(type: 'error', message: string): void {
     Swal.fire({
       title: message,

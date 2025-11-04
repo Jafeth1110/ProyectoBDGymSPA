@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 export class UpdateEquipoComponent implements OnInit {
   public equipo: Equipo = new Equipo();
   public validationErrors: string[] = [];
+  public isLoading: boolean = false;
 
   constructor(
     private _equipoService: EquipoService,
@@ -30,8 +31,10 @@ export class UpdateEquipoComponent implements OnInit {
   }
 
   loadEquipo(id: number): void {
+    this.isLoading = true;
     this._equipoService.showEquipo(id).subscribe(
       response => {
+        this.isLoading = false;
         if (response?.equipo) {
           const e = response.equipo;
           this.equipo = new Equipo(
@@ -47,6 +50,7 @@ export class UpdateEquipoComponent implements OnInit {
         }
       },
       error => {
+        this.isLoading = false;
         this.showAlert('error', 'Error al obtener los datos del equipo');
         this._router.navigate(['/view-equipo']);
       }

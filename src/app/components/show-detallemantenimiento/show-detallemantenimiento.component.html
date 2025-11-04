@@ -1,39 +1,78 @@
-<div class="container">
-  <div class="card shadow" *ngIf="detalle">
-    <h2>Detalle de Mantenimiento</h2>
-
-    <ul class="detallemant-details-list">
-      <li><strong>ID Detalle:</strong> {{ detalle.idDetalleMantenimiento }}</li>
-      <li><strong>Administrador:</strong> {{ getAdminName(detalle.idAdmin) }}</li>
-      <li><strong>Equipo:</strong> {{ getEquipoNombre(detalle.idEquipo) }}</li>
-      <li><strong>Mantenimiento:</strong> {{ getMantenimientoDescripcion(detalle.idMantenimiento) }}</li>
-      <li><strong>Fecha de Mantenimiento:</strong> {{ detalle.fechaMantenimiento | date: 'dd/MM/yyyy' }}</li>
-      
-      <!-- Estado de pago -->
-      <li>
-        <strong>Estado de Pago:</strong> 
-        <span [class]="getEstadoPagoClass()">
-          {{ getEstadoPagoTexto() }}
-        </span>
-      </li>
-      
-      <!-- Fecha de pago si existe -->
-      <li *ngIf="detalle.fechaPago">
-        <strong>Fecha de Pago:</strong> 
-        <span class="fecha-pago">
-          {{ detalle.fechaPago | date: 'dd/MM/yyyy HH:mm' }}
-        </span>
-      </li>
-
-      <!-- Alerta si no está pagado -->
-      <li class="alert-pago" *ngIf="!isPagado()">
-        <strong>⚠️ Atención:</strong> 
-        <span class="pendiente-pago">
-          Este mantenimiento está pendiente de pago
-        </span>
-      </li>
-    </ul>
-
-    <button class="btn-secondary" (click)="back()">Volver</button>
+<div class="container" *ngIf="detalle">
+  <div class="card">
+    <div class="card-header">
+      <h2>Detalle de Mantenimiento</h2>
+      <div class="actions">
+        <a
+          class="btn-primary"
+          [routerLink]="['/update-detallemantenimiento', detalle.idDetalleMantenimiento]"
+          title="Editar detalle"
+        >
+          Editar
+        </a>
+        <button class="btn-danger" (click)="deleteDetalle()" title="Eliminar detalle">
+          Eliminar
+        </button>
+      </div>
+    </div>
+    
+    <div class="card-body">
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>ID Detalle:</label>
+          <span>{{ detalle.idDetalleMantenimiento }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Administrador:</label>
+          <span class="admin-name">{{ getAdminName(detalle.idAdmin) }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Equipo:</label>
+          <span class="equipo-nombre">{{ getEquipoNombre(detalle.idEquipo) }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Mantenimiento:</label>
+          <span class="mantenimiento-desc">{{ getMantenimientoDescripcion(detalle.idMantenimiento) }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Fecha de Mantenimiento:</label>
+          <span class="fecha">{{ detalle.fechaMantenimiento | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Estado de Pago:</label>
+          <span [class]="getEstadoPagoClass()">
+            {{ getEstadoPagoTexto() }}
+          </span>
+        </div>
+        
+        <div class="detail-item" *ngIf="detalle.fechaPago">
+          <label>Fecha de Pago:</label>
+          <span class="fecha-pago">
+            {{ detalle.fechaPago | date: 'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+        
+        <!-- Alerta si no está pagado -->
+        <div class="detail-item" *ngIf="!isPagado()">
+          <div class="alert-pago">
+            <strong>⚠️ Atención:</strong>
+            <span class="pendiente-pago">
+              Este mantenimiento está pendiente de pago
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card-footer">
+      <button class="btn-secondary" (click)="back()">
+        Volver a la Lista
+      </button>
+    </div>
   </div>
 </div>

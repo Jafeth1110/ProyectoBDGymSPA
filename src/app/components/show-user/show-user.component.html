@@ -1,47 +1,80 @@
-<div class="container">
-  <!-- Mensaje de carga -->
-  <div *ngIf="!user && !error" class="loading-message">
-    <p>Cargando datos del usuario...</p>
-  </div>
-
-  <!-- Mensaje de error -->
-  <div *ngIf="error" class="error-message">
-    <p>{{ error }}</p>
-    <button class="btn-secondary" (click)="back()">Volver</button>
-  </div>
-
-  <!-- Datos del usuario -->
-  <div class="card" *ngIf="user">
-    <h2>Detalles del Usuario</h2>
-    <ul class="user-details-list">
-      <li><strong>ID:</strong> {{ user.idUsuario }}</li>
-      <li><strong>Nombre:</strong> {{ user.nombre }}</li>
-      <li><strong>Apellido:</strong> {{ user.apellido }}</li>
-      <li><strong>Cédula:</strong> {{ user.cedula }}</li>
-      <li><strong>Correo electrónico:</strong> {{ user.email }}</li>
-      <li><strong>Rol:</strong> {{ user.rol }}</li>
-    </ul>
-    
-    <!-- Sección de teléfonos -->
-    <div class="telefono-section" *ngIf="user.telefonos && user.telefonos.length > 0">
-      <h3>Teléfonos</h3>
-      <div class="telefono-list">
-        <div *ngFor="let telefono of user.telefonos" class="telefono-item">
-          <span class="telefono-tipo">{{ formatTipoTelefono(telefono.tipoTel) }}:</span>
-          <span class="telefono-numero">{{ telefono.telefono }}</span>
-        </div>
+<div class="container" *ngIf="user">
+  <div class="card">
+    <div class="card-header">
+      <h2>Detalles del Usuario</h2>
+      <div class="actions">
+        <button class="btn-primary" (click)="editUser()" title="Editar usuario">Editar</button>
+        <button class="btn-danger" (click)="deleteUser()" title="Eliminar usuario">Eliminar</button>
       </div>
     </div>
-    
-    <div class="telefono-section" *ngIf="!user.telefonos || user.telefonos.length === 0">
-      <h3>Teléfonos</h3>
-      <p class="no-telefonos">No hay teléfonos registrados para este usuario.</p>
+
+    <div class="card-body">
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>ID de Usuario:</label>
+          <span>{{ user.idUsuario }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Nombre:</label>
+          <span class="highlight">{{ user.nombre }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Apellido:</label>
+          <span>{{ user.apellido }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Cédula:</label>
+          <span>{{ user.cedula }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Correo electrónico:</label>
+          <span>{{ user.email }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Rol:</label>
+          <span>{{ user.rol }}</span>
+        </div>
+      </div>
+
+      <!-- Teléfonos -->
+      <div class="telefono-section">
+        <h3>Teléfonos</h3>
+        <div *ngIf="user.telefonos && user.telefonos.length > 0; else noTelefonos">
+          <div *ngFor="let telefono of user.telefonos" class="telefono-item">
+            <span class="telefono-tipo">{{ formatTipoTelefono(telefono.tipoTel) }}:</span>
+            <span class="telefono-numero">{{ telefono.telefono }}</span>
+          </div>
+        </div>
+        <ng-template #noTelefonos>
+          <p class="no-telefonos">No hay teléfonos registrados para este usuario.</p>
+        </ng-template>
+      </div>
     </div>
-    
-    <div class="action-buttons">
-      <button class="btn-primary" (click)="editUser()">Editar Usuario</button>
-      <button class="btn-danger" (click)="deleteUser()">Eliminar Usuario</button>
+
+    <div class="card-footer">
       <button class="btn-secondary" (click)="back()">Volver</button>
     </div>
+  </div>
+</div>
+
+<!-- Estado de carga -->
+<div class="container" *ngIf="!user && !error && isLoading">
+  <div class="loading-card">
+    <h2>Cargando datos del usuario...</h2>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- Error -->
+<div class="container" *ngIf="error && !isLoading">
+  <div class="error-card">
+    <h2>Error al cargar</h2>
+    <p>{{ error }}</p>
+    <button class="btn-secondary" (click)="back()">Volver</button>
   </div>
 </div>

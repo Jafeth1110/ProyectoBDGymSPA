@@ -1,27 +1,103 @@
-<div class="container" *ngIf="telefono">
-  <div class="card">
-    <h2>Detalles del Teléfono</h2>
-    <ul class="telefono-details-list">
-      <li><strong>ID Teléfono:</strong> {{ telefono.idTelefono }}</li>
-      <li><strong>Teléfono:</strong> {{ telefono.telefono }}</li>
-      <li><strong>Tipo:</strong> {{ telefono.tipoTel }}</li>
-      
-      <!-- El backend envía 'usuario', no 'user' -->
-      <li *ngIf="telefono.usuario">
-        <strong>Usuario:</strong> {{ telefono.usuario.nombre }} {{ telefono.usuario.apellido }}
-      </li>
-      
-      <!-- Mostrar rol -->
-      <li *ngIf="telefono.rol">
-        <strong>Rol:</strong> {{ telefono.rol.nombreRol }}
-      </li>
-      <li *ngIf="telefono.usuario && telefono.usuario.rol">
-        <strong>Rol:</strong> {{ telefono.usuario.rol }}
-      </li>
-      <li *ngIf="telefono.user && telefono.user.rol">
-        <strong>Rol:</strong> {{ telefono.user.rol }}
-      </li>
-    </ul>
-    <button class="btn-secondary" (click)="back()">Volver</button>
+<div class="container">
+  <!-- Loading State -->
+  <div *ngIf="!telefono" class="card loading-card">
+    <div class="card-header">
+      <h2>Cargando...</h2>
+    </div>
+    <div class="card-body">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <p>Cargando detalles del teléfono...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details View -->
+  <div *ngIf="telefono" class="card">
+    <div class="card-header">
+      <h2>
+        Detalles del Teléfono
+      </h2>
+      <div class="actions">
+        <button class="btn-primary" (click)="editTelefono()" title="Editar teléfono"> 
+          Editar
+        </button>
+        <button class="btn-danger" (click)="deleteTelefono()" title="Eliminar teléfono">
+          Eliminar
+        </button>
+      </div>
+    </div>
+    
+    <div class="card-body">
+      <ul class="details-list">
+        <!-- ID Teléfono -->
+        <li class="detail-item">
+          <span class="detail-label">ID Teléfono:</span>
+          <span class="detail-value">{{ telefono.idTelefono }}</span>
+        </li>
+
+        <!-- Número de Teléfono -->
+        <li class="detail-item">
+          <span class="detail-label">Teléfono:</span>
+          <span class="detail-value">{{ telefono.telefono }}</span>
+        </li>
+
+        <!-- Tipo -->
+        <li class="detail-item">
+          <span class="detail-label">Tipo:</span>
+          <span class="detail-value">{{ telefono.tipoTel }}</span>
+        </li>
+
+        <!-- Usuario -->
+        <li class="detail-item" *ngIf="telefono.usuario">
+          <span class="detail-label">Usuario:</span>
+          <span class="detail-value">
+            {{ telefono.usuario.nombre }} {{ telefono.usuario.apellido }}
+          </span>
+        </li>
+
+        <!-- Email del Usuario -->
+        <li class="detail-item" *ngIf="telefono.usuario?.email">
+          <span class="detail-label">Email:</span>
+          <span class="detail-value">{{ telefono.usuario?.email }}</span>
+        </li>
+
+        <!-- Rol -->
+        <li class="detail-item" *ngIf="telefono.rol?.nombreRol">
+          <span class="detail-label">Rol:</span>
+          <span class="detail-value">
+            <span class="rol-badge" [ngClass]="telefono.rol?.nombreRol?.toLowerCase()">
+              {{ telefono.rol?.nombreRol }}
+            </span>
+          </span>
+        </li>
+
+        <!-- Rol alternativo (desde usuario) -->
+        <li class="detail-item" *ngIf="!telefono.rol && telefono.usuario?.rol">
+          <span class="detail-label">Rol:</span>
+          <span class="detail-value">
+            <span class="rol-badge" [ngClass]="telefono.usuario?.rol?.toLowerCase()">
+              {{ telefono.usuario?.rol }}
+            </span>
+          </span>
+        </li>
+
+        <!-- Rol alternativo (desde user) -->
+        <li class="detail-item" *ngIf="!telefono.rol && !telefono.usuario?.rol && telefono.user?.rol">
+          <span class="detail-label">Rol:</span>
+          <span class="detail-value">
+            <span class="rol-badge" [ngClass]="telefono.user?.rol?.toLowerCase()">
+              {{ telefono.user?.rol }}
+            </span>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card-footer">
+      <button class="btn-secondary" (click)="back()">
+        Volver
+      </button>
+    </div>
   </div>
 </div>

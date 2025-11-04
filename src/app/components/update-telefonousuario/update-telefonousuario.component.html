@@ -1,81 +1,137 @@
-<div class="container" *ngIf="telefono">
-  <div class="card shadow p-4">
-    <h2 class="mb-4 text-center">Editar Teléfono</h2>
-    
-    <!-- Información del teléfono actual -->
-    <div class="alert alert-info mb-4">
-      <strong>Teléfono actual:</strong> {{ telefono.telefono }} ({{ telefono.tipoTel }})
-      <br>
-      <strong>Usuario:</strong> 
-      <span *ngIf="telefono.usuario?.nombre; else fallbackUser">
-        {{ telefono.usuario?.nombre }} {{ telefono.usuario?.apellido }}
-        <span *ngIf="telefono.usuario?.email"> ({{ telefono.usuario?.email }})</span>
-      </span>
-      <ng-template #fallbackUser>
-        <span *ngIf="telefono.user?.nombre; else userIdOnly">
-          {{ telefono.user?.nombre }} {{ telefono.user?.apellido }}
-          <span *ngIf="telefono.user?.email"> ({{ telefono.user?.email }})</span>
-        </span>
-        <ng-template #userIdOnly>
-          ID Usuario: {{ telefono.idUsuario }}
-        </ng-template>
-      </ng-template>
-      <br>
-      <strong>Rol:</strong> 
-      <span *ngIf="telefono.rol?.nombreRol; else fallbackRol">
-        {{ telefono.rol?.nombreRol }}
-      </span>
-      <ng-template #fallbackRol>
-        <span *ngIf="telefono.usuario?.rol; else userRol">
-          {{ telefono.usuario?.rol }}
-        </span>
-        <ng-template #userRol>
-          <span *ngIf="telefono.user?.rol; else noRol">
-            {{ telefono.user?.rol }}
-          </span>
-          <ng-template #noRol>
-            entrenador
-          </ng-template>
-        </ng-template>
-      </ng-template>
+<div class="container">
+  <!-- Loading State -->
+  <div *ngIf="!telefono" class="card loading-card">
+    <div class="card-header">
+      <h2>Cargando...</h2>
     </div>
-
-    <form #telefonoForm="ngForm" (ngSubmit)="onSubmit(telefonoForm)">
-      <!-- Tipo de teléfono -->
-      <div class="form-group">
-        <label for="tipoTel">Tipo de Teléfono</label>
-        <select [(ngModel)]="telefonoUpdate.tipoTel" name="tipoTel" id="tipoTel" required>
-          <option value="celular">Celular</option>
-          <option value="casa">Casa</option>
-          <option value="trabajo">Trabajo</option>
-        </select>
+    <div class="card-body">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <p>Cargando datos del teléfono...</p>
       </div>
-
-      <!-- Número de teléfono -->
-      <div class="form-group">
-        <label for="telefono">Número de Teléfono</label>
-        <input [(ngModel)]="telefonoUpdate.telefono" name="telefono" id="telefono" 
-               type="text" placeholder="Ej: 88888888" required />
-      </div>
-
-      <button type="submit" class="btn-primary" [disabled]="!telefonoForm.form.valid">
-        Actualizar Teléfono
-      </button>
-    </form>
-    
-    <!-- Errores de validación -->
-    <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
-      <ul>
-        <li *ngFor="let err of validationErrors">{{ err }}</li>
-      </ul>
     </div>
-    
-    <button type="button" class="btn-secondary mt-3" (click)="back()">Volver</button>
   </div>
-</div>
 
-<div *ngIf="!telefono" class="container">
-  <div class="card shadow p-4">
-    <p>Cargando datos del teléfono...</p>
+  <!-- Update Form -->
+  <div *ngIf="telefono" class="card">
+    <div class="card-header">
+      <h2>
+        Editar Teléfono
+      </h2>
+    </div>
+    
+    <form #telefonoForm="ngForm" (ngSubmit)="onSubmit(telefonoForm)">
+      <div class="card-body">
+        <!-- Información del teléfono actual -->
+        <div class="info-alert">
+          <p>
+            <strong>Teléfono actual:</strong> {{ telefono.telefono }} ({{ telefono.tipoTel }})
+          </p>
+          <p>
+            <strong>Usuario:</strong> 
+            <span *ngIf="telefono.usuario?.nombre; else fallbackUser">
+              {{ telefono.usuario?.nombre }} {{ telefono.usuario?.apellido }}
+              <span *ngIf="telefono.usuario?.email"> ({{ telefono.usuario?.email }})</span>
+            </span>
+            <ng-template #fallbackUser>
+              <span *ngIf="telefono.user?.nombre; else userIdOnly">
+                {{ telefono.user?.nombre }} {{ telefono.user?.apellido }}
+                <span *ngIf="telefono.user?.email"> ({{ telefono.user?.email }})</span>
+              </span>
+              <ng-template #userIdOnly>
+                ID Usuario: {{ telefono.idUsuario }}
+              </ng-template>
+            </ng-template>
+          </p>
+          <p>
+            <strong>Rol:</strong> 
+            <span *ngIf="telefono.rol?.nombreRol; else fallbackRol">
+              {{ telefono.rol?.nombreRol }}
+            </span>
+            <ng-template #fallbackRol>
+              <span *ngIf="telefono.usuario?.rol; else userRol">
+                {{ telefono.usuario?.rol }}
+              </span>
+              <ng-template #userRol>
+                <span *ngIf="telefono.user?.rol; else noRol">
+                  {{ telefono.user?.rol }}
+                </span>
+                <ng-template #noRol>
+                  entrenador
+                </ng-template>
+              </ng-template>
+            </ng-template>
+          </p>
+        </div>
+
+        <div class="form-grid">
+          <!-- Tipo de Teléfono -->
+          <div class="form-group">
+            <label for="tipoTel" class="form-label">
+              <strong>Tipo de Teléfono <span class="required">*</span></strong>
+            </label>
+            <select 
+              class="form-control" 
+              id="tipoTel"
+              name="tipoTel"
+              [(ngModel)]="telefonoUpdate.tipoTel"
+              #tipoTel="ngModel"
+              required>
+              <option value="">Seleccione un tipo...</option>
+              <option value="celular">Celular</option>
+              <option value="casa">Casa</option>
+              <option value="trabajo">Trabajo</option>
+              <option value="otro">Otro</option>
+            </select>
+            <div *ngIf="tipoTel.invalid && (tipoTel.dirty || tipoTel.touched)" class="error-message">
+              <div *ngIf="tipoTel.errors?.['required']">El tipo de teléfono es requerido</div>
+            </div>
+          </div>
+
+          <!-- Número de Teléfono -->
+          <div class="form-group">
+            <label for="telefono" class="form-label">
+              <strong>Número de Teléfono <span class="required">*</span></strong>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="telefono"
+              name="telefono"
+              [(ngModel)]="telefonoUpdate.telefono"
+              #telefonoInput="ngModel"
+              required
+              placeholder="Ej: 8888-8888">
+            <div *ngIf="telefonoInput.invalid && (telefonoInput.dirty || telefonoInput.touched)" class="error-message">
+              <div *ngIf="telefonoInput.errors?.['required']">El número de teléfono es requerido</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation Errors -->
+        <div *ngIf="validationErrors.length > 0" class="error-alert">
+          <h6><span class="icon">⚠️</span> Errores de validación:</h6>
+          <ul>
+            <li *ngFor="let err of validationErrors">{{ err }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button 
+          type="button" 
+          class="btn-secondary"
+          (click)="back()">
+          Cancelar
+        </button>
+        
+        <button 
+          type="submit" 
+          class="btn-primary"
+          [disabled]="!telefonoForm.form.valid">
+          Actualizar Teléfono
+        </button>
+      </div>
+    </form>
   </div>
 </div>

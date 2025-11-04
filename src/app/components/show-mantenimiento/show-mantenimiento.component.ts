@@ -54,6 +54,40 @@ export class ShowMantenimientoComponent implements OnInit {
     });
   }
 
+  deleteMantenimiento(): void {
+    if (!this.mantenimiento) return;
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar el mantenimiento #${this.mantenimiento.idMantenimiento}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed && this.mantenimiento) {
+        this.mantenimientoService.deleteMantenimiento(this.mantenimiento.idMantenimiento).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Eliminado',
+              text: 'El mantenimiento ha sido eliminado correctamente',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.router.navigate(['/view-mantenimiento']);
+          },
+          error: (error) => {
+            console.error('Error al eliminar mantenimiento:', error);
+            this.showAlert('error', 'Error al eliminar el mantenimiento');
+          }
+        });
+      }
+    });
+  }
+
   showAlert(type: 'error' | 'success', message: string): void {
     Swal.fire({
       title: message,

@@ -1,81 +1,138 @@
 <div class="container">
-  <div class="card shadow p-4" *ngIf="detalle">
-    <h2 class="mb-4 text-center">Editar Detalle de Mantenimiento</h2>
+  <div class="card" *ngIf="detalle">
+    <div class="card-header">
+      <h2>Editar Detalle de Mantenimiento</h2>
+    </div>
 
     <form (ngSubmit)="updateDetalle()" #detalleForm="ngForm">
-      <!-- Información del admin cuando se selecciona un mantenimiento -->
-      <div *ngIf="adminFromMantenimiento" class="alert alert-warning mb-3" style="border-left: 4px solid #ffc107; padding: 12px 16px; background-color: #fff3cd; border-radius: 6px;">
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-          <span style="color: #856404; margin-right: 8px; font-size: 18px;">⚠️</span>
-          <strong style="color: #856404;">Administrador del Mantenimiento:</strong>
+      <div class="card-body">
+        <!-- Información del admin cuando se selecciona un mantenimiento -->
+        <div *ngIf="adminFromMantenimiento" class="info-alert">
+          <strong>
+            <span>⚠️</span>
+            Administrador del Mantenimiento
+          </strong>
+          <div>
+            {{ adminFromMantenimiento.nombre }} {{ adminFromMantenimiento.apellido }}
+          </div>
+          <small style="display: block; margin-top: 0.5rem; font-style: italic;">
+            Este mantenimiento fue registrado por este administrador y no puede ser cambiado.
+          </small>
         </div>
-        <div style="color: #856404; font-size: 15px; margin-left: 26px;">
-          {{ adminFromMantenimiento.nombre }} {{ adminFromMantenimiento.apellido }}
+
+        <div class="form-grid">
+          <!-- Mantenimiento -->
+          <div class="form-group full-width">
+            <label for="idMantenimiento" class="form-label">
+              <strong>Mantenimiento <span class="required">*</span></strong>
+            </label>
+            <select
+              class="form-control"
+              [(ngModel)]="detalle.idMantenimiento"
+              name="idMantenimiento"
+              id="idMantenimiento"
+              #idMantenimiento="ngModel"
+              required
+              (change)="onMantenimientoChange()"
+            >
+              <option value="">Seleccione un mantenimiento...</option>
+              <option *ngFor="let mantenimiento of mantenimientos" [value]="mantenimiento.idMantenimiento">
+                {{ mantenimiento.descripcion }} ({{ mantenimiento.costo | currency:'CRC':'symbol':'1.2-2' }})
+              </option>
+            </select>
+            <div *ngIf="idMantenimiento.invalid && (idMantenimiento.dirty || idMantenimiento.touched)" class="error-message">
+              <div *ngIf="idMantenimiento.errors?.['required']">El mantenimiento es requerido</div>
+            </div>
+          </div>
+
+          <!-- Administrador -->
+          <div class="form-group full-width">
+            <label for="idAdmin" class="form-label">
+              <strong>Administrador <span class="required">*</span></strong>
+            </label>
+            <select
+              class="form-control"
+              [(ngModel)]="detalle.idAdmin"
+              name="idAdmin"
+              id="idAdmin"
+              #idAdmin="ngModel"
+              required
+              [disabled]="!!adminFromMantenimiento"
+            >
+              <option value="">Seleccione un administrador...</option>
+              <option *ngFor="let admin of admins" [value]="admin.idAdmin">
+                {{ admin.nombre }} {{ admin.apellido }}
+                <span *ngIf="admin.idAdmin === adminFromMantenimiento?.idAdmin"> (Registró este mantenimiento)</span>
+              </option>
+            </select>
+            <small *ngIf="adminFromMantenimiento" class="help-text">
+              <span style="margin-right: 4px;">🔒</span>
+              No se puede cambiar el administrador porque ya está asociado al mantenimiento seleccionado.
+            </small>
+            <div *ngIf="idAdmin.invalid && (idAdmin.dirty || idAdmin.touched)" class="error-message">
+              <div *ngIf="idAdmin.errors?.['required']">El administrador es requerido</div>
+            </div>
+          </div>
+
+          <!-- Equipo -->
+          <div class="form-group">
+            <label for="idEquipo" class="form-label">
+              <strong>Equipo <span class="required">*</span></strong>
+            </label>
+            <select
+              class="form-control"
+              [(ngModel)]="detalle.idEquipo"
+              name="idEquipo"
+              id="idEquipo"
+              #idEquipo="ngModel"
+              required
+            >
+              <option value="">Seleccione un equipo...</option>
+              <option *ngFor="let equipo of equipos" [value]="equipo.idEquipo">
+                {{ equipo.nombre }}
+              </option>
+            </select>
+            <div *ngIf="idEquipo.invalid && (idEquipo.dirty || idEquipo.touched)" class="error-message">
+              <div *ngIf="idEquipo.errors?.['required']">El equipo es requerido</div>
+            </div>
+          </div>
+
+          <!-- Fecha Mantenimiento -->
+          <div class="form-group">
+            <label for="fechaMantenimiento" class="form-label">
+              <strong>Fecha Mantenimiento <span class="required">*</span></strong>
+            </label>
+            <input
+              class="form-control"
+              [(ngModel)]="detalle.fechaMantenimiento"
+              name="fechaMantenimiento"
+              id="fechaMantenimiento"
+              #fechaMantenimiento="ngModel"
+              type="date"
+              required
+            />
+            <div *ngIf="fechaMantenimiento.invalid && (fechaMantenimiento.dirty || fechaMantenimiento.touched)" class="error-message">
+              <div *ngIf="fechaMantenimiento.errors?.['required']">La fecha es requerida</div>
+            </div>
+          </div>
         </div>
-        <small style="color: #856404; font-style: italic; margin-left: 26px; display: block; margin-top: 4px;">
-          Este mantenimiento fue registrado por este administrador y no puede ser cambiado.
-        </small>
+
+        <!-- Validation Errors -->
+        <div *ngIf="(validationErrors?.length ?? 0) > 0" class="error-alert">
+          <h6><span class="icon">⚠️</span> Errores de validación:</h6>
+          <ul>
+            <li *ngFor="let error of validationErrors">{{error}}</li>
+          </ul>
+        </div>
       </div>
-      
-      <div class="form-group">
-        <label for="idMantenimiento">Mantenimiento</label>
-        <select class="form-control" 
-                [(ngModel)]="detalle.idMantenimiento" 
-                name="idMantenimiento" 
-                id="idMantenimiento" 
-                required
-                (change)="onMantenimientoChange()">
-          <option value="" disabled>Seleccione un mantenimiento</option>
-          <option *ngFor="let mantenimiento of mantenimientos" [value]="mantenimiento.idMantenimiento">
-            {{ mantenimiento.descripcion }} ({{ mantenimiento.costo | currency:'CRC':'symbol':'1.2-2' }})
-          </option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="idAdmin">Administrador</label>
-        <select class="form-control" 
-                [(ngModel)]="detalle.idAdmin" 
-                name="idAdmin" 
-                id="idAdmin" 
-                required
-                [disabled]="!!adminFromMantenimiento">
-          <option value="" disabled>Seleccione un administrador</option>
-          <option *ngFor="let admin of admins" [value]="admin.idAdmin">
-            {{ admin.nombre }} {{ admin.apellido }}
-            <span *ngIf="admin.idAdmin === adminFromMantenimiento?.idAdmin"> (Registró este mantenimiento)</span>
-          </option>
-        </select>
-        <small *ngIf="adminFromMantenimiento" class="form-text" style="color: #6c757d; font-style: italic; margin-top: 5px; display: block;">
-          <span style="margin-right: 4px;">🔒</span>
-          No se puede cambiar el administrador porque ya está asociado al mantenimiento seleccionado.
-        </small>
-      </div>
-      
-      <div class="form-group">
-        <label for="idEquipo">Equipo</label>
-        <select class="form-control" [(ngModel)]="detalle.idEquipo" name="idEquipo" id="idEquipo" required>
-          <option value="" disabled>Seleccione un equipo</option>
-          <option *ngFor="let equipo of equipos" [value]="equipo.idEquipo">
-            {{ equipo.nombre }}
-          </option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="fechaMantenimiento">Fecha</label>
-        <input class="form-control" [(ngModel)]="detalle.fechaMantenimiento" name="fechaMantenimiento" id="fechaMantenimiento" type="date" required />
-      </div>
-      
-      <div class="button-group">
-        <button type="submit" class="btn-success" [disabled]="!detalleForm.form.valid">Guardar Cambios</button>
-        <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
-      </div>
-      
-      <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
-        <ul>
-          <li *ngFor="let err of validationErrors">{{ err }}</li>
-        </ul>
+
+      <div class="card-footer">
+        <button type="button" class="btn-secondary" (click)="cancel()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="!detalleForm.form.valid">
+          Guardar Cambios
+        </button>
       </div>
     </form>
   </div>

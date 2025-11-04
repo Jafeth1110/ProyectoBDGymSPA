@@ -1,38 +1,149 @@
 <div class="container">
-  <div class="card">
-    <h2>Editar Equipo</h2>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="card loading-card">
+    <div class="card-header">
+      <h2>Cargando...</h2>
+    </div>
+    <div class="card-body">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <p>Cargando datos del equipo...</p>
+      </div>
+    </div>
+  </div>
 
-    <form (ngSubmit)="updateEquipo()" #equipoForm="ngForm">
-      <div class="form-group">
-        <label for="idEquipo">ID Equipo</label>
-        <input type="number" id="idEquipo" [(ngModel)]="equipo.idEquipo" name="idEquipo" disabled>
+  <!-- Update Form -->
+  <div *ngIf="!isLoading" class="card">
+    <div class="card-header">
+      <h2>
+        Editar Equipo
+      </h2>
+    </div>
+    
+    <form #equipoForm="ngForm" (ngSubmit)="updateEquipo()">
+      <div class="card-body">
+        <div class="form-grid">
+          <!-- ID Equipo (deshabilitado) -->
+          <div class="form-group">
+            <label for="idEquipo" class="form-label">
+              <strong>ID Equipo</strong>
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="idEquipo"
+              name="idEquipo"
+              [(ngModel)]="equipo.idEquipo"
+              disabled>
+            <div class="help-text">Este campo no se puede modificar</div>
+          </div>
+
+          <!-- Nombre -->
+          <div class="form-group">
+            <label for="nombre" class="form-label">
+              <strong>Nombre <span class="required">*</span></strong>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="nombre"
+              name="nombre"
+              [(ngModel)]="equipo.nombre"
+              #nombre="ngModel"
+              required
+              placeholder="Ej: Mancuernas">
+            <div *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)" class="error-message">
+              <div *ngIf="nombre.errors?.['required']">El nombre es requerido</div>
+            </div>
+          </div>
+
+          <!-- Tipo -->
+          <div class="form-group">
+            <label for="tipo" class="form-label">
+              <strong>Tipo <span class="required">*</span></strong>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="tipo"
+              name="tipo"
+              [(ngModel)]="equipo.tipo"
+              #tipo="ngModel"
+              required
+              placeholder="Ej: Pesas">
+            <div *ngIf="tipo.invalid && (tipo.dirty || tipo.touched)" class="error-message">
+              <div *ngIf="tipo.errors?.['required']">El tipo es requerido</div>
+            </div>
+          </div>
+
+          <!-- Estado -->
+          <div class="form-group">
+            <label for="estado" class="form-label">
+              <strong>Estado <span class="required">*</span></strong>
+            </label>
+            <select 
+              class="form-control" 
+              id="estado"
+              name="estado"
+              [(ngModel)]="equipo.estado"
+              #estado="ngModel"
+              required>
+              <option value="">Seleccione un estado...</option>
+              <option [value]="1">Bueno</option>
+              <option [value]="0">Malo</option>
+            </select>
+            <div *ngIf="estado.invalid && (estado.dirty || estado.touched)" class="error-message">
+              <div *ngIf="estado.errors?.['required']">El estado es requerido</div>
+            </div>
+          </div>
+
+          <!-- Cantidad -->
+          <div class="form-group full-width">
+            <label for="cantidad" class="form-label">
+              <strong>Cantidad <span class="required">*</span></strong>
+            </label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="cantidad"
+              name="cantidad"
+              [(ngModel)]="equipo.cantidad"
+              #cantidad="ngModel"
+              required
+              min="1"
+              placeholder="Ej: 10">
+            <div class="help-text">Cantidad disponible del equipo</div>
+            <div *ngIf="cantidad.invalid && (cantidad.dirty || cantidad.touched)" class="error-message">
+              <div *ngIf="cantidad.errors?.['required']">La cantidad es requerida</div>
+              <div *ngIf="cantidad.errors?.['min']">La cantidad debe ser mayor a 0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation Errors -->
+        <div *ngIf="validationErrors && validationErrors.length > 0" class="error-alert">
+          <h6><span class="icon">⚠️</span> Errores de validación:</h6>
+          <ul>
+            <li *ngFor="let error of validationErrors">{{error}}</li>
+          </ul>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="nombre">Nombre</label>
-        <input type="text" id="nombre" [(ngModel)]="equipo.nombre" name="nombre" required>
+      <div class="card-footer">
+        <button 
+          type="button" 
+          class="btn-secondary"
+          (click)="cancel()">
+          Cancelar
+        </button>
+        
+        <button 
+          type="submit" 
+          class="btn-primary"
+          [disabled]="!equipoForm.form.valid">
+          Guardar Cambios
+        </button>
       </div>
-
-      <div class="form-group">
-        <label for="tipo">Tipo</label>
-        <input type="text" id="tipo" [(ngModel)]="equipo.tipo" name="tipo" required>
-      </div>
-
-      <div class="form-group">
-        <label for="estado">Estado</label>
-        <select id="estado" [(ngModel)]="equipo.estado" name="estado" required>
-          <option [value]="1">Bueno</option>
-          <option [value]="0">Malo</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="cantidad">Cantidad</label>
-        <input type="number" id="cantidad" [(ngModel)]="equipo.cantidad" name="cantidad" required min="1">
-      </div>
-
-      <button type="submit" class="btn-success" [disabled]="!equipoForm.form.valid">Guardar Cambios</button>
-      <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
     </form>
   </div>
 </div>

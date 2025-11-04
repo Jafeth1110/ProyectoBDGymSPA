@@ -1,40 +1,82 @@
-<!-- src/app/components/users/users.component.html -->
-<div class="users-container">
-  <h2>Gestión de Usuarios</h2>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <i class="fas fa-users"></i>
+      Gestión de Usuarios
+    </h1>
+    <button class="btn btn-primary" (click)="navigateToAddUser()">
+      <span class="icon-text">+</span>
+      Nuevo Usuario
+    </button>
+  </div>
 
-  <!-- Campo de búsqueda -->
-  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por nombre, apellido o email" />
+  <!-- Buscador -->
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Buscar por nombre, apellido, cédula o email..."
+        [(ngModel)]="filter"
+        (input)="applyFilter()"
+      />
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando usuarios...</p>
+  </div>
 
   <!-- Lista de usuarios -->
-  <table class="users-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Email</th>
-        <th>Nombre</th>
-        <th>Apellido</th>
-        <th>Cédula</th>
-        <th>Rol</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of filteredUsers">
-        <td>{{ user.idUsuario }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.nombre }}</td>
-        <td>{{ user.apellido }}</td>
-        <td>{{ user.cedula }}</td>
-        <td>{{ user.rol }}</td>
-        <td>
-          <button class="btn-detail" (click)="showUser(user.email)">Detalle</button>
-          <button class="btn-update" (click)="updateUser(user.email)">Actualizar</button>
-          <button class="btn-delete" (click)="deleteUser(user.email)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div *ngIf="!isLoading && filteredUsers.length > 0" class="clases-grid">
+    <div class="clase-card" *ngFor="let user of filteredUsers">
+      <div class="card-header">
+        <h3>{{ user.nombre }} {{ user.apellido }}</h3>
+        <div class="actions">
+          <button class="btn-icon btn-view" (click)="showUser(user.email)" title="Ver detalles">
+            <span class="icon-text">👁</span>
+          </button>
+          <button class="btn-icon btn-edit" (click)="updateUser(user.email)" title="Actualizar usuario">
+            <span class="icon-text">✎</span>
+          </button>
+          <button class="btn-icon btn-delete" (click)="deleteUser(user.email)" title="Eliminar usuario">
+            <span class="icon-text">×</span>
+          </button>
+        </div>
+      </div>
 
-  <!-- Botón para ir a agregar usuario -->
-  <button class="add-user-btn" (click)="navigateToAddUser()">Agregar Usuario</button>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Email:</span>
+          <span class="value">{{ user.email }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Cédula:</span>
+          <span class="value">{{ user.cedula }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Rol:</span>
+          <span class="value trainer">{{ user.rol }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado vacío -->
+  <div *ngIf="!isLoading && filteredUsers.length === 0" class="empty-state">
+    <i class="fas fa-users-slash"></i>
+    <h3>{{ filter ? 'No se encontraron usuarios' : 'No hay usuarios registrados' }}</h3>
+    <p>
+      {{ filter ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando un nuevo usuario' }}
+    </p>
+    <button *ngIf="!filter" class="btn btn-primary" (click)="navigateToAddUser()">
+      <i class="fas fa-plus"></i>
+      Agregar Primer Usuario
+    </button>
+  </div>
 </div>

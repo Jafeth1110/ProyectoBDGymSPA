@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 export class ShowUserComponent implements OnInit {
   public user: User | null = null;
   public error: string | null = null;
+  public isLoading: boolean = false;
 
   constructor(
     private _userService: UserService,
@@ -31,6 +32,7 @@ export class ShowUserComponent implements OnInit {
 
   loadUser(email: string): void {
     this.error = null; // Limpiar errores previos
+    this.isLoading = true;
     
     this._userService.showUser(email).subscribe(
       response => {
@@ -69,14 +71,19 @@ export class ShowUserComponent implements OnInit {
           
           console.log('Usuario cargado:', this.user);
           console.log('Teléfonos del usuario después de crear objeto:', this.user.telefonos);
+          this.isLoading = false;
         } else {
           this.error = 'Usuario no encontrado';
           console.error('Usuario no encontrado en la respuesta:', response);
+          this.user = null;
+          this.isLoading = false;
         }
       },
       error => {
         console.error('Error al obtener usuario:', error);
         this.error = 'Error al obtener los datos del usuario. Verifica que el email sea correcto.';
+        this.user = null;
+        this.isLoading = false;
       }
     );
   }

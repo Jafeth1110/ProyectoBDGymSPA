@@ -1,35 +1,71 @@
-<div class="mantenimientos-container">
-  <h2>Gestión de Mantenimientos</h2>
+<div class="container">
+  <div class="header">
+    <h1>
+      <i class="fas fa-tools"></i>
+      Gestión de Mantenimientos
+    </h1>
+    <button class="btn btn-primary" (click)="navigateToAddMantenimiento()">
+      <span class="icon-text">+</span>
+      Nuevo Mantenimiento
+    </button>
+  </div>
 
-  <!-- Campo de búsqueda -->
-  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por ID, descripción o costo" />
+  <!-- Buscador -->
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Buscar por ID, descripción o costo..."
+        [(ngModel)]="filter">
+    </div>
+  </div>
 
-  <!-- Lista de mantenimientos -->
-  <table class="mantenimientos-table">
-    <thead>
-      <tr>
-        <th>ID Mantenimiento</th>
-        <th>Admin</th>
-        <th>Descripción</th>
-        <th>Costo</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let m of filteredMantenimientos">
-        <td>{{ m.idMantenimiento }}</td>
-        <td>{{ m.admin_nombre }} {{ m.admin_apellido }}</td>
-        <td>{{ m.descripcion }}</td>
-        <td>{{ m.costo | currency:'CRC':'symbol':'1.2-2' }}</td>
-        <td>
-          <button class="btn-detail" (click)="showMantenimiento(m.idMantenimiento)">Detalle</button>
-          <button class="btn-update" (click)="updateMantenimiento(m.idMantenimiento)">Actualizar</button>
-          <button class="btn-delete" (click)="deleteMantenimiento(m.idMantenimiento)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Lista de Mantenimientos en tarjetas -->
+  <div class="mantenimientos-grid">
+    <div class="mantenimiento-card" *ngFor="let m of filteredMantenimientos">
+      <div class="card-header">
+        <h3>Mantenimiento #{{ m.idMantenimiento }}</h3>
+        <div class="actions">
+          <button class="btn-icon btn-view" (click)="showMantenimiento(m.idMantenimiento)" title="Ver detalles">
+            <span class="icon-text">👁</span>
+          </button>
+          <button class="btn-icon btn-edit" (click)="updateMantenimiento(m.idMantenimiento)" title="Editar mantenimiento">
+            <span class="icon-text">✎</span>
+          </button>
+          <button class="btn-icon btn-delete" (click)="deleteMantenimiento(m.idMantenimiento)" title="Eliminar mantenimiento">
+            <span class="icon-text">×</span>
+          </button>
+        </div>
+      </div>
 
-  <!-- Botón para ir a agregar mantenimiento -->
-  <button class="add-mantenimiento-btn" (click)="navigateToAddMantenimiento()">Agregar Mantenimiento</button>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Descripción:</span>
+          <span class="value">{{ m.descripcion }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Costo:</span>
+          <span class="value costo">{{ m.costo | currency:'CRC':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Admin:</span>
+          <span class="value admin">{{ m.admin_nombre }} {{ m.admin_apellido }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado vacío -->
+  <div *ngIf="(filteredMantenimientos?.length ?? 0) === 0" class="empty-state">
+    <i class="fas fa-tools"></i>
+    <h3>{{ filter ? 'No se encontraron mantenimientos' : 'No hay mantenimientos registrados' }}</h3>
+    <p>{{ filter ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando un mantenimiento' }}</p>
+    <button *ngIf="!filter" class="btn btn-primary" (click)="navigateToAddMantenimiento()">
+      <i class="fas fa-plus"></i>
+      Agregar Mantenimiento
+    </button>
+  </div>
 </div>

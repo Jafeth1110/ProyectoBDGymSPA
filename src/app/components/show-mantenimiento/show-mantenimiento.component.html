@@ -1,12 +1,49 @@
 <div class="container" *ngIf="mantenimiento">
   <div class="card">
-    <h2>Detalles del Mantenimiento</h2>
-    <ul class="mantenimiento-details-list">
-      <li><strong>ID Mantenimiento:</strong> {{ mantenimiento.idMantenimiento }}</li>
-      <li><strong>Admin:</strong> {{ mantenimiento.admin_nombre }} {{ mantenimiento.admin_apellido }}</li>
-      <li><strong>Descripción:</strong> {{ mantenimiento.descripcion }}</li>
-      <li><strong>Costo:</strong> {{ mantenimiento.costo | currency:'CRC':'symbol':'1.2-2' }}</li>
-    </ul>
-    <button class="btn-secondary" (click)="back()">Volver</button>
+    <div class="card-header">
+      <h2>Detalles del Mantenimiento</h2>
+      <div class="actions">
+        <a
+          class="btn-primary"
+          [routerLink]="['/update-mantenimiento', mantenimiento.idMantenimiento]"
+          title="Editar mantenimiento"
+        >
+          Editar
+        </a>
+        <button class="btn-danger" (click)="deleteMantenimiento()" title="Eliminar mantenimiento">
+          Eliminar
+        </button>
+      </div>
+    </div>
+    
+    <div class="card-body">
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>ID Mantenimiento:</label>
+          <span>{{ mantenimiento.idMantenimiento }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Administrador:</label>
+          <span class="admin">{{ mantenimiento.admin_nombre }} {{ mantenimiento.admin_apellido }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Descripción:</label>
+          <span class="description">{{ mantenimiento.descripcion }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <label>Costo:</label>
+          <span class="costo">{{ mantenimiento.costo | currency:'CRC':'symbol':'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card-footer">
+      <button class="btn-secondary" (click)="back()">
+        Volver a la Lista
+      </button>
+    </div>
   </div>
 </div>

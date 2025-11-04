@@ -1,57 +1,93 @@
-<div class="detallemants-container">
-  <h2>Gestión de Detalles de Mantenimiento</h2>
+<div class="container">
+  <div class="header">
+    <h1>
+      <i class="fas fa-tools"></i>
+      Detalles de Mantenimiento
+    </h1>
+    <button class="btn btn-primary" (click)="navigateToAddDetalle()">
+      <span class="icon-text">+</span>
+      Nuevo Detalle
+    </button>
+  </div>
 
-  <!-- Campo de búsqueda -->
-  <input
-    class="search-input"
-    [(ngModel)]="filter"
-    name="filter"
-    placeholder="Buscar por cualquier campo"
-  />
+  <!-- Buscador -->
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Buscar por admin, equipo, mantenimiento..." 
+        [(ngModel)]="filter">
+    </div>
+  </div>
 
-  <!-- Tabla de detalles -->
-  <table class="detallemants-table">
-    <thead>
-      <tr>
-        <th>ID Detalle</th>
-        <th>Admin</th>
-        <th>Equipo</th>
-        <th>Mantenimiento</th>
-        <th>Fecha Mant.</th>
-        <th>Estado Pago</th>
-        <th>Fecha Pago</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let detalle of filteredDetalles">
-        <td>{{ detalle.idDetalleMantenimiento }}</td>
-        <td>{{ getAdminName(detalle.idAdmin) }}</td>
-        <td>{{ getEquipoNombre(detalle.idEquipo) }}</td>
-        <td>{{ getMantenimientoDescripcion(detalle.idMantenimiento) }}</td>
-        <td>{{ detalle.fechaMantenimiento | date:'dd/MM/yyyy' }}</td>
-        <td>
+  <!-- Lista de Detalles -->
+  <div class="detalles-grid">
+    <div class="detalle-card" *ngFor="let detalle of filteredDetalles">
+      <div class="card-header">
+        <h3>Detalle #{{ detalle.idDetalleMantenimiento }}</h3>
+        <div class="actions">
+          <button class="btn-icon btn-view" (click)="showDetalle(detalle.idDetalleMantenimiento)" title="Ver detalles">
+            <span class="icon-text">👁</span>
+          </button>
+          <button class="btn-icon btn-edit" (click)="updateDetalle(detalle.idDetalleMantenimiento)" title="Editar detalle">
+            <span class="icon-text">✎</span>
+          </button>
+          <button class="btn-icon btn-delete" (click)="deleteDetalle(detalle.idDetalleMantenimiento)" title="Eliminar detalle">
+            <span class="icon-text">×</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Administrador:</span>
+          <span class="value admin-name">{{ getAdminName(detalle.idAdmin) }}</span>
+        </div>
+        
+        <div class="info-row">
+          <span class="label">Equipo:</span>
+          <span class="value equipo-nombre">{{ getEquipoNombre(detalle.idEquipo) }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Mantenimiento:</span>
+          <span class="value">{{ getMantenimientoDescripcion(detalle.idMantenimiento) }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Fecha Mantenimiento:</span>
+          <span class="value fecha">{{ detalle.fechaMantenimiento | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Estado Pago:</span>
           <span [class]="getEstadoPagoClass(detalle)">
             {{ getEstadoPagoTexto(detalle) }}
           </span>
-        </td>
-        <td>
-          <span *ngIf="detalle.fechaPago" class="fecha-pago-cell">
-            {{ detalle.fechaPago | date:'dd/MM/yyyy' }}
-          </span>
-          <span *ngIf="!detalle.fechaPago" class="sin-pago">
-            -
-          </span>
-        </td>
-        <td class="actions-cell">
-          <button class="btn-detail" (click)="showDetalle(detalle.idDetalleMantenimiento)">Detalle</button>
-          <button class="btn-update" (click)="updateDetalle(detalle.idDetalleMantenimiento)">Actualizar</button>
-          <button class="btn-delete" (click)="deleteDetalle(detalle.idDetalleMantenimiento)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+        </div>
 
-  <!-- Botón para agregar nuevo detalle -->
-  <button class="add-detallemant-btn" (click)="navigateToAddDetalle()">Agregar Detalle</button>
+        <div class="info-row" *ngIf="detalle.fechaPago">
+          <span class="label">Fecha Pago:</span>
+          <span class="value fecha">{{ detalle.fechaPago | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="!detalle.fechaPago">
+          <span class="label">Fecha Pago:</span>
+          <span class="sin-pago">Pendiente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay detalles -->
+  <div *ngIf="(filteredDetalles?.length ?? 0) === 0" class="empty-state">
+    <i class="fas fa-tools"></i>
+    <h3>{{ filter ? 'No se encontraron detalles' : 'No hay detalles de mantenimiento registrados' }}</h3>
+    <p>{{ filter ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando un nuevo detalle' }}</p>
+    <button *ngIf="!filter" class="btn btn-primary" (click)="navigateToAddDetalle()">
+      <i class="fas fa-plus"></i>
+      Agregar Primer Detalle
+    </button>
+  </div>
 </div>

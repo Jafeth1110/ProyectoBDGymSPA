@@ -12,6 +12,8 @@ import Swal from 'sweetalert2';
 export class UsersComponent implements OnInit {
   users: User[] = [];
   filter: string = '';
+  // Indicador de carga para el template
+  isLoading: boolean = false;
 
   constructor(
     private userService: UserService,
@@ -25,6 +27,7 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers(): void {
+    this.isLoading = true;
     this.userService.getUsers().subscribe({
       next: res => {
         console.log('Respuesta completa:', res); // Para debugging
@@ -51,12 +54,22 @@ export class UsersComponent implements OnInit {
           console.error('Error cargando usuarios', res);
           Swal.fire('Error', 'No se pudieron cargar los usuarios', 'error');
         }
+        this.isLoading = false;
       },
       error: err => {
         console.error('Error cargando usuarios', err);
         Swal.fire('Error', 'Error al conectar con el servidor', 'error');
+        this.isLoading = false;
       }
     });
+  }
+
+  // Llamado por el (input) del buscador; usamos un getter para el filtrado,
+  // así que no necesitamos recalcular nada aquí. Lo dejamos para compatibilidad.
+  applyFilter(): void {
+    // No-op: el getter filteredUsers usa this.filter reactivo.
+    // Si se desea normalizar espacios, se podría usar:
+    // this.filter = (this.filter || '').trimStart();
   }
 
   deleteUser(email: string): void {

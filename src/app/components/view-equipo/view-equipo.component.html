@@ -1,37 +1,79 @@
-<div class="equipos-container">
-  <h2>Gestión de Equipos</h2>
+<div class="container">
+  <div class="header">
+    <h1>
+      <i class="fas fa-dumbbell"></i>
+      Gestión de Equipos
+    </h1>
+    <button class="btn btn-primary" (click)="navigateToAddEquipo()">
+      <span class="icon-text">+</span>
+      Agregar Equipo
+    </button>
+  </div>
 
-  <!-- Campo de búsqueda -->
-  <input class="search-input" [(ngModel)]="filter" name="filter" placeholder="Buscar por ID, nombre, tipo, estado o cantidad" />
+  <!-- Buscador -->
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Buscar por ID, nombre, tipo, estado o cantidad..." 
+        [(ngModel)]="filter"
+        name="filter">
+    </div>
+  </div>
 
-  <!-- Lista de equipos -->
-  <table class="equipos-table">
-    <thead>
-      <tr>
-        <th>ID Equipo</th>
-        <th>Nombre</th>
-        <th>Tipo</th>
-        <th>Estado</th>
-        <th>Cantidad</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let equipo of filteredEquipos">
-        <td>{{ equipo.idEquipo }}</td>
-        <td>{{ equipo.nombre }}</td>
-        <td>{{ equipo.tipo }}</td>
-        <td>{{ equipo.estado === 1 ? 'Bueno' : (equipo.estado === 0 ? 'Malo' : 'Desconocido') }}</td>
-        <td>{{ equipo.cantidad }}</td>
-        <td>
-          <button class="btn-detail" (click)="showEquipo(equipo.idEquipo)">Detalle</button>
-          <button class="btn-update" (click)="updateEquipo(equipo.idEquipo)">Actualizar</button>
-          <button class="btn-delete" (click)="deleteEquipo(equipo.idEquipo)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Tabla de Equipos -->
+  <div class="table-container">
+    <table class="equipos-table">
+      <thead>
+        <tr>
+          <th>ID Equipo</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Cantidad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let equipo of filteredEquipos">
+          <td>{{ equipo.idEquipo }}</td>
+          <td>{{ equipo.nombre }}</td>
+          <td>{{ equipo.tipo }}</td>
+          <td>
+            <span class="estado-badge" [ngClass]="{
+              'bueno': equipo.estado === 1,
+              'malo': equipo.estado === 0,
+              'desconocido': equipo.estado !== 0 && equipo.estado !== 1
+            }">
+              {{ equipo.estado === 1 ? 'Bueno' : (equipo.estado === 0 ? 'Malo' : 'Desconocido') }}
+            </span>
+          </td>
+          <td>{{ equipo.cantidad }}</td>
+          <td class="actions-cell">
+            <button class="btn-icon btn-view" (click)="showEquipo(equipo.idEquipo)" title="Ver detalles">
+              Detalle
+            </button>
+            <button class="btn-icon btn-edit" (click)="updateEquipo(equipo.idEquipo)" title="Editar equipo">
+              Actualizar
+            </button>
+            <button class="btn-icon btn-delete" (click)="deleteEquipo(equipo.idEquipo)" title="Eliminar equipo">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-  <!-- Botón para ir a agregar equipo -->
-  <button class="add-equipo-btn" (click)="navigateToAddEquipo()">Agregar Equipo</button>
+  <!-- Mensaje cuando no hay equipos -->
+  <div *ngIf="filteredEquipos.length === 0" class="empty-state">
+    <i class="fas fa-dumbbell"></i>
+    <h3>{{ filter ? 'No se encontraron equipos' : 'No hay equipos registrados' }}</h3>
+    <p>{{ filter ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando un nuevo equipo' }}</p>
+    <button *ngIf="!filter" class="btn btn-primary" (click)="navigateToAddEquipo()">
+      <i class="fas fa-plus"></i>
+      Agregar Primer Equipo
+    </button>
+  </div>
 </div>

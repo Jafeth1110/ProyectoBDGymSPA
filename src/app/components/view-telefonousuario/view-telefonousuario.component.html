@@ -1,61 +1,90 @@
-<div class="telefonos-container">
-  <h2>Gestión de Teléfonos de Usuario</h2>
+<div class="container">
+  <div class="header">
+    <h1>
+      <i class="fas fa-phone"></i>
+      Gestión de Teléfonos de Usuario
+    </h1>
+    <button class="btn btn-primary" (click)="addTelefono()" [disabled]="loading">
+      <span class="icon-text">+</span>
+      Agregar Teléfono
+    </button>
+  </div>
 
-  <input class="search-input" 
-         [(ngModel)]="filter" 
-         name="filter" 
-         placeholder="Buscar por ID, usuario, tipo, rol o teléfono"
-         (input)="applyFilter()"
-         [disabled]="loading" />
+  <!-- Buscador -->
+  <div class="search-container">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Buscar por ID, usuario, tipo, rol o teléfono..." 
+        [(ngModel)]="filter"
+        name="filter"
+        (input)="applyFilter()"
+        [disabled]="loading">
+    </div>
+  </div>
 
-  <div *ngIf="loading" class="loading-message">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
     <p>Cargando teléfonos...</p>
   </div>
 
-  <div *ngIf="error" class="error-message">
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-container">
     <p>{{ error }}</p>
   </div>
 
-  <table class="telefonos-table" *ngIf="!loading && !error">
-    <thead>
-      <tr>
-        <th>ID Teléfono</th>
-        <th>ID Usuario</th>
-        <th>Nombre Completo</th>
-        <th>Rol</th>
-        <th>Tipo Tel</th>
-        <th>Teléfono</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let tel of filteredTelefonos">
-        <td>{{ tel.idTelefono }}</td>
-        <td>{{ getUserId(tel) }}</td>
-        <td>{{ getUserName(tel) }}</td>
-        <td>
-          <span class="rol-badge" [ngClass]="getRolBadgeClass(tel)">
-            {{ getRolName(tel) }}
-          </span>
-        </td>
-        <td>{{ tel.tipoTel }}</td>
-        <td>{{ tel.telefono }}</td>
-        <td class="actions-cell">
-          <button class="btn-detail" (click)="showTelefono(tel.idTelefono)">Detalle</button>
-          <button class="btn-update" (click)="editTelefono(tel.idTelefono)">Actualizar</button>
-          <button class="btn-delete" (click)="deleteTelefono(tel.idTelefono)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div *ngIf="!loading && !error && telefonos.length === 0" class="no-data">
-    <p>No hay teléfonos registrados</p>
+  <!-- Tabla de Teléfonos -->
+  <div *ngIf="!loading && !error" class="table-container">
+    <table class="telefonos-table">
+      <thead>
+        <tr>
+          <th>ID Teléfono</th>
+          <th>ID Usuario</th>
+          <th>Nombre Completo</th>
+          <th>Rol</th>
+          <th>Tipo Tel</th>
+          <th>Teléfono</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tel of filteredTelefonos">
+          <td>{{ tel.idTelefono }}</td>
+          <td>{{ getUserId(tel) }}</td>
+          <td>{{ getUserName(tel) }}</td>
+          <td>
+            <span class="rol-badge" [ngClass]="getRolBadgeClass(tel)">
+              {{ getRolName(tel) }}
+            </span>
+          </td>
+          <td>{{ tel.tipoTel }}</td>
+          <td>{{ tel.telefono }}</td>
+          <td class="actions-cell">
+            <button class="btn-icon btn-view" (click)="showTelefono(tel.idTelefono)" title="Ver detalles">
+              Detalle
+            </button>
+            <button class="btn-icon btn-edit" (click)="editTelefono(tel.idTelefono)" title="Editar teléfono">
+              Actualizar
+            </button>
+            <button class="btn-icon btn-delete" (click)="deleteTelefono(tel.idTelefono)" title="Eliminar teléfono">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <button class="add-telefono-btn" 
-          (click)="addTelefono()"
-          [disabled]="loading">
-    Agregar Teléfono
-  </button>
+  <!-- Mensaje cuando no hay teléfonos -->
+  <div *ngIf="!loading && !error && filteredTelefonos.length === 0" class="empty-state">
+    <i class="fas fa-phone"></i>
+    <h3>{{ filter ? 'No se encontraron teléfonos' : 'No hay teléfonos registrados' }}</h3>
+    <p>{{ filter ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando un nuevo teléfono' }}</p>
+    <button *ngIf="!filter" class="btn btn-primary" (click)="addTelefono()">
+      <i class="fas fa-plus"></i>
+      Agregar Primer Teléfono
+    </button>
+  </div>
 </div>

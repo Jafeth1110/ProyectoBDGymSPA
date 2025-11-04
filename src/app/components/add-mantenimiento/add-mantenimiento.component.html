@@ -1,49 +1,110 @@
 <div class="container">
-  <div class="card shadow p-4">
-    <h2 class="mb-4 text-center">Agregar Mantenimiento</h2>
+  <div class="card">
+    <div class="card-header">
+      <h2>Agregar Mantenimiento</h2>
+    </div>
+    
     <form #mantenimientoForm="ngForm" (ngSubmit)="onSubmit(mantenimientoForm)">
-      <!-- Campo readonly para mostrar el admin actual -->
-      <div class="form-group">
-        <label for="adminDisplay">Administrador</label>
-        <input class="form-control" 
-               id="adminDisplay"
-               type="text"
-               readonly
-               [value]="currentAdmin ? (currentAdmin.nombre + ' ' + currentAdmin.apellido) : 'Cargando...'"
-               placeholder="Administrador que registra el mantenimiento">
-        <div class="form-text" style="margin-top: 8px; padding: 12px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <div style="display: flex; align-items: center; color: #856404;">
-            <span style="margin-right: 8px; font-size: 16px;">⚠️</span>
-            <strong>Administrador del Mantenimiento:</strong>
+      <div class="card-body">
+        <div class="form-grid">
+          <!-- Administrador (readonly) -->
+          <div class="form-group full-width">
+            <label for="adminDisplay" class="form-label">
+              <strong>Administrador <span class="required">*</span></strong>
+            </label>
+            <input
+              class="form-control"
+              id="adminDisplay"
+              type="text"
+              readonly
+              [value]="currentAdmin ? (currentAdmin.nombre + ' ' + currentAdmin.apellido) : 'Cargando...'"
+              placeholder="Administrador que registra el mantenimiento"
+            />
+            <div class="info-alert">
+              <strong>
+                <span>⚠️</span>
+                Administrador del Mantenimiento
+              </strong>
+              <div>
+                {{ currentAdmin ? (currentAdmin.nombre + ' ' + currentAdmin.apellido) : 'Cargando...' }}
+              </div>
+              <small style="display: block; margin-top: 0.5rem; font-style: italic;">
+                Este mantenimiento será registrado por el administrador logueado actualmente.
+              </small>
+            </div>
+            <!-- Campo hidden para enviar el ID -->
+            <input type="hidden" [(ngModel)]="mantenimiento.idAdmin" name="idAdmin" required />
           </div>
-          <div style="color: #856404; font-size: 15px; margin-left: 26px; margin-top: 4px;">
-            {{ currentAdmin ? (currentAdmin.nombre + ' ' + currentAdmin.apellido) : 'Cargando...' }}
+
+          <!-- Descripción -->
+          <div class="form-group full-width">
+            <label for="descripcion" class="form-label">
+              <strong>Descripción <span class="required">*</span></strong>
+            </label>
+            <textarea
+              class="form-control"
+              id="descripcion"
+              name="descripcion"
+              [(ngModel)]="mantenimiento.descripcion"
+              #descripcion="ngModel"
+              required
+              rows="4"
+              maxlength="500"
+              placeholder="Describe el mantenimiento realizado, piezas, tareas, etc."
+            ></textarea>
+            <div *ngIf="descripcion.invalid && (descripcion.dirty || descripcion.touched)" class="error-message">
+              <div *ngIf="descripcion.errors?.['required']">La descripción es requerida</div>
+            </div>
           </div>
-          <small style="color: #856404; font-style: italic; margin-left: 26px; display: block; margin-top: 4px;">
-            Este mantenimiento será registrado por el administrador logueado actualmente.
-          </small>
+
+          <!-- Costo -->
+          <div class="form-group">
+            <label for="costo" class="form-label">
+              <strong>Costo (CRC) <span class="required">*</span></strong>
+            </label>
+            <input
+              class="form-control"
+              id="costo"
+              name="costo"
+              type="number"
+              [(ngModel)]="mantenimiento.costo"
+              #costo="ngModel"
+              required
+              min="0"
+              step="0.01"
+              placeholder="Ej: 15000.00"
+            />
+            <div class="help-text">Usa punto para decimales. Debe ser mayor o igual a 0.</div>
+            <div *ngIf="costo.invalid && (costo.dirty || costo.touched)" class="error-message">
+              <div *ngIf="costo.errors?.['required']">El costo es requerido</div>
+              <div *ngIf="costo.errors?.['min']">El costo no puede ser negativo</div>
+            </div>
+          </div>
         </div>
-        <!-- Campo hidden para enviar el ID -->
-        <input type="hidden" [(ngModel)]="mantenimiento.idAdmin" name="idAdmin" required>
+
+        <!-- Validation Errors -->
+        <div *ngIf="(validationErrors?.length ?? 0) > 0" class="error-alert">
+          <h6><span class="icon">⚠️</span> Errores de validación:</h6>
+          <ul>
+            <li *ngFor="let error of validationErrors">{{error}}</li>
+          </ul>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="descripcion">Descripción</label>
-        <input class="form-control" [(ngModel)]="mantenimiento.descripcion" name="descripcion" id="descripcion" required />
-      </div>
-      <div class="form-group">
-        <label for="costo">Costo (CRC)</label>
-        <input class="form-control" [(ngModel)]="mantenimiento.costo" name="costo" id="costo" type="number" required min="0" step="0.01" />
-      </div>
-      
-      <div class="button-group">
-        <button type="submit" class="btn-primary" [disabled]="!mantenimientoForm.form.valid">Registrar</button>
-        <button type="button" class="btn-secondary" (click)="back()">Volver</button>
-      </div>
-      
-      <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
-        <ul>
-          <li *ngFor="let err of validationErrors">{{ err }}</li>
-        </ul>
+
+      <div class="card-footer">
+        <button 
+          type="button" 
+          class="btn-secondary"
+          (click)="back()">
+          Cancelar
+        </button>
+        
+        <button 
+          type="submit" 
+          class="btn-primary"
+          [disabled]="!mantenimientoForm.form.valid">
+          Registrar Mantenimiento
+        </button>
       </div>
     </form>
   </div>

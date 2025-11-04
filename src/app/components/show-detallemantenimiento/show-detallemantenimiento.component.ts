@@ -163,6 +163,33 @@ export class ShowDetallemantenimientoComponent implements OnInit {
            (this.detalle.pagado as any) === '1';
   }
 
+  deleteDetalle(): void {
+    if (!this.detalle) return;
+    
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed && this.detalle) {
+        this.detalleService.deleteDetalle(this.detalle.idDetalleMantenimiento).subscribe({
+          next: (res) => {
+            Swal.fire('Eliminado', 'El detalle ha sido eliminado', 'success');
+            this.router.navigate(['/view-detallemantenimiento']);
+          },
+          error: (err) => {
+            Swal.fire('Error', 'No se pudo eliminar el detalle', 'error');
+          }
+        });
+      }
+    });
+  }
+
   showAlert(type: 'error' | 'success', message: string): void {
     Swal.fire({
       title: message,

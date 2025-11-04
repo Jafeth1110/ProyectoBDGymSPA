@@ -1,80 +1,158 @@
 <div class="container">
-  <div class="card shadow p-4">
-    <h2 class="mb-4 text-center">Agregar Detalle de Mantenimiento</h2>
-    <form #detalleForm="ngForm" (ngSubmit)="onSubmit(detalleForm)">
-      <!-- Primero el mantenimiento para que determine el admin -->
-      <div class="form-group">
-        <label for="idMantenimiento">Mantenimiento</label>
-        <select class="form-control" 
-                [(ngModel)]="detalle.idMantenimiento" 
-                name="idMantenimiento" 
-                id="idMantenimiento" 
-                required
-                (change)="onMantenimientoChange()">
-          <option value="" disabled>Seleccione un mantenimiento</option>
-          <option *ngFor="let mantenimiento of mantenimientos" [value]="mantenimiento.idMantenimiento">
-            {{ mantenimiento.descripcion }} ({{ mantenimiento.costo | currency:'CRC':'symbol':'1.2-2' }})
-          </option>
-        </select>
-      </div>
-
-      <!-- Campo readonly para mostrar el admin del mantenimiento -->
-      <div class="form-group">
-        <label for="adminDisplay">Administrador del Mantenimiento</label>
-        <input class="form-control" 
-               id="adminDisplay"
-               type="text"
-               readonly
-               [value]="adminFromMantenimiento ? (adminFromMantenimiento.nombre + ' ' + adminFromMantenimiento.apellido) : 'Seleccione un mantenimiento'"
-               placeholder="Seleccione un mantenimiento para ver el administrador">
-        <div class="form-text" style="margin-top: 8px; padding: 12px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <div style="display: flex; align-items: center; color: #856404;">
-            <span style="margin-right: 8px; font-size: 16px;">⚠️</span>
-            <strong>Información del Administrador:</strong>
-          </div>
-          <small style="color: #856404; font-style: italic; margin-left: 26px; display: block; margin-top: 4px;">
-            El administrador se determina automáticamente según el mantenimiento seleccionado.
-          </small>
-        </div>
-        <!-- Campo hidden para enviar el ID -->
-        <input type="hidden" [(ngModel)]="detalle.idAdmin" name="idAdmin" required>
-      </div>
-
-      <!-- Información adicional si hay admin seleccionado -->
-      <div *ngIf="adminFromMantenimiento" class="alert alert-info mb-3" style="border-left: 4px solid #17a2b8; padding: 12px 16px; background-color: #d1ecf1; border-radius: 6px;">
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-          <span style="color: #117a8b; margin-right: 8px; font-size: 18px;">ℹ️</span>
-          <strong style="color: #0c5460;">Administrador responsable:</strong>
-        </div>
-        <div style="color: #0c5460; font-size: 15px; margin-left: 26px;">
-          {{ adminFromMantenimiento.nombre }} {{ adminFromMantenimiento.apellido }}
-        </div>
-        <small style="color: #0c5460; font-style: italic; margin-left: 26px; display: block; margin-top: 4px;">
-          Este mantenimiento fue registrado originalmente por este administrador.
-        </small>
-      </div>
-
-      <div class="form-group">
-        <label for="idEquipo">Equipo</label>
-        <select class="form-control" [(ngModel)]="detalle.idEquipo" name="idEquipo" id="idEquipo" required>
-          <option value="" disabled>Seleccione un equipo</option>
-          <option *ngFor="let equipo of equipos" [value]="equipo.idEquipo">
-            {{ equipo.nombre }}
-          </option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="fechaMantenimiento">Fecha de Mantenimiento</label>
-        <input [(ngModel)]="detalle.fechaMantenimiento" name="fechaMantenimiento" id="fechaMantenimiento" type="date" required class="form-control" />
-      </div>
-      <button type="submit" class="btn-primary" [disabled]="!detalleForm.form.valid">Registrar</button>
-    </form>
-    <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
-      <ul>
-        <li *ngFor="let err of validationErrors">{{ err }}</li>
-      </ul>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="card loading-card">
+    <div class="card-header">
+      <h2>Cargando...</h2>
     </div>
-    <button type="button" class="btn-secondary mt-3" (click)="back()">Volver</button>
+    <div class="card-body">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+        <p>Cargando...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Form -->
+  <div *ngIf="!isLoading" class="card">
+    <div class="card-header">
+      <h2>Agregar Detalle de Mantenimiento</h2>
+    </div>
+    
+    <form #detalleForm="ngForm" (ngSubmit)="onSubmit(detalleForm)">
+      <div class="card-body">
+        <div class="form-grid">
+          <!-- Mantenimiento -->
+          <div class="form-group full-width">
+            <label for="idMantenimiento" class="form-label">
+              <strong>Mantenimiento <span class="required">*</span></strong>
+            </label>
+            <select 
+              class="form-control" 
+              id="idMantenimiento"
+              name="idMantenimiento"
+              [(ngModel)]="detalle.idMantenimiento"
+              #idMantenimiento="ngModel"
+              required
+              (change)="onMantenimientoChange()">
+              <option value="">Seleccione un mantenimiento...</option>
+              <option *ngFor="let mantenimiento of mantenimientos" [value]="mantenimiento.idMantenimiento">
+                {{ mantenimiento.descripcion }} ({{ mantenimiento.costo | currency:'CRC':'symbol':'1.2-2' }})
+              </option>
+            </select>
+            <div *ngIf="idMantenimiento.invalid && (idMantenimiento.dirty || idMantenimiento.touched)" class="error-message">
+              <div *ngIf="idMantenimiento.errors?.['required']">El mantenimiento es requerido</div>
+            </div>
+          </div>
+
+          <!-- Administrador (readonly) -->
+          <div class="form-group full-width">
+            <label for="adminDisplay" class="form-label">
+              <strong>Administrador del Mantenimiento</strong>
+            </label>
+            <input 
+              class="form-control" 
+              id="adminDisplay"
+              type="text"
+              readonly
+              [value]="adminFromMantenimiento ? (adminFromMantenimiento.nombre + ' ' + adminFromMantenimiento.apellido) : 'Seleccione un mantenimiento'"
+              placeholder="Seleccione un mantenimiento para ver el administrador">
+            
+            <div class="warning-alert">
+              <strong>
+                <span>⚠️</span>
+                Información del Administrador:
+              </strong>
+              <small>
+                El administrador se determina automáticamente según el mantenimiento seleccionado.
+              </small>
+            </div>
+
+            <!-- Información adicional si hay admin seleccionado -->
+            <div *ngIf="adminFromMantenimiento" class="info-alert">
+              <strong>
+                <span>ℹ️</span>
+                Administrador responsable:
+              </strong>
+              <div class="admin-name">
+                {{ adminFromMantenimiento.nombre }} {{ adminFromMantenimiento.apellido }}
+              </div>
+              <small>
+                Este mantenimiento fue registrado originalmente por este administrador.
+              </small>
+            </div>
+
+            <!-- Campo hidden para enviar el ID -->
+            <input type="hidden" [(ngModel)]="detalle.idAdmin" name="idAdmin" required>
+          </div>
+
+          <!-- Equipo -->
+          <div class="form-group">
+            <label for="idEquipo" class="form-label">
+              <strong>Equipo <span class="required">*</span></strong>
+            </label>
+            <select 
+              class="form-control" 
+              id="idEquipo"
+              name="idEquipo"
+              [(ngModel)]="detalle.idEquipo"
+              #idEquipo="ngModel"
+              required>
+              <option value="">Seleccione un equipo...</option>
+              <option *ngFor="let equipo of equipos" [value]="equipo.idEquipo">
+                {{ equipo.nombre }}
+              </option>
+            </select>
+            <div *ngIf="idEquipo.invalid && (idEquipo.dirty || idEquipo.touched)" class="error-message">
+              <div *ngIf="idEquipo.errors?.['required']">El equipo es requerido</div>
+            </div>
+          </div>
+
+          <!-- Fecha de Mantenimiento -->
+          <div class="form-group">
+            <label for="fechaMantenimiento" class="form-label">
+              <strong>Fecha de Mantenimiento <span class="required">*</span></strong>
+            </label>
+            <input 
+              type="date" 
+              class="form-control" 
+              id="fechaMantenimiento"
+              name="fechaMantenimiento"
+              [(ngModel)]="detalle.fechaMantenimiento"
+              #fechaMantenimiento="ngModel"
+              required>
+            <div *ngIf="fechaMantenimiento.invalid && (fechaMantenimiento.dirty || fechaMantenimiento.touched)" class="error-message">
+              <div *ngIf="fechaMantenimiento.errors?.['required']">La fecha de mantenimiento es requerida</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation Errors -->
+        <div *ngIf="(validationErrors?.length ?? 0) > 0" class="error-alert">
+          <h6><span class="icon">⚠️</span> Errores de validación:</h6>
+          <ul>
+            <li *ngFor="let err of (validationErrors || [])">{{ err }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button 
+          type="button" 
+          class="btn-secondary"
+          (click)="back()">
+          Cancelar
+        </button>
+        
+        <button 
+          type="submit" 
+          class="btn-primary"
+          [disabled]="!detalleForm.form.valid || isLoading">
+          <span *ngIf="!isLoading">Registrar Detalle</span>
+          <span *ngIf="isLoading">
+            <span class="loading-icon">⏳</span> Guardando...
+          </span>
+        </button>
+      </div>
+    </form>
   </div>
 </div>

@@ -23,6 +23,7 @@ export class AddDetallemantenimientoComponent implements OnInit {
   public mantenimientos: Mantenimiento[] = [];
   public selectedMantenimiento: Mantenimiento | null = null;
   public adminFromMantenimiento: Admin | null = null;
+  public isLoading: boolean = false;
 
   constructor(
     private detalleService: DetalleMantenimientoService,
