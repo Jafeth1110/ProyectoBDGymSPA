@@ -119,6 +119,50 @@ export class ShowDetallemantenimientoComponent implements OnInit {
     return mantenimiento ? mantenimiento.descripcion : 'Desconocido';
   }
 
+  getEstadoPagoClass(): string {
+    if (!this.detalle) return 'badge-secondary';
+    
+    // Verificar si el objeto tiene el método isPagado
+    if (typeof this.detalle.isPagado === 'function') {
+      return this.detalle.isPagado() ? 'badge-success' : 'badge-warning';
+    }
+    
+    // Fallback: verificar directamente el campo pagado
+    const pagado = this.detalle.pagado === true || 
+                   (this.detalle.pagado as any) === 1 || 
+                   (this.detalle.pagado as any) === '1';
+    return pagado ? 'badge-success' : 'badge-warning';
+  }
+
+  getEstadoPagoTexto(): string {
+    if (!this.detalle) return 'Sin información';
+    
+    // Verificar si el objeto tiene el método getEstadoPago
+    if (typeof this.detalle.getEstadoPago === 'function') {
+      return this.detalle.getEstadoPago();
+    }
+    
+    // Fallback: calcular directamente
+    const pagado = this.detalle.pagado === true || 
+                   (this.detalle.pagado as any) === 1 || 
+                   (this.detalle.pagado as any) === '1';
+    return pagado ? 'Pagado' : 'Pendiente de pago';
+  }
+
+  isPagado(): boolean {
+    if (!this.detalle) return false;
+    
+    // Verificar si el objeto tiene el método isPagado
+    if (typeof this.detalle.isPagado === 'function') {
+      return this.detalle.isPagado();
+    }
+    
+    // Fallback: verificar directamente el campo pagado
+    return this.detalle.pagado === true || 
+           (this.detalle.pagado as any) === 1 || 
+           (this.detalle.pagado as any) === '1';
+  }
+
   showAlert(type: 'error' | 'success', message: string): void {
     Swal.fire({
       title: message,

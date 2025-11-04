@@ -195,4 +195,39 @@
       box-shadow: 0 4px 12px rgba(40, 167, 69, 0.18);
     }
   }
+
+  /* Estilos para estado de pago */
+  .badge-success {
+    background-color: #28a745;
+    color: white !important;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85em;
+    display: inline-block;
+  }
+
+  .badge-warning {
+    background-color: #ffc107;
+    color: #212529 !important;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85em;
+    display: inline-block;
+  }
+
+  .fecha-pago-cell {
+    color: #17a2b8;
+    font-weight: 500;
+  }
+
+  .sin-pago {
+    color: #999;
+    font-style: italic;
+  }
+
+  .actions-cell {
+    white-space: nowrap;
+  }
 }

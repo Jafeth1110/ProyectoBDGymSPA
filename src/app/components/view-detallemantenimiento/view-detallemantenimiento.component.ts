@@ -114,7 +114,10 @@ export class ViewDetallemantenimientoComponent implements OnInit {
     this.detalleService.getDetalles().subscribe({
       next: res => {
         if (res.status === 200) {
+          // Los datos ya vienen mapeados desde el servicio
           this.detalles = Array.isArray(res.data) ? res.data : [];
+          console.log('Detalles cargados:', this.detalles);
+          console.log('Primer detalle tipo:', this.detalles[0]?.constructor.name);
         } else {
           console.error('Error cargando detalles de mantenimiento', res);
           this.detalles = [];
@@ -172,12 +175,40 @@ export class ViewDetallemantenimientoComponent implements OnInit {
   get filteredDetalles(): DetalleMantenimiento[] {
     if (!this.filter) return this.detalles;
     const term = this.filter.toLowerCase();
-    return this.detalles.filter(d =>
-      d.idDetalleMantenimiento.toString().includes(term) ||
-      this.getAdminName(d.idAdmin).toLowerCase().includes(term) ||
-      this.getEquipoNombre(d.idEquipo).toLowerCase().includes(term) ||
-      this.getMantenimientoDescripcion(d.idMantenimiento).toLowerCase().includes(term) ||
-      d.fechaMantenimiento.toLowerCase().includes(term)
-    );
+    return this.detalles.filter(d => {
+      const estadoPago = this.getEstadoPagoTexto(d);
+      return d.idDetalleMantenimiento.toString().includes(term) ||
+        this.getAdminName(d.idAdmin).toLowerCase().includes(term) ||
+        this.getEquipoNombre(d.idEquipo).toLowerCase().includes(term) ||
+        this.getMantenimientoDescripcion(d.idMantenimiento).toLowerCase().includes(term) ||
+        d.fechaMantenimiento.toLowerCase().includes(term) ||
+        estadoPago.toLowerCase().includes(term);
+    });
+  }
+
+  getEstadoPagoClass(detalle: DetalleMantenimiento): string {
+    // Verificar si el objeto tiene el método isPagado
+    if (typeof detalle.isPagado === 'function') {
+      return detalle.isPagado() ? 'badge-success' : 'badge-warning';
+    }
+    
+    // Fallback: verificar directamente el campo pagado
+    const pagado = detalle.pagado === true || 
+                   (detalle.pagado as any) === 1 || 
+                   (detalle.pagado as any) === '1';
+    return pagado ? 'badge-success' : 'badge-warning';
+  }
+
+  getEstadoPagoTexto(detalle: DetalleMantenimiento): string {
+    // Verificar si el objeto tiene el método getEstadoPago
+    if (typeof detalle.getEstadoPago === 'function') {
+      return detalle.getEstadoPago();
+    }
+    
+    // Fallback: calcular directamente
+    const pagado = detalle.pagado === true || 
+                   (detalle.pagado as any) === 1 || 
+                   (detalle.pagado as any) === '1';
+    return pagado ? 'Pagado' : 'Pendiente de pago';
   }
 }

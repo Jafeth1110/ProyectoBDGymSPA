@@ -78,6 +78,30 @@
           </span>
         </div>
         
+        <!-- Estado de Pago -->
+        <div class="detail-item" *ngIf="!esPlantilla()">
+          <label>Estado de Pago:</label>
+          <span [class]="getEstadoPagoClass()">
+            {{ membresia.estado_pago || (isPagada() ? 'Pagada' : 'Pendiente de pago') }}
+          </span>
+        </div>
+
+        <!-- Fecha del último pago -->
+        <div class="detail-item" *ngIf="!esPlantilla() && membresia.fechaUltimoPago">
+          <label>Último Pago:</label>
+          <span class="fecha-pago">
+            {{ membresia.fechaUltimoPago | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+
+        <!-- Alerta de pago pendiente -->
+        <div class="detail-item full-width alert-pago" *ngIf="!esPlantilla() && !isPagada() && (membresia.requierePago === true || membresia.requierePago === 1)">
+          <label>⚠️ Atención:</label>
+          <span class="pendiente-pago">
+            Esta membresía requiere registro de pago
+          </span>
+        </div>
+        
         <div class="detail-item full-width" *ngIf="!esPlantilla() && estaActiva() && isVencida()">
           <label>⚠️ Estado de Vencimiento:</label>
           <span class="vencida">

@@ -94,6 +94,17 @@
           <span class="label">Descuento:</span>
           <span class="value descuento">{{ membresia.descuento }}%</span>
         </div>
+        <!-- Estado de pago -->
+        <div class="info-row">
+          <span class="label">Pago:</span>
+          <span class="value" [class]="getEstadoPagoClase(membresia)">
+            {{ getEstadoPago(membresia) }}
+          </span>
+        </div>
+        <div class="info-row" *ngIf="membresia.fechaUltimoPago">
+          <span class="label">Último pago:</span>
+          <span class="value fecha-pago">{{ membresia.fechaUltimoPago | date:'dd/MM/yyyy' }}</span>
+        </div>
       </div>
       <!-- Badge en esquina inferior derecha -->
       <div class="status-badge" [class]="getEstadoClase(membresia)">

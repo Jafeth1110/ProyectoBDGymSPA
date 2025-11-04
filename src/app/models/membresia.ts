@@ -12,6 +12,12 @@ export class Membresia {
     public fechaCreacion: string = '',
     public estado: number = 1, // 1: Activa, 0: Inactiva
     public esPlantilla: number = 0, // 1: Es plantilla, 0: Es membresía de cliente
+    // Nuevos campos para control de pagos
+    public pagada: boolean = false, // Indica si la membresía está pagada
+    public fechaUltimoPago: string = '', // Fecha del último pago registrado
+    public requierePago: boolean = true, // Indica si la membresía requiere pago
+    // Campos calculados (agregados por el backend)
+    public estado_pago?: string, // 'Pagada', 'Pendiente de pago', o 'No aplica'
     public clienteInfo?: { // Información del cliente (opcional)
       idCliente: number;
       nombre: string;
@@ -138,5 +144,55 @@ export class Membresia {
   // Método para obtener email del cliente (si está disponible)
   getEmailCliente(): string {
     return this.clienteInfo?.email || 'Email no disponible';
+  }
+
+  // Método para verificar si está pagada
+  isPagada(): boolean {
+    return this.pagada === true || (this.pagada as any) === 1;
+  }
+
+  // Método para obtener el estado de pago
+  getEstadoPago(): string {
+    if (this.estado_pago) {
+      return this.estado_pago;
+    }
+    
+    if (this.esPlantilla === 1) {
+      return 'No aplica';
+    }
+    
+    return this.isPagada() ? 'Pagada' : 'Pendiente de pago';
+  }
+
+  // Método para verificar si requiere pago
+  requiereRegistroPago(): boolean {
+    return this.requierePago === true || (this.requierePago as any) === 1;
+  }
+
+  // Método para obtener la fecha del último pago formateada
+  getFechaUltimoPagoFormateada(): string {
+    if (!this.fechaUltimoPago) return 'Sin pagos registrados';
+    return this.getFechaFormateada(this.fechaUltimoPago);
+  }
+
+  // Método para obtener el color del badge según el estado de pago
+  getEstadoPagoClass(): string {
+    const estado = this.getEstadoPago();
+    switch (estado) {
+      case 'Pagada':
+        return 'badge-success';
+      case 'Pendiente de pago':
+        return 'badge-warning';
+      case 'No aplica':
+        return 'badge-secondary';
+      default:
+        return 'badge-info';
+    }
+  }
+
+  // Método para verificar si necesita pago urgente (vence pronto y no está pagada)
+  necesitaPagoUrgente(): boolean {
+    const diasRestantes = this.getDiasRestantes();
+    return !this.isPagada() && diasRestantes <= 7 && diasRestantes > 0;
   }
 }

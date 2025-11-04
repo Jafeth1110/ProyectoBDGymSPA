@@ -141,7 +141,8 @@ export class ClaseService {
       response.hora || '',
       response.nombre || '',
       response.descripcion || '',
-      response.cupoMax || 0
+      response.cupoMax || 0,
+      response.cuposDisponibles !== undefined ? response.cuposDisponibles : undefined
     );
   }
 

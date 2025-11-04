@@ -198,6 +198,11 @@ export interface MembresiaResponse {
   precio_formateado?: string;
   precio_final?: number;
   estado_texto?: string;
+  // Nuevos campos para control de pagos
+  pagada?: boolean | number;    // Indica si la membresía está pagada (puede venir como 0/1)
+  fechaUltimoPago?: string | null; // Fecha del último pago
+  requierePago?: boolean | number; // Si requiere registro de pago
+  estado_pago?: string;         // 'Pagada', 'Pendiente de pago', 'No aplica'
   // Formato de objeto cliente (si viene separado)
   cliente?: {
     idCliente: number;
@@ -210,6 +215,10 @@ export interface MembresiaResponse {
   cliente_apellido?: string | null;
   cliente_email?: string | null;
   cliente_fechaRegistro?: string | null;
+  // Métodos auxiliares
+  isPagada?: () => boolean;
+  getEstadoPago?: () => string;
+  requiereRegistroPago?: () => boolean;
 }
 
 export interface MembresiaFormData {

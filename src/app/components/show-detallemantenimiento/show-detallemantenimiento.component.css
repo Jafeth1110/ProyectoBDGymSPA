@@ -82,6 +82,50 @@ h2 {
   box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
 }
 
+/* Estilos para estado de pago */
+.badge-success {
+  background-color: #28a745;
+  color: white !important;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-warning {
+  background-color: #ffc107;
+  color: #212529 !important;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-secondary {
+  background-color: #6c757d;
+  color: white !important;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.fecha-pago {
+  color: #17a2b8;
+  font-weight: 500;
+}
+
+.alert-pago {
+  background-color: #fff3cd !important;
+  border-left: 4px solid #ffc107 !important;
+  border: 1px solid #ffc107 !important;
+}
+
+.pendiente-pago {
+  color: #856404 !important;
+  font-weight: 600;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .card {

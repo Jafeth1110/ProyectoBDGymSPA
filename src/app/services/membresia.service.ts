@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { server } from "./global";
 import { Membresia } from "../models/membresia";
 import { Observable } from "rxjs";
+import { map } from 'rxjs/operators';
 import { 
   ApiResponse, 
   MembresiaResponse, 
@@ -33,7 +34,9 @@ export class MembresiaService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.get<ApiResponse<MembresiaResponse[]>>(this.urlAPI, { headers });
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(this.urlAPI, { headers }).pipe(
+      map((resp) => this.normalizeListResponse(resp))
+    );
   }
 
   /**
@@ -46,7 +49,9 @@ export class MembresiaService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.get<ApiResponse<MembresiaResponse>>(`${this.urlAPI}${id}`, { headers });
+    return this._http.get<ApiResponse<MembresiaResponse>>(`${this.urlAPI}${id}`, { headers }).pipe(
+      map((resp) => this.normalizeSingleResponse(resp))
+    );
   }
 
   /**
@@ -113,7 +118,9 @@ export class MembresiaService {
     });
 
     const endpoint = activas ? 'activas' : 'vencidas';
-    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}${endpoint}`, { headers });
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}${endpoint}`, { headers }).pipe(
+      map((resp) => this.normalizeListResponse(resp))
+    );
   }
 
   /**
@@ -126,7 +133,9 @@ export class MembresiaService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}cliente/${idCliente}`, { headers });
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}cliente/${idCliente}`, { headers }).pipe(
+      map((resp) => this.normalizeListResponse(resp))
+    );
   }
 
   /**
@@ -238,6 +247,14 @@ export class MembresiaService {
       };
     }
 
+    // Nuevos campos de control de pagos (normalizados)
+    const esPlantilla = String(response.esPlantilla) === '1';
+    const pagada = response.pagada === true || (response.pagada as any) === 1 || (response.pagada as any) === '1';
+    (membresia as any).pagada = pagada;
+    (membresia as any).fechaUltimoPago = response.fechaUltimoPago || '';
+    (membresia as any).requierePago = response.requierePago === true || (response.requierePago as any) === 1 || (response.requierePago as any) === '1';
+    (membresia as any).estado_pago = response.estado_pago || (esPlantilla ? 'No aplica' : (pagada ? 'Pagada' : 'Pendiente de pago'));
+
     return membresia;
   }
 
@@ -269,7 +286,9 @@ export class MembresiaService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}plantillas`, { headers });
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}plantillas`, { headers }).pipe(
+      map((resp) => this.normalizeListResponse(resp))
+    );
   }
 
   /**
@@ -310,7 +329,9 @@ export class MembresiaService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}cliente/${idCliente}`, { headers });
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}cliente/${idCliente}`, { headers }).pipe(
+      map((resp) => this.normalizeListResponse(resp))
+    );
   }
 
   /**
@@ -336,7 +357,9 @@ export class MembresiaService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}activas`, { headers });
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}activas`, { headers }).pipe(
+      map((resp) => this.normalizeListResponse(resp))
+    );
   }
 
   /**
@@ -349,6 +372,46 @@ export class MembresiaService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}vencidas`, { headers });
+    return this._http.get<ApiResponse<MembresiaResponse[]>>(`${this.urlAPI}vencidas`, { headers }).pipe(
+      map((resp) => this.normalizeListResponse(resp))
+    );
+  }
+
+  /**
+   * Normaliza un listado de membresías en la respuesta para asegurar tipos y campos de pago
+   */
+  private normalizeListResponse(resp: ApiResponse<MembresiaResponse[]>): ApiResponse<MembresiaResponse[]> {
+    if (resp && Array.isArray(resp.data)) {
+      resp.data = resp.data.map((item) => this.normalizeMembresiaResponse(item));
+    }
+    return resp;
+  }
+
+  /**
+   * Normaliza una respuesta individual de membresía
+   */
+  private normalizeSingleResponse(resp: ApiResponse<MembresiaResponse>): ApiResponse<MembresiaResponse> {
+    if (resp && resp.data) {
+      resp.data = this.normalizeMembresiaResponse(resp.data);
+    }
+    return resp;
+  }
+
+  /**
+   * Asegura consistencia en campos de pago y plantilla en un item
+   */
+  private normalizeMembresiaResponse(item: MembresiaResponse): MembresiaResponse {
+    const esPlantilla = String(item.esPlantilla) === '1';
+    const pagada = item.pagada === true || (item.pagada as any) === 1 || (item.pagada as any) === '1';
+    const requierePago = item.requierePago === true || (item.requierePago as any) === 1 || (item.requierePago as any) === '1';
+    const estadoPago = item.estado_pago || (esPlantilla ? 'No aplica' : (pagada ? 'Pagada' : 'Pendiente de pago'));
+
+    return {
+      ...item,
+      pagada,
+      requierePago,
+      estado_pago: estadoPago,
+      fechaUltimoPago: item.fechaUltimoPago || null
+    } as MembresiaResponse;
   }
 }

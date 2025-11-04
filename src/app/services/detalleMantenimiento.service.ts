@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { server } from './global';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { DetalleMantenimiento } from '../models/detalleMantenimiento';
 
 @Injectable({
@@ -17,7 +18,36 @@ export class DetalleMantenimientoService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${bearerToken}`
     });
-    return this._http.get(this.urlAPI, { headers });
+    return this._http.get(this.urlAPI, { headers }).pipe(
+      map((response: any) => {
+        if (response && response.data && Array.isArray(response.data)) {
+          response.data = response.data.map((item: any) => this.mapToDetalleMantenimiento(item));
+        }
+        return response;
+      })
+    );
+  }
+
+  /**
+   * Mapea un objeto plano a una instancia de DetalleMantenimiento
+   */
+  private mapToDetalleMantenimiento(data: any): DetalleMantenimiento {
+    // Convertir pagado de string/number a boolean
+    const pagado = data.pagado === true || 
+                   data.pagado === 1 || 
+                   data.pagado === '1' || 
+                   String(data.pagado).toLowerCase() === 'true';
+    
+    return new DetalleMantenimiento(
+      data.idDetalleMantenimiento || 0,
+      data.idAdmin || 0,
+      data.idEquipo || 0,
+      data.idMantenimiento || 0,
+      data.fechaMantenimiento || '',
+      pagado,
+      data.fechaPago || '',
+      data.estado_pago
+    );
   }
 
   storeDetalle(detalle: DetalleMantenimiento): Observable<any> {
@@ -34,7 +64,14 @@ export class DetalleMantenimientoService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${bearerToken}`
     });
-    return this._http.get(this.urlAPI + id, { headers });
+    return this._http.get(this.urlAPI + id, { headers }).pipe(
+      map((response: any) => {
+        if (response && response.detalle) {
+          response.detalle = this.mapToDetalleMantenimiento(response.detalle);
+        }
+        return response;
+      })
+    );
   }
 
   updateDetalle(id: number, body: any): Observable<any> {

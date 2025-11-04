@@ -5,9 +5,13 @@ import { ClienteService } from '../../services/cliente.service';
 import { MembresiaService } from '../../services/membresia.service';
 import { MetodoPagoService } from '../../services/metodoPago.service';
 import { DetalleMantenimientoService } from '../../services/detalleMantenimiento.service';
+import { AdminService } from '../../services/admin.service';
+import { EquipoService } from '../../services/equipo.service';
+import { MantenimientoService } from '../../services/mantenimiento.service';
 import { Pago } from '../../models/pago';
 import { PagoFormData } from '../../models/api-interfaces';
 import Swal from 'sweetalert2';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-add-pago',
@@ -28,6 +32,9 @@ export class AddPagoComponent implements OnInit {
   public detallesMantenimiento: any[] = [];
   public metodosPago: any[] = [];
   public clientes: any[] = [];
+  public admins: any[] = [];
+  public equipos: any[] = [];
+  public mantenimientos: any[] = [];
   public validationErrors: string[] = [];
   public isLoading: boolean = false;
   
@@ -42,6 +49,9 @@ export class AddPagoComponent implements OnInit {
     private _metodoPagoService: MetodoPagoService,
     private _detalleMantenimientoService: DetalleMantenimientoService,
     private _clienteService: ClienteService,
+    private _adminService: AdminService,
+    private _equipoService: EquipoService,
+    private _mantenimientoService: MantenimientoService,
     private _router: Router
   ) {
     this.resetPago();
@@ -91,11 +101,26 @@ export class AddPagoComponent implements OnInit {
     this._membresiaService.getMembresias().subscribe({
       next: (response: any) => {
         if (response && response.data) {
-          // Filtrar solo membresías activas que tengan cliente asignado
+          // Filtrar: con cliente asignado, NO plantilla y NO pagadas
+          // NO filtramos por estado activo para permitir pagar membresías pendientes aunque estén inactivas
           this.membresias = response.data.filter((m: any) => {
-            const estadoActivo = m.estado == 1 || m.estado === '1';
-            const tieneCliente = m.idCliente && m.idCliente !== null && m.idCliente !== '' && Number(m.idCliente) > 0;
-            return estadoActivo && tieneCliente;
+            // Verificar cliente
+            const tieneCliente = m.idCliente && 
+                                m.idCliente !== null && 
+                                m.idCliente !== '' && 
+                                Number(m.idCliente) > 0;
+            
+            // Normalizar esPlantilla
+            const esPlantilla = Number(m.esPlantilla) === 1 || String(m.esPlantilla) === '1';
+            
+            // Verificar si está pagada
+            const pagada = m.pagada === true || 
+                          Number(m.pagada) === 1 || 
+                          String(m.pagada) === '1' ||
+                          String(m.pagada).toLowerCase() === 'true';
+            
+            // Filtro principal: tiene cliente + no es plantilla + no está pagada
+            return tieneCliente && !esPlantilla && !pagada;
           });
         }
       },
@@ -346,18 +371,72 @@ export class AddPagoComponent implements OnInit {
 
   // Cargar detalles de mantenimiento pendientes de pago
   loadDetallesMantenimiento(): void {
-    this._detalleMantenimientoService.getDetalles().subscribe({
-      next: (response: any) => {
-        if (response && response.data) {
-          // Los detalles de mantenimiento están disponibles para pago
-          this.detallesMantenimiento = response.data;
+    // Cargar datos relacionados en paralelo
+    forkJoin({
+      detalles: this._detalleMantenimientoService.getDetalles(),
+      admins: this._adminService.getAdmins(),
+      equipos: this._equipoService.getEquipos(),
+      mantenimientos: this._mantenimientoService.getMantenimientos()
+    }).subscribe({
+      next: (results: any) => {
+        // Procesar admins
+        if (results.admins?.status === 200 && results.admins?.data) {
+          this.admins = results.admins.data;
+        } else if (Array.isArray(results.admins)) {
+          this.admins = results.admins;
+        }
+
+        // Procesar equipos
+        if (results.equipos?.status === 200 && results.equipos?.data) {
+          this.equipos = results.equipos.data;
+        } else if (Array.isArray(results.equipos)) {
+          this.equipos = results.equipos;
+        }
+
+        // Procesar mantenimientos
+        if (results.mantenimientos?.status === 200 && results.mantenimientos?.data) {
+          this.mantenimientos = results.mantenimientos.data;
+        } else if (Array.isArray(results.mantenimientos)) {
+          this.mantenimientos = results.mantenimientos;
+        }
+
+        // Procesar detalles y filtrar solo los NO pagados
+        if (results.detalles?.status === 200 && results.detalles?.data) {
+          const todosDetalles = results.detalles.data;
+          
+          // Filtrar solo detalles NO pagados
+          this.detallesMantenimiento = todosDetalles.filter((detalle: any) => {
+            const pagado = detalle.pagado === true || 
+                          detalle.pagado === 1 || 
+                          detalle.pagado === '1' ||
+                          (typeof detalle.isPagado === 'function' && detalle.isPagado());
+            return !pagado; // Retornar solo los NO pagados
+          });
+
+          // Enriquecer cada detalle con información relacionada
+          this.detallesMantenimiento = this.detallesMantenimiento.map((detalle: any) => {
+            const admin = this.admins.find(a => a.idAdmin == detalle.idAdmin);
+            const equipo = this.equipos.find(e => e.idEquipo == detalle.idEquipo);
+            const mantenimiento = this.mantenimientos.find(m => m.idMantenimiento == detalle.idMantenimiento);
+
+            return {
+              ...detalle,
+              adminNombre: admin ? `${admin.nombre} ${admin.apellido}` : 'Sin asignar',
+              equipoNombre: equipo?.nombre || 'Desconocido',
+              equipoTipo: equipo?.tipo || '',
+              mantenimientoTipo: mantenimiento?.tipo || '',
+              mantenimientoDescripcion: mantenimiento?.descripcion || 'Sin descripción',
+              mantenimientoCosto: mantenimiento?.costo || 0
+            };
+          });
         } else {
           this.detallesMantenimiento = [];
         }
       },
       error: (error: any) => {
-        console.error('Error al cargar detalles de mantenimiento:', error);
+        console.error('Error al cargar datos de mantenimiento:', error);
         this.detallesMantenimiento = [];
+        this.showAlert('error', 'Error al cargar los datos de mantenimiento');
       }
     });
   }
@@ -371,5 +450,29 @@ export class AddPagoComponent implements OnInit {
       return `${cliente.nombre} ${cliente.apellido}`;
     }
     return `Cliente ID: ${idCliente}`;
+  }
+
+  // Método para obtener descripción completa del detalle de mantenimiento
+  getDetalleMantenimientoDisplay(detalle: any): string {
+    const partes = [];
+    
+    if (detalle.equipoNombre) {
+      partes.push(`${detalle.equipoNombre}`);
+    }
+    
+    if (detalle.mantenimientoTipo) {
+      partes.push(`${detalle.mantenimientoTipo}`);
+    }
+    
+    if (detalle.fechaMantenimiento) {
+      const fecha = new Date(detalle.fechaMantenimiento);
+      partes.push(fecha.toLocaleDateString('es-CR', { day: '2-digit', month: '2-digit', year: 'numeric' }));
+    }
+    
+    if (detalle.adminNombre) {
+      partes.push(`Admin: ${detalle.adminNombre}`);
+    }
+    
+    return partes.join(' - ');
   }
 }

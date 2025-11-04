@@ -427,6 +427,9 @@ export class UpdateMembresiaComponent implements OnInit {
   }
 
   private handleErrorResponse(error: any): void {
+    let errorMessage = '';
+    
+    // Manejo de errores de validación
     if (error.error && error.error.errors) {
       const errors = error.error.errors;
       this.validationErrors = [];
@@ -439,13 +442,17 @@ export class UpdateMembresiaComponent implements OnInit {
         }
       }
       
-      this.showAlert('error', 'Errores de validación: ' + this.validationErrors.join(', '));
+      errorMessage = 'Errores de validación: ' + this.validationErrors.join(', ');
+      this.showAlert('error', errorMessage);
     } else if (error.error && error.error.message) {
-      this.showAlert('error', error.error.message);
+      errorMessage = error.error.message;
+      this.showAlert('error', errorMessage);
     } else if (error.message) {
-      this.showAlert('error', error.message);
+      errorMessage = error.message;
+      this.showAlert('error', errorMessage);
     } else {
-      this.showAlert('error', 'Error inesperado al actualizar la membresía. Inténtalo de nuevo.');
+      errorMessage = 'Error inesperado al actualizar la membresía. Inténtalo de nuevo.';
+      this.showAlert('error', errorMessage);
     }
   }
 

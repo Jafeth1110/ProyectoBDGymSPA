@@ -5,7 +5,8 @@ export class Clase {
     public hora: string = '',
     public nombre: string = '',
     public descripcion: string = '',
-    public cupoMax: number = 0
+    public cupoMax: number = 0,
+    public cuposDisponibles?: number // Nuevo campo opcional
   ) {}
 
   // Método para validar los datos de la clase

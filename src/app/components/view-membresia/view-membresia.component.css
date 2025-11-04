@@ -194,6 +194,48 @@
 /* Estilos para descuentos */
 .descuento { color: #28a745; font-weight: 600; }
 
+/* Estilos para estado de pago */
+.pago-success {
+  color: #28a745 !important;
+  font-weight: 600;
+  padding: 4px 8px;
+  background-color: #d4edda;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.pago-warning {
+  color: #856404 !important;
+  font-weight: 600;
+  padding: 4px 8px;
+  background-color: #fff3cd;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.pago-secondary {
+  color: #6c757d !important;
+  font-weight: 500;
+  padding: 4px 8px;
+  background-color: #e2e3e5;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.pago-info {
+  color: #0c5460 !important;
+  font-weight: 600;
+  padding: 4px 8px;
+  background-color: #d1ecf1;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.fecha-pago {
+  color: #17a2b8;
+  font-size: 0.9em;
+}
+
 /* Estilos para status badges */
 .status-badge {
   position: absolute;

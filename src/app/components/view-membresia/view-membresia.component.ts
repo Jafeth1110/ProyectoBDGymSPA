@@ -163,14 +163,33 @@ export class ViewMembresiaComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this._membresiaService.deleteMembresia(parseInt(membresia.idMembresia)).subscribe({
+        const idMembresia = Number(membresia.idMembresia);
+        
+        this._membresiaService.deleteMembresia(idMembresia).subscribe({
           next: (response: any) => {
-            this.showAlert('success', `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} "${nombre}" eliminada correctamente`);
-            this.loadAllData();
+            // Verificar códigos de éxito del backend
+            if (response && (
+              response.status === 200 || 
+              response.codigo === 0 ||
+              response.code === 0 ||
+              (response.message && (
+                response.message.toLowerCase().includes('eliminad') ||
+                response.message.toLowerCase().includes('correcta') ||
+                response.message.toLowerCase().includes('éxito')
+              ))
+            )) {
+              this.showAlert('success', `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} "${nombre}" eliminada correctamente`);
+              this.loadAllData();
+            } else {
+              // El servidor respondió pero con un error
+              const errorMsg = response?.message || response?.mensaje || `No se pudo eliminar la ${tipo}`;
+              this.showAlert('error', errorMsg);
+            }
           },
           error: (error: any) => {
             console.error(`Error al eliminar ${tipo}:`, error);
-            this.showAlert('error', `Error al eliminar la ${tipo} "${nombre}"`);
+            const errorMsg = error?.error?.message || error?.message || `Error al eliminar la ${tipo} "${nombre}"`;
+            this.showAlert('error', errorMsg);
           }
         });
       }
@@ -249,6 +268,47 @@ export class ViewMembresiaComponent implements OnInit {
 
   hasDescuento(membresia: MembresiaResponse): boolean {
     return !!(membresia.descuento && parseFloat(membresia.descuento) > 0);
+  }
+
+  // Métodos para estado de pago
+  getEstadoPago(membresia: MembresiaResponse): string {
+    // Si es plantilla, no aplica
+    if (String(membresia.esPlantilla) === "1") {
+      return 'No aplica';
+    }
+    
+    // Si viene del backend el campo estado_pago
+    if (membresia.estado_pago) {
+      return membresia.estado_pago;
+    }
+    
+    // Calcular basado en el campo pagada
+    if (this.isPagada(membresia)) {
+      return 'Pagada';
+    }
+    
+    return 'Pendiente de pago';
+  }
+
+  getEstadoPagoClase(membresia: MembresiaResponse): string {
+    const estado = this.getEstadoPago(membresia);
+    
+    switch (estado) {
+      case 'Pagada':
+        return 'pago-success';
+      case 'Pendiente de pago':
+        return 'pago-warning';
+      case 'No aplica':
+        return 'pago-secondary';
+      default:
+        return 'pago-info';
+    }
+  }
+
+  isPagada(membresia: MembresiaResponse): boolean {
+    return membresia.pagada === true || 
+           (membresia.pagada as any) === 1 || 
+           (membresia.pagada as any) === '1';
   }
 
   private showAlert(type: 'success' | 'error' | 'warning' | 'info', message: string): void {

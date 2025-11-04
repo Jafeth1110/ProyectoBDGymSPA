@@ -17,7 +17,9 @@
         <th>Admin</th>
         <th>Equipo</th>
         <th>Mantenimiento</th>
-        <th>Fecha</th>
+        <th>Fecha Mant.</th>
+        <th>Estado Pago</th>
+        <th>Fecha Pago</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -27,8 +29,21 @@
         <td>{{ getAdminName(detalle.idAdmin) }}</td>
         <td>{{ getEquipoNombre(detalle.idEquipo) }}</td>
         <td>{{ getMantenimientoDescripcion(detalle.idMantenimiento) }}</td>
-        <td>{{ detalle.fechaMantenimiento | date:'yyyy-MM-dd' }}</td>
+        <td>{{ detalle.fechaMantenimiento | date:'dd/MM/yyyy' }}</td>
         <td>
+          <span [class]="getEstadoPagoClass(detalle)">
+            {{ getEstadoPagoTexto(detalle) }}
+          </span>
+        </td>
+        <td>
+          <span *ngIf="detalle.fechaPago" class="fecha-pago-cell">
+            {{ detalle.fechaPago | date:'dd/MM/yyyy' }}
+          </span>
+          <span *ngIf="!detalle.fechaPago" class="sin-pago">
+            -
+          </span>
+        </td>
+        <td class="actions-cell">
           <button class="btn-detail" (click)="showDetalle(detalle.idDetalleMantenimiento)">Detalle</button>
           <button class="btn-update" (click)="updateDetalle(detalle.idDetalleMantenimiento)">Actualizar</button>
           <button class="btn-delete" (click)="deleteDetalle(detalle.idDetalleMantenimiento)">Eliminar</button>

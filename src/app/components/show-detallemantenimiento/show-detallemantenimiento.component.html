@@ -7,7 +7,31 @@
       <li><strong>Administrador:</strong> {{ getAdminName(detalle.idAdmin) }}</li>
       <li><strong>Equipo:</strong> {{ getEquipoNombre(detalle.idEquipo) }}</li>
       <li><strong>Mantenimiento:</strong> {{ getMantenimientoDescripcion(detalle.idMantenimiento) }}</li>
-      <li><strong>Fecha:</strong> {{ detalle.fechaMantenimiento | date: 'yyyy-MM-dd' }}</li>
+      <li><strong>Fecha de Mantenimiento:</strong> {{ detalle.fechaMantenimiento | date: 'dd/MM/yyyy' }}</li>
+      
+      <!-- Estado de pago -->
+      <li>
+        <strong>Estado de Pago:</strong> 
+        <span [class]="getEstadoPagoClass()">
+          {{ getEstadoPagoTexto() }}
+        </span>
+      </li>
+      
+      <!-- Fecha de pago si existe -->
+      <li *ngIf="detalle.fechaPago">
+        <strong>Fecha de Pago:</strong> 
+        <span class="fecha-pago">
+          {{ detalle.fechaPago | date: 'dd/MM/yyyy HH:mm' }}
+        </span>
+      </li>
+
+      <!-- Alerta si no está pagado -->
+      <li class="alert-pago" *ngIf="!isPagado()">
+        <strong>⚠️ Atención:</strong> 
+        <span class="pendiente-pago">
+          Este mantenimiento está pendiente de pago
+        </span>
+      </li>
     </ul>
 
     <button class="btn-secondary" (click)="back()">Volver</button>

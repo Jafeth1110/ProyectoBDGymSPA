@@ -252,3 +252,57 @@
   color: #ffc107 !important;
   font-weight: bold;
 }
+
+/* Estilos para estado de pago */
+.badge-success {
+  background-color: #28a745;
+  color: white !important;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-warning {
+  background-color: #ffc107;
+  color: #212529 !important;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-secondary {
+  background-color: #6c757d;
+  color: white !important;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-info {
+  background-color: #17a2b8;
+  color: white !important;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.fecha-pago {
+  color: #17a2b8;
+  font-weight: 500;
+}
+
+.alert-pago {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.pendiente-pago {
+  color: #856404 !important;
+  font-weight: 600;
+}

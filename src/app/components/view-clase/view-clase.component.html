@@ -56,7 +56,12 @@
           <span class="label">Cupo Máximo:</span>
           <span class="value capacity">{{ clase.cupoMax }} personas</span>
         </div>
-        
+
+        <div class="info-row" *ngIf="clase.cuposDisponibles !== undefined">
+          <span class="label">Cupos disponibles:</span>
+          <span class="value capacity">{{ clase.cuposDisponibles }}</span>
+        </div>
+
         <div class="info-row">
           <span class="label">Horario:</span>
           <span class="value horario">{{ clase.getHorarioCompleto() }}</span>

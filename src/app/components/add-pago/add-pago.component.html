@@ -35,7 +35,10 @@
             </option>
           </select>
           <small class="form-text text-muted" *ngIf="membresias.length === 0">
-            No hay membresías activas disponibles para pago
+            ✓ No hay membresías pendientes de pago (todas están pagadas)
+          </small>
+          <small class="form-text text-success" *ngIf="membresias.length > 0">
+            Mostrando solo membresías pendientes de pago ({{membresias.length}})
           </small>
           <div *ngIf="getSelectedMembresiaInfo()" class="membership-info alert alert-secondary">
             <h6><i class="fas fa-user"></i> Información de la Membresía</h6>
@@ -57,13 +60,14 @@
                   (change)="onDetalleMantenimientoChange()" required class="form-control">
             <option value="0" disabled>Selecciona un detalle de mantenimiento</option>
             <option *ngFor="let detalle of detallesMantenimiento" [value]="detalle.idDetalleMantenimiento">
-              {{detalle.nombreEquipo}} - {{detalle.mantenimientoDescripcion}} 
-              - ₡{{detalle.mantenimientoCosto | number:'1.0-0'}}
-              ({{ detalle.fechaMantenimiento | date:'dd/MM/yyyy' }})
+              {{getDetalleMantenimientoDisplay(detalle)}} - ₡{{detalle.mantenimientoCosto | number:'1.0-0'}}
             </option>
           </select>
           <small class="form-text text-muted" *ngIf="detallesMantenimiento.length === 0">
-            No hay mantenimientos pendientes de pago
+            ✓ No hay mantenimientos pendientes de pago (todos están pagados)
+          </small>
+          <small class="form-text text-success" *ngIf="detallesMantenimiento.length > 0">
+            Mostrando solo mantenimientos pendientes de pago ({{detallesMantenimiento.length}})
           </small>
         </div>
       </div>

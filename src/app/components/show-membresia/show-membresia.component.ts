@@ -113,6 +113,31 @@ export class ShowMembresiaComponent implements OnInit {
     return Math.ceil((vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
   }
 
+  getEstadoPagoClass(): string {
+    if (!this.membresia) return 'badge-secondary';
+    
+    const estadoPago = this.membresia.estado_pago || 
+      (this.isPagada() ? 'Pagada' : 'Pendiente de pago');
+    
+    switch (estadoPago) {
+      case 'Pagada':
+        return 'badge-success';
+      case 'Pendiente de pago':
+        return 'badge-warning';
+      case 'No aplica':
+        return 'badge-secondary';
+      default:
+        return 'badge-info';
+    }
+  }
+
+  isPagada(): boolean {
+    if (!this.membresia) return false;
+    return this.membresia.pagada === true || 
+           (this.membresia.pagada as any) === 1 || 
+           (this.membresia.pagada as any) === '1';
+  }
+
   editMembresia(): void {
     if (this.membresia) {
       this._router.navigate(['/update-membresia', this.membresia.idMembresia]);
