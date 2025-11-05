@@ -160,6 +160,7 @@ export class InscripcionClaseService {
     const entrenador = response.entrenador ?? (
       (response as any).entrenador_nombre ? {
         idEntrenador: response.idEntrenador,
+        idUsuario: (response as any).entrenador_idUsuario, // ID del usuario asociado al entrenador
         nombre: (response as any).entrenador_nombre,
         apellido: (response as any).entrenador_apellido ?? '',
         especialidad: (response as any).entrenador_especialidad ?? undefined

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { PagoService } from '../../services/pago.service';
 import { Pago } from '../../models/pago';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-view-pago',
@@ -16,13 +17,21 @@ export class ViewPagoComponent implements OnInit {
   public filteredPagos: Pago[] = [];
   public selectedEstado: string = '';
   public selectedTipoPago: string = ''; // Nueva propiedad para filtrar por tipo de pago
+  public isClient: boolean = false;
+  private currentClienteId: number | null = null;
+  private currentUserEmail: string | null = null;
 
   constructor(
     private _pagoService: PagoService,
-    private _router: Router
+    private _router: Router,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
+    // Determinar rol e identidad del usuario
+    this.isClient = this.auth.getCurrentUserRole() === 'cliente';
+    this.currentClienteId = this.auth.getCurrentClienteId() || null;
+    this.currentUserEmail = (this.auth.getCurrentUserEmail() || '').toLowerCase() || null;
     this.loadPagos();
   }
 
@@ -35,7 +44,7 @@ export class ViewPagoComponent implements OnInit {
         console.log('📥 Respuesta del servidor:', response);
         
         // Más flexible en el manejo de la respuesta
-        if (response && response.data && Array.isArray(response.data)) {
+  if (response && response.data && Array.isArray(response.data)) {
           console.log('✅ Datos válidos recibidos:', response.data.length, 'pagos');
           
           try {
@@ -44,6 +53,18 @@ export class ViewPagoComponent implements OnInit {
               return this._pagoService.mapResponseToModel(pagoData);
             });
             
+            // Si es cliente, filtrar solo sus pagos (membresías) por idCliente o por email
+            if (this.isClient) {
+              const id = this.currentClienteId;
+              const email = this.currentUserEmail;
+              this.pagos = this.pagos.filter(p => {
+                if (!p.esPagoMembresia()) return false; // el cliente no ve mantenimientos
+                const matchId = id && p.idCliente === id;
+                const matchEmail = email && (p.cliente_email || '').toLowerCase() === email;
+                return Boolean(matchId || matchEmail);
+              });
+            }
+
             this.filteredPagos = [...this.pagos];
             console.log('✅ Pagos procesados exitosamente:', this.pagos.length);
             
@@ -196,5 +217,31 @@ export class ViewPagoComponent implements OnInit {
     }
 
     Swal.fire(config);
+  }
+
+  // Helpers de presentación adaptados al rol
+  getMontoFormateadoUsuario(pago: Pago): string {
+    // Para cliente: mostrar como gasto (signo negativo) aunque sea membresía
+    if (this.isClient && pago.esPagoMembresia()) {
+      return `- ${new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(pago.monto)}`;
+    }
+    return pago.getMontoFormateado();
+  }
+
+  getTipoBadgeLabel(pago: Pago): string {
+    if (this.isClient && pago.esPagoMembresia()) return 'Gasto';
+    return pago.esPagoMembresia() ? 'Ingreso' : 'Gasto';
+  }
+
+  getTipoBadgeClass(pago: Pago): string {
+    // Para cliente y membresía, usar estilo de gasto
+    if (this.isClient && pago.esPagoMembresia()) return 'badge-warning';
+    return pago.esPagoMembresia() ? 'badge-success' : 'badge-warning';
+  }
+
+  getCardTipoClass(pago: Pago): string {
+    // Para cliente y membresía, renderizar tarjeta como "gasto"
+    if (this.isClient && pago.esPagoMembresia()) return 'gasto';
+    return pago.getTipoClass();
   }
 }

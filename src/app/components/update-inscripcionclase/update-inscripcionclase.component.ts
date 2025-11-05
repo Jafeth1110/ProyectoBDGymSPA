@@ -6,6 +6,7 @@ import { ClaseService } from '../../services/clase.service';
 import { EntrenadorService } from '../../services/entrenador.service';
 import { InscripcionClase } from '../../models/inscripcionClase';
 import { InscripcionClaseFormData } from '../../models/api-interfaces';
+import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -21,6 +22,7 @@ export class UpdateInscripcionclaseComponent implements OnInit {
   public validationErrors: string[] = [];
   public isLoading: boolean = false;
   public inscripcionId: number = 0;
+  public isClient: boolean = false;
 
   constructor(
     private _inscripcionService: InscripcionClaseService,
@@ -28,10 +30,13 @@ export class UpdateInscripcionclaseComponent implements OnInit {
     private _entrenadorService: EntrenadorService,
     private _claseService: ClaseService,
     private _route: ActivatedRoute,
-    private _router: Router
+    private _router: Router,
+    private _authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.isClient = this._authService.getCurrentUserRole() === 'cliente';
+    
     this._route.params.subscribe(params => {
       const id = params['id'];
       if (id) {

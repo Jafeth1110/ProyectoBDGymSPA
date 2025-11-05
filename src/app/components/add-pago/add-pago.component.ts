@@ -12,6 +12,7 @@ import { Pago } from '../../models/pago';
 import { PagoFormData } from '../../models/api-interfaces';
 import Swal from 'sweetalert2';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-add-pago',
@@ -37,6 +38,9 @@ export class AddPagoComponent implements OnInit {
   public mantenimientos: any[] = [];
   public validationErrors: string[] = [];
   public isLoading: boolean = false;
+  public isClient: boolean = false;
+  private currentClienteId: number | null = null;
+  private currentUserEmail: string | null = null;
   
   // Campos calculados para mostrar
   public descuentoAplicado: number = 0;
@@ -52,16 +56,30 @@ export class AddPagoComponent implements OnInit {
     private _adminService: AdminService,
     private _equipoService: EquipoService,
     private _mantenimientoService: MantenimientoService,
-    private _router: Router
+    private _router: Router,
+    private auth: AuthService
   ) {
     this.resetPago();
   }
 
   ngOnInit(): void {
+    // Determinar rol e identidad del usuario
+    this.isClient = this.auth.getCurrentUserRole() === 'cliente';
+    this.currentClienteId = this.auth.getCurrentClienteId() || null;
+    this.currentUserEmail = (this.auth.getCurrentUserEmail() || '').toLowerCase() || null;
+
+    // Si es cliente, forzar tipoPago a membresía
+    if (this.isClient) {
+      this.pagoForm.tipoPago = 'membresia';
+    }
+
     this.loadClientes();
     this.loadMembresias();
     this.loadMetodosPago();
-    this.loadDetallesMantenimiento();
+    // Solo cargar detalles de mantenimiento si no es cliente
+    if (!this.isClient) {
+      this.loadDetallesMantenimiento();
+    }
   }
 
   resetPago() {
@@ -103,7 +121,7 @@ export class AddPagoComponent implements OnInit {
         if (response && response.data) {
           // Filtrar: con cliente asignado, NO plantilla y NO pagadas
           // NO filtramos por estado activo para permitir pagar membresías pendientes aunque estén inactivas
-          this.membresias = response.data.filter((m: any) => {
+          let lista = response.data.filter((m: any) => {
             // Verificar cliente
             const tieneCliente = m.idCliente && 
                                 m.idCliente !== null && 
@@ -122,6 +140,21 @@ export class AddPagoComponent implements OnInit {
             // Filtro principal: tiene cliente + no es plantilla + no está pagada
             return tieneCliente && !esPlantilla && !pagada;
           });
+
+          // Si es cliente, mostrar solo las membresías del cliente logueado
+          if (this.isClient) {
+            const id = this.currentClienteId;
+            const email = this.currentUserEmail;
+            lista = lista.filter((m: any) => {
+              const matchId = id && (Number(m.idCliente) === id);
+              // Fallback por email si viene disponible en la membresía
+              const mEmail = (m.cliente_email || m.email || m?.cliente?.email || '').toLowerCase();
+              const matchEmail = email && mEmail && (mEmail === email);
+              return Boolean(matchId || matchEmail);
+            });
+          }
+
+          this.membresias = lista;
         }
       },
       error: (error: any) => {
@@ -231,10 +264,29 @@ export class AddPagoComponent implements OnInit {
     // Validación condicional según tipo de pago
     let camposIncompletos = false;
     
+    // Restringir a pagos de membresía para clientes
+    if (this.isClient && this.pagoForm.tipoPago !== 'membresia') {
+      this.showAlert('error', 'Como cliente solo puedes registrar pagos de membresía.');
+      return;
+    }
+
     if (this.pagoForm.tipoPago === 'membresia') {
       if (!this.pagoForm.idMembresia || !this.pagoForm.idMetodoPago || 
           !this.pagoForm.monto || !this.pagoForm.fechaPago) {
         camposIncompletos = true;
+      }
+
+      // Validar que la membresía seleccionada pertenezca al cliente logueado
+      if (this.isClient && this.pagoForm.idMembresia) {
+        const m = this.membresias.find(x => x.idMembresia == this.pagoForm.idMembresia);
+        const ok = m && (
+          (this.currentClienteId && Number(m.idCliente) === this.currentClienteId) ||
+          ((m.cliente_email || m.email || m?.cliente?.email) && this.currentUserEmail && (String(m.cliente_email || m.email || m?.cliente?.email).toLowerCase() === this.currentUserEmail))
+        );
+        if (!ok) {
+          this.showAlert('error', 'Solo puedes pagar membresías asociadas a tu cuenta.');
+          return;
+        }
       }
     } else if (this.pagoForm.tipoPago === 'mantenimiento') {
       if (!this.pagoForm.idDetalleMantenimiento || !this.pagoForm.idMetodoPago || 

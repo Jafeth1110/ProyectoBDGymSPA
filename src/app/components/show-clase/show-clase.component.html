@@ -3,10 +3,10 @@
     <div class="card-header">
       <h2>Detalles de la Clase</h2>
       <div class="actions">
-        <button class="btn-primary" (click)="editClase()" title="Editar clase"> 
+        <button class="btn-primary" (click)="editClase()" title="Editar clase" *ngIf="!isClient && !isTrainer"> 
           Editar
         </button>
-        <button class="btn-danger" (click)="deleteClase()" title="Eliminar clase">
+        <button class="btn-danger" (click)="deleteClase()" title="Eliminar clase" *ngIf="!isClient && !isTrainer">
           Eliminar
         </button>
       </div>

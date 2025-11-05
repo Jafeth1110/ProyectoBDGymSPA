@@ -4,7 +4,7 @@
       <i class="fas fa-dumbbell"></i>
       Gestión de Clases
     </h1>
-    <button class="btn btn-primary" (click)="addClase()">
+  <button class="btn btn-primary" (click)="addClase()" *ngIf="!isClient && !isTrainer">
       <span class="icon-text">+</span>
       Nueva Clase
     </button>
@@ -37,10 +37,10 @@
           <button class="btn-icon btn-view" (click)="viewClase(clase.idClase)" title="Ver detalles">
             <span class="icon-text">👁</span>
           </button>
-          <button class="btn-icon btn-edit" (click)="editClase(clase.idClase)" title="Editar clase">
+          <button class="btn-icon btn-edit" (click)="editClase(clase.idClase)" title="Editar clase" *ngIf="!isClient && !isTrainer">
             <span class="icon-text">✎</span>
           </button>
-          <button class="btn-icon btn-delete" (click)="deleteClase(clase)" title="Eliminar clase">
+          <button class="btn-icon btn-delete" (click)="deleteClase(clase)" title="Eliminar clase" *ngIf="!isClient && !isTrainer">
             <span class="icon-text">×</span>
           </button>
         </div>
@@ -75,7 +75,7 @@
     <i class="fas fa-dumbbell"></i>
     <h3>{{ searchTerm ? 'No se encontraron clases' : 'No hay clases registradas' }}</h3>
     <p>{{ searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando una nueva clase' }}</p>
-    <button *ngIf="!searchTerm" class="btn btn-primary" (click)="addClase()">
+  <button *ngIf="!searchTerm && !isClient && !isTrainer" class="btn btn-primary" (click)="addClase()">
       <i class="fas fa-plus"></i>
       Agregar Primera Clase
     </button>

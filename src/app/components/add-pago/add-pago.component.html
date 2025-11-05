@@ -11,12 +11,12 @@
       <div class="form-group">
         <label for="tipoPago" class="required">Tipo de Transacción</label>
         <select [(ngModel)]="pagoForm.tipoPago" name="tipoPago" id="tipoPago" 
-                (change)="onTipoPagoChange()" required class="form-control">
-          <option value="membresia">💰 Ingreso - Pago de Membresía</option>
-          <option value="mantenimiento">🔧 Gasto - Pago de Mantenimiento</option>
+                (change)="onTipoPagoChange()" required class="form-control" [disabled]="isClient">
+          <option value="membresia">💰 Pago de Membresía</option>
+          <option *ngIf="!isClient" value="mantenimiento">🔧 Pago de Mantenimiento</option>
         </select>
         <small class="form-text text-muted">
-          Selecciona si es un ingreso por membresía o un gasto por mantenimiento
+          {{ isClient ? 'Como cliente, solo puedes pagar tus membresías.' : 'Selecciona si es un ingreso por membresía o un gasto por mantenimiento' }}
         </small>
       </div>
 
@@ -35,10 +35,10 @@
             </option>
           </select>
           <small class="form-text text-muted" *ngIf="membresias.length === 0">
-            ✓ No hay membresías pendientes de pago (todas están pagadas)
+            {{ isClient ? 'No tienes membresías pendientes de pago' : '✓ No hay membresías pendientes de pago (todas están pagadas)' }}
           </small>
           <small class="form-text text-success" *ngIf="membresias.length > 0">
-            Mostrando solo membresías pendientes de pago ({{membresias.length}})
+            {{ isClient ? 'Tus membresías pendientes de pago' : 'Mostrando solo membresías pendientes de pago' }} ({{membresias.length}})
           </small>
           <div *ngIf="getSelectedMembresiaInfo()" class="membership-info alert alert-secondary">
             <h6><i class="fas fa-user"></i> Información de la Membresía</h6>

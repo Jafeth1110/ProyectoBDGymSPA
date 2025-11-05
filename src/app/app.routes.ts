@@ -74,6 +74,7 @@ import { ViewPagoComponent } from './components/view-pago/view-pago.component';
 
 import { SignupComponent } from './components/signup/signup.component';
 import { AuthGuard } from './services/authguard.service';
+import { RoleGuard } from './services/role.guard';
 
 
 export const routes: Routes = [
@@ -84,10 +85,10 @@ export const routes: Routes = [
   // Home
   { path : 'home', component: HomeComponent, canActivate: [AuthGuard] },
   // Usuarios
-  { path: 'view-users', component: UsersComponent, canActivate: [AuthGuard] },
-  { path: 'add-user', component: AddUserComponent, canActivate: [AuthGuard]  },
-  { path: 'show-user/:email', component: ShowUserComponent, canActivate: [AuthGuard]  },
-  { path: 'update-user/:email', component: UpdateUserComponent, canActivate: [AuthGuard]  },
+  { path: 'view-users', component: UsersComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+  { path: 'add-user', component: AddUserComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'show-user/:email', component: ShowUserComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'update-user/:email', component: UpdateUserComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
 
   // Administradores
   { path: 'view-admin', component: ViewAdminComponent, canActivate: [AuthGuard] },
@@ -99,56 +100,57 @@ export const routes: Routes = [
   { path: 'view-entrenador', component: ViewEntrenadorComponent, canActivate: [AuthGuard] },
 
   // Teléfonos Usuario  
-  { path: 'view-telefonousuario', component: ViewTelefonousuarioComponent, canActivate: [AuthGuard]  },
-  { path: 'add-telefonousuario', component: AddTelefonousuarioComponent, canActivate: [AuthGuard]  },
-  { path: 'show-telefonousuario/:id/:tipo', component: ShowTelefonousuarioComponent, canActivate: [AuthGuard]  },
-  { path: 'update-telefonousuario/:id/:tipo', component: UpdateTelefonousuarioComponent, canActivate: [AuthGuard]  },  // Equipos
-  { path: 'view-equipo', component: ViewEquipoComponent, canActivate: [AuthGuard]  },
-  { path: 'add-equipo', component: AddEquipoComponent, canActivate: [AuthGuard]  },
-  { path: 'show-equipo/:id', component: ShowEquipoComponent, canActivate: [AuthGuard]  },
-  { path: 'update-equipo/:id', component: UpdateEquipoComponent, canActivate: [AuthGuard]  },
+  { path: 'view-telefonousuario', component: ViewTelefonousuarioComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'add-telefonousuario', component: AddTelefonousuarioComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'show-telefonousuario/:id/:tipo', component: ShowTelefonousuarioComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'update-telefonousuario/:id/:tipo', component: UpdateTelefonousuarioComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },  // Equipos
+  { path: 'view-equipo', component: ViewEquipoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'add-equipo', component: AddEquipoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'show-equipo/:id', component: ShowEquipoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'update-equipo/:id', component: UpdateEquipoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
 
   // Mantenimiento
-  { path: 'view-mantenimiento', component: ViewMantenimientoComponent, canActivate: [AuthGuard]  },
-  { path: 'add-mantenimiento', component: AddMantenimientoComponent, canActivate: [AuthGuard]  },
-  { path: 'show-mantenimiento/:id', component: ShowMantenimientoComponent, canActivate: [AuthGuard]  },
-  { path: 'update-mantenimiento/:id', component: UpdateMantenimientoComponent, canActivate: [AuthGuard]  },
+  { path: 'view-mantenimiento', component: ViewMantenimientoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'add-mantenimiento', component: AddMantenimientoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'show-mantenimiento/:id', component: ShowMantenimientoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'update-mantenimiento/:id', component: UpdateMantenimientoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
 
   // Detalle Mantenimiento
-  { path: 'view-detallemantenimiento', component: ViewDetallemantenimientoComponent, canActivate: [AuthGuard]  },
-  { path: 'add-detallemantenimiento', component: AddDetallemantenimientoComponent, canActivate: [AuthGuard]  },
-  { path: 'show-detallemantenimiento/:id', component: ShowDetallemantenimientoComponent, canActivate: [AuthGuard]  },
-  { path: 'update-detallemantenimiento/:id', component: UpdateDetallemantenimientoComponent, canActivate: [AuthGuard]  },
+  { path: 'view-detallemantenimiento', component: ViewDetallemantenimientoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'add-detallemantenimiento', component: AddDetallemantenimientoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'show-detallemantenimiento/:id', component: ShowDetallemantenimientoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'update-detallemantenimiento/:id', component: UpdateDetallemantenimientoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
 
   // Clases
-  { path: 'view-clase', component: ViewClaseComponent, canActivate: [AuthGuard]  },
-  { path: 'add-clase', component: AddClaseComponent, canActivate: [AuthGuard]  },
-  { path: 'show-clase/:id', component: ShowClaseComponent, canActivate: [AuthGuard]  },
-  { path: 'update-clase/:id', component: UpdateClaseComponent, canActivate: [AuthGuard]  },
+  { path: 'view-clase', component: ViewClaseComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente', 'entrenador'] }  },
+  { path: 'add-clase', component: AddClaseComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } },
+  { path: 'show-clase/:id', component: ShowClaseComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente', 'entrenador'] }  },
+  { path: 'update-clase/:id', component: UpdateClaseComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
 
   // Inscripciones Clase
-  { path: 'view-inscripcionclase', component: ViewInscripcionclaseComponent, canActivate: [AuthGuard]  },
-  { path: 'add-inscripcionclase', component: AddInscripcionClaseComponent, canActivate: [AuthGuard]  },
-  { path: 'show-inscripcionclase/:id', component: ShowInscripcionClaseComponent, canActivate: [AuthGuard]  },
-  { path: 'update-inscripcionclase/:id', component: UpdateInscripcionclaseComponent, canActivate: [AuthGuard]  },
+  { path: 'view-inscripcionclase', component: ViewInscripcionclaseComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente', 'entrenador'] }  },
+  { path: 'add-inscripcionclase', component: AddInscripcionClaseComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente', 'entrenador'] } },
+  { path: 'show-inscripcionclase/:id', component: ShowInscripcionClaseComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente', 'entrenador'] }  },
+  // Permitir que cliente también pueda actualizar desde el show por corrección de elección; incluir entrenador
+  { path: 'update-inscripcionclase/:id', component: UpdateInscripcionclaseComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente', 'entrenador'] } },
 
   // Membresías
-  { path: 'view-membresia', component: ViewMembresiaComponent, canActivate: [AuthGuard]  },
-  { path: 'add-membresia', component: AddMembresiaComponent, canActivate: [AuthGuard]  },
-  { path: 'show-membresia/:id', component: ShowMembresiaComponent, canActivate: [AuthGuard]  },
-  { path: 'update-membresia/:id', component: UpdateMembresiaComponent, canActivate: [AuthGuard]  },
+  { path: 'view-membresia', component: ViewMembresiaComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente'] }  },
+  { path: 'add-membresia', component: AddMembresiaComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente'] }  },
+  { path: 'show-membresia/:id', component: ShowMembresiaComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente'] }  },
+  { path: 'update-membresia/:id', component: UpdateMembresiaComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
 
   // Métodos de Pago
-  { path: 'view-metodopago', component: ViewMetodopagoComponent, canActivate: [AuthGuard]  },
-  { path: 'add-metodopago', component: AddMetodoPagoComponent, canActivate: [AuthGuard]  },
-  { path: 'show-metodopago/:id', component: ShowMetodopagoComponent, canActivate: [AuthGuard]  },
-  { path: 'update-metodopago/:id', component: UpdateMetodopagoComponent, canActivate: [AuthGuard]  },
+  { path: 'view-metodopago', component: ViewMetodopagoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'add-metodopago', component: AddMetodoPagoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'show-metodopago/:id', component: ShowMetodopagoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
+  { path: 'update-metodopago/:id', component: UpdateMetodopagoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
 
   // Pagos
-  { path: 'view-pago', component: ViewPagoComponent, canActivate: [AuthGuard]  },
-  { path: 'add-pago', component: AddPagoComponent, canActivate: [AuthGuard]  },
-  { path: 'show-pago/:id', component: ShowPagoComponent, canActivate: [AuthGuard]  },
-  { path: 'update-pago/:id', component: UpdatePagoComponent, canActivate: [AuthGuard]  },
+  { path: 'view-pago', component: ViewPagoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente'] }  },
+  { path: 'add-pago', component: AddPagoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente'] }  },
+  { path: 'show-pago/:id', component: ShowPagoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin', 'cliente'] }  },
+  { path: 'update-pago/:id', component: UpdatePagoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] }  },
 
   // Ruta por defecto
   // Ruta por defecto - redirigir según el estado de autenticación

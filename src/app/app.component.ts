@@ -13,6 +13,9 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'gym-spa';
   public identity: any = null;
   public isMenuOpen = false;
+  public isAdmin = false;
+  public isClient = false;
+  public isTrainer = false;
   private identitySubscription!: Subscription;
   private routerSubscription!: Subscription;
   private inactivityTimer: any;
@@ -50,6 +53,10 @@ export class AppComponent implements OnInit, OnDestroy {
       identity => {
         this.identity = identity;
         console.log('Identity updated:', identity);
+        const role = this.authService.getCurrentUserRole();
+        this.isAdmin = role === 'admin';
+        this.isClient = role === 'cliente';
+  this.isTrainer = role === 'entrenador';
         const publicRoutes = ['/login', '/signup'];
         const currentRoute = this.router.url.split('?')[0].split('#')[0];
 

@@ -6,29 +6,29 @@
     </section>
 
     <section class="cards">
-        <!-- Gestión de Usuarios -->
-        <div class="card bg-users" routerLink="/view-users">
+                <!-- Gestión de Usuarios (solo admin) -->
+                <div class="card bg-users" routerLink="/view-users" *ngIf="isAdmin">
             <h3>Usuarios</h3>
             <p>Gestiona los usuarios registrados en el sistema.</p>
         </div>
         
-        <div class="card bg-telefonos" routerLink="/view-telefonousuario">
+                <div class="card bg-telefonos" routerLink="/view-telefonousuario" *ngIf="isAdmin">
             <h3>Teléfonos de usuarios</h3>
             <p>Agrega, edita o visualiza a los teléfonos de los usuarios disponibles.</p>
         </div>
         
-        <!-- Gestión de Equipos -->
-        <div class="card bg-equipos" routerLink="/view-equipo">
+                <!-- Gestión de Equipos (solo admin) -->
+                <div class="card bg-equipos" routerLink="/view-equipo" *ngIf="isAdmin">
             <h3>Equipos</h3>
             <p>Controla el inventario y estado del equipo de entrenamiento.</p>
         </div>
         
-        <div class="card bg-mantenimiento" routerLink="/view-mantenimiento">
+                <div class="card bg-mantenimiento" routerLink="/view-mantenimiento" *ngIf="isAdmin">
             <h3>Mantenimientos</h3>
             <p>Registra y monitorea los mantenimientos de máquinas.</p>
         </div>
         
-        <div class="card bg-detalle" routerLink="/view-detallemantenimiento">
+                <div class="card bg-detalle" routerLink="/view-detallemantenimiento" *ngIf="isAdmin">
             <h3>Detalles Mantenimiento</h3>
             <p>Gestiona los mantenimientos que se le realizan a los equipos del gimnasio, así como quién lo asignó.</p>
         </div>
@@ -45,17 +45,17 @@
         </div>
 
         <!-- Gestión de Membresías y Pagos -->
-        <div class="card bg-membresias" routerLink="/view-membresia">
+        <div class="card bg-membresias" routerLink="/view-membresia" *ngIf="isAdmin || isClient">
             <h3>Membresías</h3>
             <p>Administra los tipos de membresías, precios y beneficios disponibles.</p>
         </div>
 
-        <div class="card bg-metodospago" routerLink="/view-metodopago">
+                <div class="card bg-metodospago" routerLink="/view-metodopago" *ngIf="isAdmin">
             <h3>Métodos de Pago</h3>
             <p>Configura los diferentes métodos de pago aceptados en el gimnasio.</p>
         </div>
 
-        <div class="card bg-pagos" routerLink="/view-pago">
+        <div class="card bg-pagos" routerLink="/view-pago" *ngIf="isAdmin || isClient">
             <h3>Pagos</h3>
             <p>Registra y controla los pagos de membresías y servicios adicionales.</p>
         </div>

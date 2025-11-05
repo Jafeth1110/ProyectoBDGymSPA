@@ -13,6 +13,7 @@ export class InscripcionClase {
     },
     public entrenador?: {
       idEntrenador: number;
+      idUsuario?: number; // ID del usuario asociado al entrenador
       nombre: string;
       apellido: string;
       especialidad?: string;

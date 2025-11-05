@@ -59,7 +59,7 @@
           <button class="btn-icon btn-view" (click)="viewMembresia(parseInt(membresia.idMembresia))" title="Ver detalles">
             <span class="icon-text">👁</span>
           </button>
-          <button class="btn-icon btn-edit" (click)="editMembresia(parseInt(membresia.idMembresia))" title="Editar">
+          <button class="btn-icon btn-edit" (click)="editMembresia(parseInt(membresia.idMembresia))" title="Editar" *ngIf="!isClient">
             <span class="icon-text">✎</span>
           </button>
           <button class="btn-icon btn-delete" (click)="deleteMembresia(membresia)" title="Eliminar">
@@ -129,10 +129,10 @@
           <button class="btn-icon btn-view" (click)="viewMembresia(parseInt(plantilla.idMembresia))" title="Ver detalles">
             <span class="icon-text">👁</span>
           </button>
-          <button class="btn-icon btn-edit" (click)="editPlantilla(parseInt(plantilla.idMembresia))" title="Editar">
+          <button class="btn-icon btn-edit" (click)="editPlantilla(parseInt(plantilla.idMembresia))" title="Editar" *ngIf="!isClient">
             <span class="icon-text">✎</span>
           </button>
-          <button class="btn-icon btn-delete" (click)="deleteMembresia(plantilla)" title="Eliminar">
+          <button class="btn-icon btn-delete" (click)="deleteMembresia(plantilla)" title="Eliminar" *ngIf="!isClient">
             <span class="icon-text">×</span>
           </button>
         </div>

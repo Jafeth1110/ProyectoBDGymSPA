@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ClaseService } from '../../services/clase.service';
 import { Clase } from '../../models/clase';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-view-clase',
@@ -14,13 +15,18 @@ export class ViewClaseComponent implements OnInit {
   public isLoading: boolean = false;
   public searchTerm: string = '';
   public filteredClases: Clase[] = [];
+  public isClient: boolean = false;
+  public isTrainer: boolean = false;
 
   constructor(
     private _claseService: ClaseService,
-    private _router: Router
+    private _router: Router,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.isClient = this.auth.getCurrentUserRole() === 'cliente';
+    this.isTrainer = this.auth.getCurrentUserRole() === 'entrenador';
     this.loadClases();
   }
 
@@ -62,6 +68,7 @@ export class ViewClaseComponent implements OnInit {
   }
 
   addClase(): void {
+    if (this.isClient || this.isTrainer) { return; }
     this._router.navigate(['/add-clase']);
   }
 
@@ -70,10 +77,12 @@ export class ViewClaseComponent implements OnInit {
   }
 
   editClase(id: number): void {
+    if (this.isClient || this.isTrainer) { return; }
     this._router.navigate(['/update-clase', id]);
   }
 
   deleteClase(clase: Clase): void {
+    if (this.isClient || this.isTrainer) { return; }
     Swal.fire({
       title: '¿Estás seguro?',
       text: `¿Deseas eliminar la clase "${clase.nombre}"?`,

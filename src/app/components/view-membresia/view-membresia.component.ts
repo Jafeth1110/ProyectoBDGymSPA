@@ -4,6 +4,8 @@ import { MembresiaService } from '../../services/membresia.service';
 import { Membresia } from '../../models/membresia';
 import { MembresiaResponse } from '../../models/api-interfaces';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
+import { ClienteService } from '../../services/cliente.service';
 
 @Component({
   selector: 'app-view-membresia',
@@ -20,13 +22,24 @@ export class ViewMembresiaComponent implements OnInit {
   public filteredPlantillas: MembresiaResponse[] = [];
   public activeTab: 'clientes' | 'plantillas' = 'clientes';
   public Math = Math; // Para usar Math.abs en el template
+  public isClient: boolean = false;
+  private currentClienteId: number | null = null;
+  private currentUserEmail: string | null = null;
 
   constructor(
     private _membresiaService: MembresiaService,
-    private _router: Router
+    private _router: Router,
+    private auth: AuthService,
+    private _clienteService: ClienteService
   ) {}
 
   ngOnInit(): void {
+    this.isClient = this.auth.getCurrentUserRole() === 'cliente';
+    this.currentClienteId = this.auth.getCurrentClienteId();
+    this.currentUserEmail = this.auth.getCurrentUserEmail();
+    
+    console.log('Cliente info:', { isClient: this.isClient, email: this.currentUserEmail, idCliente: this.currentClienteId });
+    
     this.loadAllData();
   }
 
@@ -34,20 +47,39 @@ export class ViewMembresiaComponent implements OnInit {
     this.isLoading = true;
     this.isLoadingPlantillas = true;
     
+    // SIEMPRE traer todas las membresías, filtraremos en el frontend
     this._membresiaService.getMembresias().subscribe({
       next: (response: any) => {
+        console.log('Respuesta de membresías:', response);
+        
         if (response && response.data) {
           // Filtrar membresías de clientes: las que NO son plantillas y tienen idCliente
-          this.membresias = response.data.filter((m: any) => {
+          let membresiasFiltradas = response.data.filter((m: any) => {
             const esPlantilla = String(m.esPlantilla) === "1";
             return !esPlantilla && m.idCliente !== null && m.idCliente !== undefined && m.idCliente !== '';
           });
           
-          // Filtrar plantillas: las que SÍ son plantillas
+          // Si es cliente, filtrar por email del usuario actual
+          if (this.isClient && this.currentUserEmail) {
+            console.log('Filtrando membresías para cliente con email:', this.currentUserEmail);
+            membresiasFiltradas = membresiasFiltradas.filter((m: any) => {
+              const emailMembresia = m.cliente_email?.toLowerCase() || m.email?.toLowerCase();
+              const match = emailMembresia === this.currentUserEmail?.toLowerCase();
+              console.log('Comparando:', emailMembresia, 'con', this.currentUserEmail, '=', match);
+              return match;
+            });
+            console.log('Membresías filtradas para cliente:', membresiasFiltradas);
+          }
+          
+          this.membresias = membresiasFiltradas;
+          
+          // Filtrar plantillas: las que SÍ son plantillas (SIEMPRE se muestran)
           this.plantillas = response.data.filter((m: any) => {
             const esPlantilla = String(m.esPlantilla) === "1";
             return esPlantilla;
           });
+          
+          console.log('Plantillas encontradas:', this.plantillas.length);
           
           this.filteredMembresias = [...this.membresias];
           this.filteredPlantillas = [...this.plantillas];
@@ -121,10 +153,12 @@ export class ViewMembresiaComponent implements OnInit {
   }
 
   editMembresia(id: number): void {
+    if (this.isClient) { return; }
     this._router.navigate(['/update-membresia', id]);
   }
 
   editPlantilla(id: number): void {
+    if (this.isClient) { return; }
     this._router.navigate(['/update-membresia', id]);
   }
 

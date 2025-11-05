@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MembresiaService } from '../../services/membresia.service';
 import { MembresiaResponse } from '../../models/api-interfaces';
+import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -13,14 +14,18 @@ export class ShowMembresiaComponent implements OnInit {
   public membresia: MembresiaResponse | null = null;
   public isLoading: boolean = false;
   public Math = Math; // Para usar Math.abs en el template
+  public isClient: boolean = false;
 
   constructor(
     private _membresiaService: MembresiaService,
     private _route: ActivatedRoute,
-    private _router: Router
+    private _router: Router,
+    private _authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.isClient = this._authService.getCurrentUserRole() === 'cliente';
+    
     this._route.params.subscribe(params => {
       const id = params['id'];
       if (id) {

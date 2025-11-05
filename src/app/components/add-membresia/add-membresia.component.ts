@@ -4,6 +4,7 @@ import { MembresiaService } from '../../services/membresia.service';
 import { ClienteService } from '../../services/cliente.service';
 import { MembresiaFormData, PlantillaMembresiaFormData } from '../../models/api-interfaces';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-add-membresia',
@@ -21,14 +22,45 @@ export class AddMembresiaComponent {
   public isLoadingPlantillas: boolean = false;
   public tipoCreacion: string = 'cliente'; // 'cliente' o 'plantilla'
   public plantillaSeleccionada: any = null;
+  public isClient: boolean = false;
+  public currentClienteNombre: string = '';
 
   constructor(
     private _membresiaService: MembresiaService,
     private _clienteService: ClienteService,
-    private _router: Router
+    private _router: Router,
+    private auth: AuthService
   ) {
     this.resetFormData();
-    this.loadClientes();
+    this.isClient = this.auth.getCurrentUserRole() === 'cliente';
+    if (this.isClient) {
+      const idCliente = this.auth.getCurrentClienteId();
+      if (idCliente) {
+        this.formData.idCliente = idCliente;
+        const identity = this.auth.getCurrentUser();
+        if (identity?.nombre || identity?.apellido) {
+          this.currentClienteNombre = `${identity?.nombre || ''} ${identity?.apellido || ''}`.trim();
+        }
+      } else {
+        // Fallback: si no viene idCliente en la identidad, intentar obtenerlo por email
+        const email = this.auth.getCurrentUserEmail()?.toLowerCase();
+        if (email) {
+          this._clienteService.getClientes().subscribe({
+            next: (resp: any) => {
+              const lista = resp?.data || resp || [];
+              const match = (lista as any[]).find(c => (c.email || c?.user?.email || '').toLowerCase() === email);
+              if (match) {
+                this.formData.idCliente = match.idCliente || match?.cliente?.idCliente || 0;
+                this.currentClienteNombre = `${match?.nombre || match?.user?.nombre || ''} ${match?.apellido || match?.user?.apellido || ''}`.trim();
+              }
+            },
+            error: () => { /* noop */ }
+          });
+        }
+      }
+    } else {
+      this.loadClientes();
+    }
     this.loadPlantillas();
   }
 
@@ -156,10 +188,12 @@ export class AddMembresiaComponent {
   }
 
   onTipoCreacionChange(): void {
+    // Si es cliente, forzar a membresía para cliente
+    if (this.isClient) {
+      this.tipoCreacion = 'cliente';
+    }
     this.resetFormData();
     this.plantillaSeleccionada = null;
-    
-    // Configurar fecha de inicio automáticamente para membresías de cliente
     if (this.tipoCreacion === 'cliente') {
       const hoy = new Date();
       this.formData.fechaInicio = hoy.toISOString().split('T')[0];
@@ -198,29 +232,36 @@ export class AddMembresiaComponent {
       }
     } else if (this.tipoCreacion === 'cliente') {
       // Validaciones para membresía de cliente
-      if (this.plantillaSeleccionada) {
-        // Usando plantilla existente
+      if (this.isClient) {
+        // Para cliente: obligatorio usar plantilla y el cliente es el actual
         if (!this.formData.idCliente || this.formData.idCliente <= 0) {
-          this.showAlert('error', 'Debes seleccionar un cliente válido.');
+          this.showAlert('error', 'No se pudo identificar al cliente actual.');
+          return;
+        }
+        if (!this.plantillaSeleccionada) {
+          this.showAlert('error', 'Debes seleccionar una plantilla para crear tu membresía.');
           return;
         }
       } else {
-        // Creación manual
-        if (!this.formData.idCliente || this.formData.idCliente <= 0) {
-          this.showAlert('error', 'Debes seleccionar un cliente válido.');
-          return;
-        }
-
-        if (!this.formData.tipoMem || !this.formData.precio ||
-            !this.formData.fechaInicio || !this.formData.fechaVenc) {
-          this.showAlert('error', 'Debes completar todos los campos obligatorios.');
-          return;
-        }
-
-        // Validar que la fecha de vencimiento sea posterior a la de inicio
-        if (new Date(this.formData.fechaVenc) <= new Date(this.formData.fechaInicio)) {
-          this.showAlert('error', 'La fecha de vencimiento debe ser posterior a la fecha de inicio.');
-          return;
+        if (this.plantillaSeleccionada) {
+          if (!this.formData.idCliente || this.formData.idCliente <= 0) {
+            this.showAlert('error', 'Debes seleccionar un cliente válido.');
+            return;
+          }
+        } else {
+          if (!this.formData.idCliente || this.formData.idCliente <= 0) {
+            this.showAlert('error', 'Debes seleccionar un cliente válido.');
+            return;
+          }
+          if (!this.formData.tipoMem || !this.formData.precio ||
+              !this.formData.fechaInicio || !this.formData.fechaVenc) {
+            this.showAlert('error', 'Debes completar todos los campos obligatorios.');
+            return;
+          }
+          if (new Date(this.formData.fechaVenc) <= new Date(this.formData.fechaInicio)) {
+            this.showAlert('error', 'La fecha de vencimiento debe ser posterior a la fecha de inicio.');
+            return;
+          }
         }
       }
     }
@@ -238,6 +279,12 @@ export class AddMembresiaComponent {
     } else if (this.plantillaSeleccionada) {
       this.asignarMembresiaDesdeTemplate();
     } else {
+      if (this.isClient) {
+        // Cliente no puede crear manualmente
+        this.showAlert('error', 'Debes seleccionar una plantilla para crear tu membresía.');
+        this.isLoading = false;
+        return;
+      }
       this.crearMembresia();
     }
   }

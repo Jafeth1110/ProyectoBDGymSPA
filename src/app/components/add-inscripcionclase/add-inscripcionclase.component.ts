@@ -7,6 +7,7 @@ import { EntrenadorService } from '../../services/entrenador.service';
 import { InscripcionClase } from '../../models/inscripcionClase';
 import { InscripcionClaseFormData } from '../../models/api-interfaces';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-add-inscripcionclase',
@@ -20,19 +21,87 @@ export class AddInscripcionClaseComponent implements OnInit {
   public clases: any[] = [];
   public validationErrors: string[] = [];
   public isLoading: boolean = false;
+  public isClient: boolean = false;
+  public currentClienteNombre: string = '';
+  public isTrainer: boolean = false;
+  public currentEntrenadorNombre: string = '';
 
   constructor(
     private _inscripcionService: InscripcionClaseService,
     private _clienteService: ClienteService,
     private _entrenadorService: EntrenadorService,
     private _claseService: ClaseService,
-    private _router: Router
+    private _router: Router,
+    private auth: AuthService
   ) {
     this.resetInscripcion();
   }
 
   ngOnInit(): void {
-    this.loadClientes();
+    this.isClient = this.auth.getCurrentUserRole() === 'cliente';
+    this.isTrainer = this.auth.getCurrentUserRole() === 'entrenador';
+    if (this.isClient) {
+      const idCliente = this.auth.getCurrentClienteId();
+      if (idCliente) {
+        this.inscripcion.idCliente = idCliente;
+        // Mostrar el nombre del cliente en UI si existe
+        const identity = this.auth.getCurrentUser();
+        if (identity?.nombre || identity?.apellido) {
+          this.currentClienteNombre = `${identity?.nombre || ''} ${identity?.apellido || ''}`.trim();
+        } else if (identity?.cliente?.user) {
+          const u = identity.cliente.user;
+          this.currentClienteNombre = `${u?.nombre || ''} ${u?.apellido || ''}`.trim();
+        }
+      } else {
+        // Fallback: buscar su idCliente por email en la lista de clientes
+        const email = this.auth.getCurrentUserEmail()?.toLowerCase();
+        if (email) {
+          this._clienteService.getClientes().subscribe({
+            next: (resp: any) => {
+              const lista = resp?.data || resp || [];
+              const match = (lista as any[]).find(c => (c.email || c?.user?.email || '').toLowerCase() === email);
+              if (match) {
+                this.inscripcion.idCliente = match.idCliente || match?.cliente?.idCliente || 0;
+                this.currentClienteNombre = `${match?.nombre || match?.user?.nombre || ''} ${match?.apellido || match?.user?.apellido || ''}`.trim();
+              }
+            },
+            error: () => {}
+          });
+        }
+      }
+    } else {
+      this.loadClientes();
+    }
+    // Si es entrenador, fijar su idEntrenador y nombre (similar al cliente)
+    if (this.isTrainer) {
+      const idEnt = this.auth.getCurrentEntrenadorId();
+      if (idEnt) {
+        this.inscripcion.idEntrenador = idEnt;
+        const identity = this.auth.getCurrentUser();
+        if (identity?.nombre || identity?.apellido) {
+          this.currentEntrenadorNombre = `${identity?.nombre || ''} ${identity?.apellido || ''}`.trim();
+        } else if (identity?.entrenador?.user) {
+          const u = identity.entrenador.user;
+          this.currentEntrenadorNombre = `${u?.nombre || ''} ${u?.apellido || ''}`.trim();
+        }
+      } else {
+        // Fallback: buscar su idEntrenador por email
+        const email = this.auth.getCurrentUserEmail()?.toLowerCase();
+        if (email) {
+          this._entrenadorService.getEntrenadores().subscribe({
+            next: (resp: any) => {
+              const lista = resp?.data || resp || [];
+              const match = (lista as any[]).find(e => (e.email || e?.user?.email || '').toLowerCase() === email);
+              if (match) {
+                this.inscripcion.idEntrenador = match.idEntrenador || match?.entrenador?.idEntrenador || 0;
+                this.currentEntrenadorNombre = `${match?.user?.nombre || match?.nombre || ''} ${match?.user?.apellido || match?.apellido || ''}`.trim();
+              }
+            },
+            error: () => {}
+          });
+        }
+      }
+    }
     this.loadEntrenadores();
     this.loadClases();
   }
@@ -64,6 +133,17 @@ export class AddInscripcionClaseComponent implements OnInit {
           this.entrenadores = (response.data as any[]).map(this.normalizeEntrenador);
         } else if (Array.isArray(response)) {
           this.entrenadores = (response as any[]).map(this.normalizeEntrenador);
+        }
+        // Si es entrenador y aún no está seteado el id, intentar por email en la lista cargada
+        if (this.isTrainer && (!this.inscripcion.idEntrenador || this.inscripcion.idEntrenador === 0)) {
+          const email = this.auth.getCurrentUserEmail()?.toLowerCase();
+          if (email) {
+            const match = this.entrenadores.find(e => (e?.user?.email || '').toLowerCase() === email || (e.email || '').toLowerCase() === email);
+            if (match) {
+              this.inscripcion.idEntrenador = match.idEntrenador;
+              this.currentEntrenadorNombre = `${match?.user?.nombre || match?.nombre || ''} ${match?.user?.apellido || match?.apellido || ''}`.trim();
+            }
+          }
         }
         // Fallback: si no hay entrenadores por error backend, intentar derivarlos desde clases
         if (!this.entrenadores || this.entrenadores.length === 0) {

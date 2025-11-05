@@ -12,7 +12,7 @@
       <h2 class="mb-4 text-center">Inscribir Cliente a Clase</h2>
       <form #inscripcionForm="ngForm" (ngSubmit)="onSubmit(inscripcionForm)">
         
-        <div class="form-group">
+        <div class="form-group" *ngIf="!isClient">
           <label for="cliente">Cliente</label>
           <select [(ngModel)]="inscripcion.idCliente" name="cliente" id="cliente" required>
             <option value="" disabled>Selecciona un cliente</option>
@@ -22,8 +22,13 @@
           </select>
           <small class="form-text" *ngIf="clientes.length === 0">No hay clientes disponibles</small>
         </div>
+
+        <div class="form-group" *ngIf="isClient">
+          <label>Cliente</label>
+          <div class="readonly-box">{{ currentClienteNombre || 'Cliente actual' }}</div>
+        </div>
         
-        <div class="form-group">
+        <div class="form-group" *ngIf="!isTrainer">
           <label for="entrenador">Entrenador</label>
           <select [(ngModel)]="inscripcion.idEntrenador" name="entrenador" id="entrenador" required>
             <option value="" disabled>Selecciona un entrenador</option>
@@ -32,6 +37,11 @@
             </option>
           </select>
           <small class="form-text" *ngIf="entrenadores.length === 0">No hay entrenadores disponibles</small>
+        </div>
+
+        <div class="form-group" *ngIf="isTrainer">
+          <label>Entrenador</label>
+          <div class="readonly-box">{{ currentEntrenadorNombre || 'Entrenador actual' }}</div>
         </div>
 
         <div class="form-group">

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PagoService } from '../../services/pago.service';
 import { Pago } from '../../models/pago';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-show-pago',
@@ -12,14 +13,17 @@ import Swal from 'sweetalert2';
 export class ShowPagoComponent implements OnInit {
   public pago: Pago | null = null;
   public isLoading: boolean = false;
+  public isClient: boolean = false;
 
   constructor(
     private _pagoService: PagoService,
     private _route: ActivatedRoute,
-    private _router: Router
+    private _router: Router,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.isClient = this.auth.getCurrentUserRole() === 'cliente';
     this._route.params.subscribe(params => {
       const id = params['id'];
       if (id) {

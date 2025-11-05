@@ -10,7 +10,8 @@ import {
   LoginResponse, 
   UserRegistrationData, 
   ApiResponse, 
-  UserResponse 
+  UserResponse,
+  ROLES
 } from '../models/api-interfaces';
 
 @Injectable({
@@ -203,27 +204,108 @@ export class AuthService {
     return this.getIdentity();
   }
 
+  /**
+   * Devuelve el rol del usuario actual normalizado como clave en minúsculas
+   * Posibles valores: 'admin' | 'cliente' | 'entrenador'
+   */
   getCurrentUserRole(): string | null {
     const identity = this.getCurrentUser();
-    return identity?.rol || identity?.role || null;
+    if (!identity) return null;
+
+    // 1) Intentar por idRol directo en identidad
+    const rawId: any = identity.idRol ?? identity?.rol?.idRol ?? identity?.id_rol ?? identity?.rolId ?? identity?.roleId;
+    const idRol = typeof rawId === 'string' ? parseInt(rawId, 10) : rawId;
+    if (typeof idRol === 'number' && !isNaN(idRol)) {
+      switch (idRol) {
+        case ROLES.ADMIN: return 'admin';
+        case ROLES.CLIENTE: return 'cliente';
+        case ROLES.ENTRENADOR: return 'entrenador';
+      }
+    }
+
+    // 2) Intentar por nombre del rol en objeto rol
+    const nombreRol: string | undefined = identity?.rol?.nombreRol || identity?.rol?.nombre || identity?.role || identity?.Rol || identity?.Role;
+    if (typeof nombreRol === 'string') {
+      const v = nombreRol.toLowerCase();
+      if (['admin', 'administrator', 'administrador'].includes(v)) return 'admin';
+      if (['cliente', 'client', 'user', 'usuario'].includes(v)) return 'cliente';
+      if (['entrenador', 'coach', 'trainer'].includes(v)) return 'entrenador';
+    }
+
+    // 3) rol como string directo (ej: identity.rol = 'admin')
+    if (typeof identity?.rol === 'string') {
+      const v = identity.rol.toLowerCase();
+      if (['admin', 'administrator', 'administrador'].includes(v)) return 'admin';
+      if (['cliente', 'client', 'user', 'usuario'].includes(v)) return 'cliente';
+      if (['entrenador', 'coach', 'trainer'].includes(v)) return 'entrenador';
+    }
+
+    return null;
+  }
+
+  /**
+   * Id numérico del rol actual (1=ADMIN, 2=CLIENTE, 3=ENTRENADOR)
+   */
+  getCurrentUserRoleId(): number | null {
+    const identity = this.getCurrentUser();
+    if (!identity) return null;
+    const raw1 = identity.idRol ?? identity?.rol?.idRol ?? identity?.id_rol ?? identity?.rolId ?? identity?.roleId;
+    const id = typeof raw1 === 'string' ? parseInt(raw1, 10) : raw1;
+    if (typeof id === 'number' && !isNaN(id)) return id;
+
+    // Derivar por nombre si no hay id
+    const role = this.getCurrentUserRole();
+    if (role === 'admin') return ROLES.ADMIN;
+    if (role === 'cliente') return ROLES.CLIENTE;
+    if (role === 'entrenador') return ROLES.ENTRENADOR;
+    return null;
+  }
+
+  /**
+   * Nombre legible del rol (Administrador, Cliente, Entrenador)
+   */
+  getCurrentUserRoleName(): string | null {
+    const identity = this.getCurrentUser();
+    if (!identity) return null;
+    // Preferir nombre del backend si viene
+    const nombre = identity?.rol?.nombreRol || identity?.rol?.nombre;
+    if (typeof nombre === 'string' && nombre.trim()) return nombre;
+    // Mapear por id si existe
+    const id = this.getCurrentUserRoleId();
+    if (id === ROLES.ADMIN) return 'Administrador';
+    if (id === ROLES.CLIENTE) return 'Cliente';
+    if (id === ROLES.ENTRENADOR) return 'Entrenador';
+    // Por clave normalizada
+    const key = this.getCurrentUserRole();
+    if (key === 'admin') return 'Administrador';
+    if (key === 'cliente') return 'Cliente';
+    if (key === 'entrenador') return 'Entrenador';
+    return null;
   }
 
   isCurrentUserAdmin(): boolean {
-    const role = this.getCurrentUserRole();
-    console.log('🔍 Verificando rol del usuario:', role);
-    
-    // Verificar múltiples variaciones posibles del rol admin
-    const adminRoles = ['admin', 'administrator', 'administrador'];
-    const isAdmin = adminRoles.includes(role?.toLowerCase() || '');
-    
-    console.log('🔍 ¿Es admin?', isAdmin);
-    
-    return isAdmin;
+    const roleKey = this.getCurrentUserRole();
+    const roleId = this.getCurrentUserRoleId();
+    const roleName = this.getCurrentUserRoleName()?.toLowerCase();
+
+    const isAdmin = roleId === ROLES.ADMIN 
+      || roleKey === 'admin' 
+      || (roleName ? ['admin', 'administrador', 'administrator'].includes(roleName) : false);
+
+    return !!isAdmin;
   }
 
   getCurrentUserId(): number | null {
     const identity = this.getCurrentUser();
-    return identity?.idUsuario || identity?.id || null;
+    return identity?.idUsuario || identity?.id || identity?.sub || null;
+  }
+
+  /**
+   * Obtiene el sub del JWT (idUsuario del backend)
+   */
+  getCurrentUserSub(): number | null {
+    const identity = this.getCurrentUser();
+    return identity?.sub || identity?.idUsuario || identity?.id || null;
   }
 
   getCurrentUserEmail(): string | null {
@@ -237,5 +319,28 @@ export class AuthService {
       return `${identity.nombre} ${identity.apellido}`;
     }
     return identity?.name || null;
+  }
+
+  /**
+   * Devuelve el idCliente del usuario actual si es cliente, o null si no aplica
+   */
+  getCurrentClienteId(): number | null {
+    const identity = this.getCurrentUser();
+    if (!identity) return null;
+    if (typeof identity?.cliente?.idCliente === 'number') return identity.cliente.idCliente;
+    // Algunos endpoints entregan aplanado
+    if (typeof identity?.idCliente === 'number') return identity.idCliente;
+    return null;
+  }
+
+  /**
+   * Devuelve el idEntrenador del usuario actual si es entrenador, o null si no aplica
+   */
+  getCurrentEntrenadorId(): number | null {
+    const identity = this.getCurrentUser();
+    if (!identity) return null;
+    if (typeof identity?.entrenador?.idEntrenador === 'number') return identity.entrenador.idEntrenador;
+    if (typeof identity?.idEntrenador === 'number') return identity.idEntrenador;
+    return null;
   }
 }

@@ -24,20 +24,29 @@
           <!-- Cliente -->
           <div class="form-group">
             <label class="form-label">Cliente <span class="required">*</span></label>
-            <select 
+            <ng-container *ngIf="!isClient">
+              <select 
+                class="form-control" 
+                name="idCliente" 
+                [(ngModel)]="inscripcion.idCliente"
+                #idCliente="ngModel"
+                required>
+                <option value="">Seleccionar cliente...</option>
+                <option *ngFor="let cliente of clientes" [value]="cliente.idCliente">
+                  {{ cliente.user?.nombre }} {{ cliente.user?.apellido }}
+                </option>
+              </select>
+              <div *ngIf="idCliente.invalid && (idCliente.touched || idCliente.dirty)" class="error-message">
+                Debe seleccionar un cliente.
+              </div>
+            </ng-container>
+            <input 
+              *ngIf="isClient"
+              type="text" 
               class="form-control" 
-              name="idCliente" 
-              [(ngModel)]="inscripcion.idCliente"
-              #idCliente="ngModel"
-              required>
-              <option value="">Seleccionar cliente...</option>
-              <option *ngFor="let cliente of clientes" [value]="cliente.idCliente">
-                {{ cliente.user?.nombre }} {{ cliente.user?.apellido }}
-              </option>
-            </select>
-            <div *ngIf="idCliente.invalid && (idCliente.touched || idCliente.dirty)" class="error-message">
-              Debe seleccionar un cliente.
-            </div>
+              [value]="inscripcion.getNombreCliente() || 'Cliente actual'"
+              disabled
+              readonly>
           </div>
 
           <!-- Entrenador -->

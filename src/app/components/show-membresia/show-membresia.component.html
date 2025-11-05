@@ -2,8 +2,8 @@
   <div class="card">
     <div class="card-header">
       <h2>{{ esPlantilla() ? 'Detalles de la Plantilla' : 'Detalles de la Membresía' }}</h2>
-      <div class="actions">
-        <button class="btn-primary" (click)="editMembresia()">
+      <div class="actions" *ngIf="!isClient || !esPlantilla()">
+        <button class="btn-primary" (click)="editMembresia()" *ngIf="!isClient">
           Editar
         </button>
         <button class="btn-danger" (click)="deleteMembresia()">

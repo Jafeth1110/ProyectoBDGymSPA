@@ -2,9 +2,9 @@
   <!-- Card principal -->
   <div class="card">
     <div class="card-header">
-      <h1>Gestión de Pagos</h1>
+      <h1>{{ isClient ? 'Mis Pagos' : 'Gestión de Pagos' }}</h1>
       <button class="btn btn-primary" (click)="addPago()">
-        + Nuevo Pago
+        + {{ isClient ? 'Registrar Pago' : 'Nuevo Pago' }}
       </button>
     </div>
 
@@ -22,9 +22,9 @@
           class="filter-select"
           [(ngModel)]="selectedTipoPago" 
           (change)="onTipoPagoChange()">
-          <option value="">Todos los tipos</option>
-          <option value="membresia">Ingresos (Membresías)</option>
-          <option value="mantenimiento">Gastos (Mantenimientos)</option>
+          <option value="">{{ isClient ? 'Mis pagos' : 'Todos los tipos' }}</option>
+          <option value="membresia">{{ isClient ? 'Gastos (Membresías)' : 'Ingresos (Membresías)' }}</option>
+          <option *ngIf="!isClient" value="mantenimiento">Gastos (Mantenimientos)</option>
         </select>
         
         <button 
@@ -66,14 +66,14 @@
 
       <!-- Grid de pagos -->
       <div *ngIf="!isLoading && filteredPagos.length > 0" class="pagos-grid">
-        <div class="pago-card" *ngFor="let pago of filteredPagos" [class]="pago.getTipoClass()">
+        <div class="pago-card" *ngFor="let pago of filteredPagos" [class]="getCardTipoClass(pago)">
           <div class="card-header">
-            <h3>{{ pago.getMontoFormateado() }}</h3>
+            <h3>{{ getMontoFormateadoUsuario(pago) }}</h3>
             <div class="badge-container">
               <span 
                 class="badge"
-                [class]="pago.esPagoMembresia() ? 'badge-success' : 'badge-warning'">
-                {{ pago.getTipoIcono() }} {{ pago.esPagoMembresia() ? 'Ingreso' : 'Gasto' }}
+                [class]="getTipoBadgeClass(pago)">
+                {{ pago.getTipoIcono() }} {{ getTipoBadgeLabel(pago) }}
               </span>
               <span 
                 class="badge"
@@ -162,10 +162,10 @@
               <button class="btn-icon btn-view" (click)="viewPago(pago.idPago)" title="Ver detalles">
                 <span class="icon-text">👁</span>
               </button>
-              <button class="btn-icon btn-edit" (click)="editPago(pago.idPago)" title="Editar">
+              <button *ngIf="!isClient" class="btn-icon btn-edit" (click)="editPago(pago.idPago)" title="Editar">
                 <span class="icon-text">✏️</span>
               </button>
-              <button class="btn-icon btn-delete" (click)="deletePago(pago)" title="Eliminar">
+              <button *ngIf="!isClient" class="btn-icon btn-delete" (click)="deletePago(pago)" title="Eliminar">
                 <span class="icon-text">🗑️</span>
               </button>
             </div>

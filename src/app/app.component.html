@@ -11,16 +11,21 @@
     <!-- Visible solo si hay sesión iniciada -->
     <ng-container *ngIf="identity">
       <a routerLink="/home" routerLinkActive="active" (click)="closeMenu()">Inicio</a>
-      <a routerLink="/view-users" routerLinkActive="active" (click)="closeMenu()">Usuarios</a>
-      <a routerLink="/view-telefonousuario" routerLinkActive="active" (click)="closeMenu()">Teléfonos</a>
-      <a routerLink="/view-equipo" routerLinkActive="active" (click)="closeMenu()">Equipos</a>
-      <a routerLink="/view-mantenimiento" routerLinkActive="active" (click)="closeMenu()">Mantenimiento</a>
-      <a routerLink="/view-detallemantenimiento" routerLinkActive="active" (click)="closeMenu()">Detalle Mantenimiento</a>
+
+      <!-- Secciones solo para Admin -->
+      <a *ngIf="isAdmin" routerLink="/view-users" routerLinkActive="active" (click)="closeMenu()">Usuarios</a>
+      <a *ngIf="isAdmin" routerLink="/view-telefonousuario" routerLinkActive="active" (click)="closeMenu()">Teléfonos</a>
+      <a *ngIf="isAdmin" routerLink="/view-equipo" routerLinkActive="active" (click)="closeMenu()">Equipos</a>
+      <a *ngIf="isAdmin" routerLink="/view-mantenimiento" routerLinkActive="active" (click)="closeMenu()">Mantenimiento</a>
+      <a *ngIf="isAdmin" routerLink="/view-detallemantenimiento" routerLinkActive="active" (click)="closeMenu()">Detalle Mantenimiento</a>
+      <a *ngIf="isAdmin" routerLink="/view-metodopago" routerLinkActive="active" (click)="closeMenu()">Métodos Pago</a>
+
+      <!-- Secciones visibles para todos los roles autenticados -->
       <a routerLink="/view-clase" routerLinkActive="active" (click)="closeMenu()">Clases</a>
       <a routerLink="/view-inscripcionclase" routerLinkActive="active" (click)="closeMenu()">Inscripciones</a>
-      <a routerLink="/view-membresia" routerLinkActive="active" (click)="closeMenu()">Membresías</a>
-      <a routerLink="/view-metodopago" routerLinkActive="active" (click)="closeMenu()">Métodos Pago</a>
-      <a routerLink="/view-pago" routerLinkActive="active" (click)="closeMenu()">Pagos</a>
+      <!-- Solo Admin y Cliente -->
+      <a *ngIf="isAdmin || isClient" routerLink="/view-membresia" routerLinkActive="active" (click)="closeMenu()">Membresías</a>
+      <a *ngIf="isAdmin || isClient" routerLink="/view-pago" routerLinkActive="active" (click)="closeMenu()">Pagos</a>
     </ng-container>
   </nav>
 

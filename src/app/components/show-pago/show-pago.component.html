@@ -3,10 +3,10 @@
     <div class="card-header" [class]="pago.esPagoMembresia() ? 'card-header-income' : 'card-header-expense'">
       <h2>Detalles del Pago</h2>
       <div class="actions">
-        <button class="btn-primary" (click)="editPago()">
+        <button class="btn-primary" (click)="editPago()" *ngIf="!isClient">
           <i class="icon">✏️</i> Editar
         </button>
-        <button class="btn-danger" (click)="deletePago()">
+        <button class="btn-danger" (click)="deletePago()" *ngIf="!isClient">
           <i class="icon">🗑️</i> Eliminar
         </button>
       </div>
