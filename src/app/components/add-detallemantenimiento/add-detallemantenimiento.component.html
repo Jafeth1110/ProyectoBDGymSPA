@@ -127,10 +127,10 @@
         </div>
 
         <!-- Validation Errors -->
-        <div *ngIf="(validationErrors?.length ?? 0) > 0" class="error-alert">
+        <div *ngIf="validationErrors.length > 0" class="error-alert">
           <h6><span class="icon">⚠️</span> Errores de validación:</h6>
           <ul>
-            <li *ngFor="let err of (validationErrors || [])">{{ err }}</li>
+            <li *ngFor="let err of validationErrors">{{ err }}</li>
           </ul>
         </div>
       </div>
