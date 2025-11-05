@@ -56,9 +56,9 @@
       </button>
     </form>
 
-    <div *ngIf="(validationErrors?.length ?? 0) > 0" class="alert alert-danger mt-3">
+    <div *ngIf="validationErrors.length > 0" class="alert alert-danger mt-3">
       <ul>
-        <li *ngFor="let err of (validationErrors || [])">{{ err }}</li>
+        <li *ngFor="let err of validationErrors">{{ err }}</li>
       </ul>
     </div>
 
