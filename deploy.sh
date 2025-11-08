@@ -101,12 +101,12 @@ selectNodeVersion () {
 # 2. Install npm packages
 cd "$DEPLOYMENT_SOURCE"
 echo "Installing npm packages..."
-eval $NPM_CMD install --production
+npm install --production
 exitWithMessageOnError "npm install failed"
 
 # 3. Build Angular app
 echo "Building Angular application..."
-eval $NPM_CMD run build -- --configuration production
+npm run build -- --configuration production
 exitWithMessageOnError "Angular build failed"
 
 # 4. KuduSync
