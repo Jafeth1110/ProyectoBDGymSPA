@@ -112,7 +112,13 @@ exitWithMessageOnError "Angular build failed"
 # 4. KuduSync
 echo "Copying files to deployment target..."
 if [[ "$IN_PLACE_DEPLOYMENT" -ne "1" ]]; then
-  "$KUDU_SYNC_CMD" -v 50 -f "$DEPLOYMENT_SOURCE/dist/gym-spa" -t "$DEPLOYMENT_TARGET" -n "$NEXT_MANIFEST_PATH" -p "$PREVIOUS_MANIFEST_PATH" -i ".git;.hg;.deployment;deploy.sh"
+  # Install kudu sync if not available
+  if ! command -v kudusync &> /dev/null; then
+    echo "Installing kudusync..."
+    npm install -g kudusync
+  fi
+  
+  kudusync -v 50 -f "$DEPLOYMENT_SOURCE/dist/gym-spa" -t "$DEPLOYMENT_TARGET" -n "$NEXT_MANIFEST_PATH" -p "$PREVIOUS_MANIFEST_PATH" -i ".git;.hg;.deployment;deploy.sh"
   exitWithMessageOnError "Kudu Sync failed"
 fi
 
