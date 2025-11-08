@@ -1,3 +1,3 @@
 export const server={
-    url:'http://127.0.0.1:8000/api/v1/' //raiz de la api
+    url:'https://dbgymproyect-dgbhg9fhanawbmdc.eastus2-01.azurewebsites.net/api/v1/' //raiz de la api
 }
