@@ -101,7 +101,7 @@ selectNodeVersion () {
 # 2. Install npm packages
 cd "$DEPLOYMENT_SOURCE"
 echo "Installing npm packages..."
-npm install --production
+npm install
 exitWithMessageOnError "npm install failed"
 
 # 3. Build Angular app
