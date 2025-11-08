@@ -109,17 +109,18 @@ echo "Building Angular application..."
 npm run build -- --configuration production
 exitWithMessageOnError "Angular build failed"
 
-# 4. KuduSync
+# 4. Copy files to deployment target
 echo "Copying files to deployment target..."
 if [[ "$IN_PLACE_DEPLOYMENT" -ne "1" ]]; then
-  # Install kudu sync if not available
-  if ! command -v kudusync &> /dev/null; then
-    echo "Installing kudusync..."
-    npm install -g kudusync
-  fi
+  # Create deployment target directory if it doesn't exist
+  mkdir -p "$DEPLOYMENT_TARGET"
   
-  kudusync -v 50 -f "$DEPLOYMENT_SOURCE/dist/gym-spa" -t "$DEPLOYMENT_TARGET" -n "$NEXT_MANIFEST_PATH" -p "$PREVIOUS_MANIFEST_PATH" -i ".git;.hg;.deployment;deploy.sh"
-  exitWithMessageOnError "Kudu Sync failed"
+  # Copy all files from dist/gym-spa to deployment target
+  echo "Copying from $DEPLOYMENT_SOURCE/dist/gym-spa to $DEPLOYMENT_TARGET"
+  cp -rf "$DEPLOYMENT_SOURCE/dist/gym-spa/"* "$DEPLOYMENT_TARGET/"
+  exitWithMessageOnError "File copy failed"
+  
+  echo "Files copied successfully"
 fi
 
 ##################################################################################################################################
