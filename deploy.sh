@@ -120,6 +120,14 @@ if [[ "$IN_PLACE_DEPLOYMENT" -ne "1" ]]; then
   cp -rf "$DEPLOYMENT_SOURCE/dist/gym-spa/"* "$DEPLOYMENT_TARGET/"
   exitWithMessageOnError "File copy failed"
   
+  # Copy server package.json and install dependencies for serving
+  echo "Setting up server dependencies..."
+  cp "$DEPLOYMENT_SOURCE/server-package.json" "$DEPLOYMENT_TARGET/package.json"
+  cp "$DEPLOYMENT_SOURCE/ecosystem.config.js" "$DEPLOYMENT_TARGET/"
+  cd "$DEPLOYMENT_TARGET"
+  npm install --production
+  exitWithMessageOnError "Server npm install failed"
+  
   echo "Files copied successfully"
 fi
 

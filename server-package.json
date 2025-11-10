@@ -1,0 +1,14 @@
+{
+  "name": "gym-spa-frontend",
+  "version": "1.0.0",
+  "description": "Frontend Angular para Gym SPA",
+  "scripts": {
+    "start": "pm2-runtime serve /home/site/wwwroot --spa --port 8080"
+  },
+  "dependencies": {
+    "pm2": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

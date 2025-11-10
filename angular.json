@@ -27,7 +27,9 @@
               "src/favicon.ico",
               "src/assets",
               "src/web.config",
-              "src/staticwebapp.config.json"
+              "src/staticwebapp.config.json",
+              "ecosystem.config.js",
+              "startup.sh"
             ],
             "styles": [
               "src/styles.css"
